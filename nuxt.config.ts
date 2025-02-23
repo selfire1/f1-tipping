@@ -73,5 +73,6 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxtjs/tailwindcss", "@nuxt/icon", "@nuxt/image", "@nuxtjs/seo", "@nuxt/ui"],
+  modules: ["@nuxt/icon", "@nuxt/image", "@nuxtjs/seo", "@nuxt/ui"],
 });
+
