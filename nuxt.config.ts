@@ -20,6 +20,11 @@ export default defineNuxtConfig({
     defaultLocale: "en-au",
     indexable: false, // TODO: Mark as indexable
   },
+  fonts: {
+    defaults: {
+      weights: ["400", "500", "600"],
+    },
+  },
   // seo
   ogImage: {
     enabled: false,
@@ -73,6 +78,12 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxt/icon", "@nuxt/image", "@nuxtjs/seo", "@nuxt/ui"],
+  modules: [
+    "@nuxt/icon",
+    "@nuxt/image",
+    "@nuxtjs/seo",
+    "@nuxt/ui",
+    "@nuxt/fonts",
+  ],
 });
 

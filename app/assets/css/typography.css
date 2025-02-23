@@ -12,6 +12,7 @@
 
 body {
   @apply is-size-6;
+  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
 @layer components {

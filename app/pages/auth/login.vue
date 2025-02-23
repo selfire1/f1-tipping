@@ -1,5 +1,6 @@
 <script setup lang="ts"></script>
 
 <template lang="pug">
-NuxtLayout
+pre TODO
+//- TODO: login logic
 </template>
