@@ -1,3 +1,16 @@
 body {
   @apply text-primary-400;
 }
+
+:root {
+  --clr-team-alpine: rgb(0, 147, 204);
+  --clr-team-aston_martin: rgb(34, 153, 113);
+  --clr-team-ferrari: rgb(232, 0, 32);
+  --clr-team-haas: rgb(182, 186, 189);
+  --clr-team-mclaren: rgb(255, 128, 0);
+  --clr-team-mercedes: rgb(39, 244, 210);
+  --clr-team-rb: rgb(102, 146, 255);
+  --clr-team-red_bull: rgb(54, 113, 198);
+  --clr-team-sauber: rgb(0, 0, 0);
+  --clr-team-williams: rgb(100, 196, 255);
+}
