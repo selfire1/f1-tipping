@@ -7,6 +7,12 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: false },
+  runtimeConfig: {
+    turso: {
+      databaseUrl: "",
+      authToken: "",
+    },
+  },
   future: {
     compatibilityVersion: 4,
   },
@@ -39,6 +45,11 @@ export default defineNuxtConfig({
     // seo utils
     enabled: true,
   },
+  routeRules: {
+    "/tipping/*": {
+      ssr: false,
+    },
+  },
   schemaOrg: {
     enabled: false,
   },
@@ -60,7 +71,7 @@ export default defineNuxtConfig({
         },
       ],
       link: [
-        { rel: "manifest", href: "/site.webmanifest" },
+        // { rel: "manifest", href: "/site.webmanifest" },
         { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
         {
           rel: "icon",
@@ -86,4 +97,3 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
   ],
 });
-

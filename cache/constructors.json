@@ -1,0 +1,52 @@
+[
+  {
+    "id": "alpine",
+    "name": "Alpine F1 Team",
+    "nationality": "French"
+  },
+  {
+    "id": "aston_martin",
+    "name": "Aston Martin",
+    "nationality": "British"
+  },
+  {
+    "id": "ferrari",
+    "name": "Ferrari",
+    "nationality": "Italian"
+  },
+  {
+    "id": "haas",
+    "name": "Haas F1 Team",
+    "nationality": "American"
+  },
+  {
+    "id": "mclaren",
+    "name": "McLaren",
+    "nationality": "British"
+  },
+  {
+    "id": "mercedes",
+    "name": "Mercedes",
+    "nationality": "German"
+  },
+  {
+    "id": "rb",
+    "name": "RB F1 Team",
+    "nationality": "Italian"
+  },
+  {
+    "id": "red_bull",
+    "name": "Red Bull",
+    "nationality": "Austrian"
+  },
+  {
+    "id": "sauber",
+    "name": "Sauber",
+    "nationality": "Swiss"
+  },
+  {
+    "id": "williams",
+    "name": "Williams",
+    "nationality": "British"
+  }
+]
