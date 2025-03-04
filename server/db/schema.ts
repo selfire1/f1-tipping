@@ -1,7 +1,8 @@
-import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+// import { sql } from "drizzle-orm";
+import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createId } from "@paralleldrive/cuid2";
 
 export const groupsTable = sqliteTable("groups", {
-  id: integer("id").primaryKey(),
+  id: text("id").primaryKey().$defaultFn(createId),
   name: text("name").notNull(),
 });
