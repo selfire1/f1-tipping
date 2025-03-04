@@ -1,8 +1,10 @@
-import { authClient as client } from "~~/lib/auth-client";
+import { createAuthClient } from "better-auth/vue";
 
 export const useAuth = () => {
+  const client = createAuthClient();
   return {
     authClient: client,
     isSignedIn: computed(() => client.useSession().value?.data),
+    getUser: async () => (await client.useSession(useFetch)).data.value?.user,
   };
 };
