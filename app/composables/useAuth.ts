@@ -5,6 +5,13 @@ export const useAuth = () => {
   return {
     authClient: client,
     isSignedIn: computed(() => client.useSession().value?.data),
-    getUser: async () => (await client.useSession(useFetch)).data.value?.user,
+  };
+};
+
+export const useAuthUser = async () => {
+  const { authClient } = useAuth();
+
+  return {
+    user: (await authClient.useSession(useFetch)).data.value?.user,
   };
 };

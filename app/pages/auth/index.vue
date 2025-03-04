@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import TextHero from "~/components/TextHero.vue";
+
 const { authClient } = useAuth();
 const toast = useToast();
 async function signInWithGoogle() {
@@ -41,9 +43,7 @@ onMounted(() => {
   .is-container.flex
     UCard.mx-auto.max-w-prose.text-center
       .space-y-8
-        .space-y-2
-          h1.is-display-4 Get started
-          p.text-muted.text-pretty Whether you already have started tipping with GridTipp, or are creating a new account, sign in with Google to get started.
+        TextHero(heading="Get started" description="Whether you already have started tipping with GridTipp, or are creating a new account, sign in with Google to get started." :level="1")
         div
           UButton(@click="signInWithGoogle" size="lg")
             img.w-6.h-6(src='https://www.svgrepo.com/show/475656/google-color.svg', loading='lazy', alt='google logo')

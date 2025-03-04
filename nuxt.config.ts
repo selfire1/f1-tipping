@@ -49,6 +49,9 @@ export default defineNuxtConfig({
     "/tipping/*": {
       ssr: false,
     },
+    "/auth/*": {
+      ssr: false,
+    },
   },
   schemaOrg: {
     enabled: false,

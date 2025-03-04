@@ -7,6 +7,7 @@ export const db = drizzle({
     url: process.env.NUXT_TURSO_DATABASE_URL || "",
     authToken: process.env.NUXT_TURSO_AUTH_TOKEN || "",
   },
+  casing: "snake_case",
   schema: {
     ...schema,
     ...authSchema,
