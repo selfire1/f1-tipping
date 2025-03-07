@@ -3,10 +3,11 @@ import TextHero from "~/components/TextHero.vue";
 
 const { authClient } = useAuth();
 const toast = useToast();
+const { query } = useRoute();
 async function signInWithGoogle() {
   const data = await authClient.signIn.social({
     provider: "google",
-    callbackURL: "/tipping",
+    callbackURL: (query?.redirect as string | undefined) || "/tipping",
   });
   if (data.error) {
     toast.add({
@@ -19,7 +20,6 @@ async function signInWithGoogle() {
   await navigateTo("/tipping");
 }
 
-const { query } = useRoute();
 const router = useRouter();
 onMounted(() => {
   if (query.origin === QueryOrigin.NotAllowed) {
@@ -36,6 +36,15 @@ onMounted(() => {
     });
   }
 });
+
+const description = (() => {
+  switch (query.origin) {
+    case QueryOrigin.Join:
+      return "Please sign in or create an account first before joining this group.";
+    default:
+      "Whether you already have started tipping with GridTipp, or are creating a new account, sign in with Google to get started.";
+  }
+})();
 </script>
 
 <template lang="pug">
@@ -43,7 +52,7 @@ onMounted(() => {
   .is-container.flex
     UCard.mx-auto.max-w-prose.text-center
       .space-y-8
-        TextHero(heading="Get started" description="Whether you already have started tipping with GridTipp, or are creating a new account, sign in with Google to get started." :level="1")
+        TextHero(heading="Get started" :description :level="1")
         div
           UButton(@click="signInWithGoogle" size="lg")
             img.w-6.h-6(src='https://www.svgrepo.com/show/475656/google-color.svg', loading='lazy', alt='google logo')

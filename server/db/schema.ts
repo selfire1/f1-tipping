@@ -19,6 +19,8 @@ export const groupsTable = sqliteTable("groups", {
     .notNull(),
 });
 
+export type Group = typeof groupsTable.$inferSelect;
+
 export const groupRelations = relations(groupsTable, ({ many, one }) => ({
   createdByUser: one(user, {
     fields: [groupsTable.createdByUser],

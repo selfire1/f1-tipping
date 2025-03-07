@@ -52,4 +52,9 @@ export enum QueryOrigin {
    * Is not allowed in app url
    */
   NotAllowed = "not-logged-in",
+  Join = "join",
+}
+
+export enum STATE_KEYS {
+  usersGroupCache = "allUserGroups",
 }

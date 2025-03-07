@@ -22,7 +22,7 @@ export default defineAuthedEventHandler(async (event) => {
     },
     where: eq(groupMembersTable.userId, targetUserId),
     with: {
-      group: { columns: { id: true, name: true } },
+      group: true,
     },
   });
 

@@ -33,12 +33,11 @@ const useCreateGroup = (options?: { runAfterCreate?: () => void }) => {
           method: "POST",
         });
         console.log(response);
-        toast.add({
-          title: "Success",
-          description: `You have successfully created the group "${input.data.name}".`,
-          color: "green",
-          icon: "carbon:checkmark-outline",
-        });
+        toast.add(
+          $getSuccessToast({
+            description: `You have successfully created the group "${input.data.name}".`,
+          }),
+        );
 
         // reset form
         state.name = "";
@@ -62,10 +61,15 @@ const useCreateGroup = (options?: { runAfterCreate?: () => void }) => {
 const createGroup = useCreateGroup({
   runAfterCreate: refreshGroups,
 });
+definePageMeta({
+  layout: false,
+});
 </script>
 
 <template lang="pug">
-.is-container.py-8
+NuxtLayout(name="tipping")
+  template(#header)
+    h1.is-display-6 Dashboard
   .space-y-6
     TextHero(:level="2" heading="Your groups" :description="!groups?.items?.length ? 'You are not yet a member of a group. Create a new group or join an existing one.' : ''")
     template(v-if="error")
@@ -87,4 +91,5 @@ const createGroup = useCreateGroup({
         UCard
           template(#header)
             p.is-display-6 Join a group
+          p.text-muted Ask a member of an existing group to send you an invite link to join a group.
 </template>
