@@ -75,7 +75,8 @@ div
     
     .w-full.h-screen.overflow-hidden.flex.flex-col
       header.px-8.py-4
-        slot(name="header")
+        h1.is-display-6
+          slot(name="page-title")
       UDivider
       main.px-8.py-4.overflow-y-auto.flex.flex-col.flex-1.min-h-0
         slot
@@ -86,7 +87,8 @@ div
         .is-header-wrapper
           .is-header-wrapper-link
             UButton(icon="carbon:open-panel-filled-left" aria-label="Open mobile navigation" variant="ghost" @click="isMobileNavPresented = true")
-            p.font-bold Page title
+            h1.is-display-6
+              slot(name="page-title")
           template(v-if="!allUserGroups?.length")
             p.italic.is-size-7.text-muted No group
           template(v-else-if="allUserGroups.length === 1 && currentUserGroup")
@@ -97,7 +99,8 @@ div
       UDivider
 
     main
-      NuxtPage.is-container.min-h-screen.py-4.pb-12
+      .is-container.min-h-screen.py-4.pb-12
+        slot
 
   USlideover(v-model="isMobileNavPresented" side="left")
     .is-header

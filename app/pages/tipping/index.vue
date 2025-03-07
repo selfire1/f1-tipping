@@ -68,8 +68,8 @@ definePageMeta({
 
 <template lang="pug">
 NuxtLayout(name="tipping")
-  template(#header)
-    h1.is-display-6 Dashboard
+  template(#page-title)
+    | Dashboard
   .space-y-6
     TextHero(:level="2" heading="Your groups" :description="!groups?.items?.length ? 'You are not yet a member of a group. Create a new group or join an existing one.' : ''")
     template(v-if="error")
