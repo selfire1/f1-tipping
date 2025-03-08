@@ -8,6 +8,10 @@ const links: HorizontalNavigationLink[][] = [
       to: "/tipping",
     },
     {
+      label: "Enter tips",
+      to: "/tipping/add-tips",
+    },
+    {
       label: "Leaderboard",
       to: "/tipping/leaderboard",
     },
