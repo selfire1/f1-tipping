@@ -111,6 +111,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       body,
     });
     console.log(response);
+    toast.add(
+      $getSuccessToast({
+        title: "Saved your tip",
+        description: `Your tip for the ${currentRace.value.raceName} has been saved. Good luck!`,
+      }),
+    );
   } catch (e) {
     if (e instanceof FetchError) {
       fetchError.value = e;
