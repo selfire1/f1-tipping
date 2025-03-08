@@ -26,16 +26,16 @@ const links: HorizontalNavigationLink[][] = [
 
 const isMobileNavPresented = ref(false);
 
-// fetch inital groups
 const nuxtApp = useNuxtApp();
 const { authClient } = useAuth();
-const { data } = await authClient.useSession(useFetch);
+// fetch inital groups
+const { data: authData } = await authClient.useSession(useFetch);
 const allUserGroupsState = useState<Database.Group[] | undefined>(
   STATE_KEYS.usersGroupCache,
   () => [],
 );
 const { data: allUserGroupsApi } = await useFetch(
-  `/api/user/${data.value?.user.id}/get-groups`,
+  `/api/user/${authData.value?.user.id}/get-groups`,
   {
     transform(data) {
       return data.items?.map((el) => ({
@@ -45,6 +45,7 @@ const { data: allUserGroupsApi } = await useFetch(
     },
     getCachedData: (key) =>
       nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+    lazy: true,
   },
 );
 allUserGroupsState.value = allUserGroupsApi.value;

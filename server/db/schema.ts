@@ -19,8 +19,6 @@ export const groupsTable = sqliteTable("groups", {
     .notNull(),
 });
 
-export type Group = typeof groupsTable.$inferSelect;
-
 export const groupRelations = relations(groupsTable, ({ many, one }) => ({
   createdByUser: one(user, {
     fields: [groupsTable.createdByUser],
@@ -60,8 +58,8 @@ export const racesTable = sqliteTable("races", {
   round: integer("round").notNull(),
   circuitName: text("circuit_name").notNull(),
   raceName: text("race_name").notNull(),
-  grandPrixDate: integer("full_date", { mode: "timestamp" }).notNull(),
-  qualifyingDate: integer("full_date", { mode: "timestamp" }).notNull(),
+  grandPrixDate: integer({ mode: "timestamp" }).notNull(),
+  qualifyingDate: integer({ mode: "timestamp" }).notNull(),
   locality: text("locality").notNull(),
 });
 
@@ -111,3 +109,6 @@ export const predictionEntriesTable = sqliteTable("prediction_entries", {
   }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
+
+export type Group = typeof groupsTable.$inferSelect;
+export type Race = typeof racesTable.$inferSelect;

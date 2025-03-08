@@ -9,6 +9,7 @@ const { allUserGroups } = useGroups();
 definePageMeta({
   layout: false,
 });
+const { allRaces } = await useRaces();
 </script>
 
 <template lang="pug">
@@ -16,6 +17,7 @@ NuxtLayout(name="tipping")
   template(#page-title)
     | Dashboard
   .is-page-height.is-container
+    pre {{ allRaces }}
     .grid.is-grid-card-fit.gap-8
       template(v-if="!allUserGroups?.length")
         UCard
