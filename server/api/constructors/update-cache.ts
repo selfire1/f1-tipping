@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import { CONSTRUCTORS_CACHE_PATH } from "~~/server/consts";
-import { fetchErgast } from "~~/server/utils";
+import { fetchJolpica } from "~~/server/utils";
 import { Constructor } from "~~/types";
 import * as Ergast from "~~/types/ergast";
 
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     MRData: {
       ConstructorTable: { Constructors: apiConstructors },
     },
-  } = await fetchErgast<Ergast.ConstructorsResponse>(
+  } = await fetchJolpica<Ergast.ConstructorsResponse>(
     "/ergast/f1/2025/constructors/",
   );
   const constructors: Constructor[] = apiConstructors.map((constructor) => ({

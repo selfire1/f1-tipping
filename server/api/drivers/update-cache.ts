@@ -2,7 +2,7 @@ import getConstructors from "~~/server/api/constructors/get";
 import { writeFileSync } from "fs";
 import { setTimeout } from "timers/promises";
 import { DRIVERS_CACHE_PATH } from "~~/server/consts";
-import { fetchErgast } from "~~/server/utils";
+import { fetchJolpica } from "~~/server/utils";
 import { Driver } from "~~/types";
 import * as Ergast from "~~/types/ergast";
 
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
       MRData: {
         DriverTable: { Drivers: apiDrivers },
       },
-    } = await fetchErgast<Ergast.DriverResponse>(
+    } = await fetchJolpica<Ergast.DriverResponse>(
       `/ergast/f1/2025/constructors/${constructor.id}/drivers/`,
     );
     if (!apiDrivers?.length) {
