@@ -18,7 +18,7 @@ const links: HorizontalNavigationLink[][] = [
   ],
   [
     {
-      label: "Preferences",
+      label: "Settings",
       to: "/tipping/settings",
     },
   ],
@@ -57,7 +57,7 @@ div
     // desktop header
     header.hidden.space-y-4.border-r(class="w-[15%] min-w-[10rem] bg-gray-50/50 md:block")
       .p-4.space-y-1
-        .flex.items-center.gap-1.text-muted
+        NuxtLink.flex.items-center.gap-1.text-muted(to="/tipping")
           UIcon.transition-colors(name="carbon:trophy-filled" size="xs" class="group-hover:bg-primary")
           span.is-size-7.font-medium GridTipp
         template(v-if="!allUserGroups?.length")
@@ -71,7 +71,7 @@ div
     header.sticky.top-0.bg-white(class="dark:bg-gray-800 md:hidden")
       .is-container.is-header(class="md:hidden")
         .is-header-wrapper
-          .is-header-wrapper-link()
+          .is-header-wrapper-link
             UButton(icon="carbon:open-panel-filled-left" aria-label="Open mobile navigation" variant="ghost" @click="isMobileNavPresented = true")
             h1.is-display-6
               slot(name="page-title")
@@ -83,13 +83,13 @@ div
             USelectMenu(:options="allUserGroups" v-model="currentUserGroup" option-attribute="name")
       UDivider
 
-    main
-      .is-container.min-h-screen.py-4.pb-12(class="md:w-full md:h-screen md:overflow-hidden md:flex md:flex-col md:p-0")
-        div(class="md:px-8 md:py-4")
+    main.w-full
+      div(class="md:w-full md:h-screen md:overflow-hidden md:flex md:flex-col md:p-0")
+        .is-container(class="md:px-8 md:py-4")
           h1.hidden.is-display-6(class="md:block")
             slot(name="page-title")
         UDivider.hidden(class="md:block")
-        div(class="md:px-8 md:py-6 md:overflow-y-auto md:flex md:flex-col md:flex-1 md:min-h-0")
+        .is-layout-tipping(class="md:overflow-y-auto md:flex md:flex-col md:flex-1 md:min-h-0")
           slot
 
   USlideover(v-model="isMobileNavPresented" side="left")
@@ -104,7 +104,7 @@ div
       UVerticalNavigation(:links)
 </template>
 
-<style scoped>
+<style>
 .is-header {
   @apply py-2 space-y-1;
   &-wrapper {

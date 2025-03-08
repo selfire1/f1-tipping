@@ -25,6 +25,21 @@
     width: min(var(--max-width), 100% - (var(--padding) * 2));
     @apply mx-auto;
   }
+  .is-grid-card-fit {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(min(var(--card-width, 320px), 100%), 1fr)
+    );
+  }
+  /* Sets the widths within `/tipping` */
+  .is-layout-tipping .is-container {
+    @apply md:w-full md:px-8;
+  }
+  /* sets the heights within `/tipping` */
+  .is-layout-tipping .is-page-height {
+    @apply py-4 md:py-6;
+    @apply min-h-screen h-full;
+  }
 }
 
 /* @link https://heropatterns.com/ */
