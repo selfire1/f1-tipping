@@ -1,16 +1,30 @@
-import type { Database } from "~~/types/db";
+export const useGroup = async () => {
+  const nuxtApp = useNuxtApp();
 
-export const useGroup = () => {
-  const allUserGroups = useState<Database.Group[] | undefined>(
-    STATE_KEYS.usersGroupCache,
-    () => [],
-  );
-  const currentUserGroup = useState<Database.Group | undefined>(
-    "currentUserGroup",
-    () => allUserGroups.value?.[0],
-  );
+  const {
+    data: userGroups,
+    status,
+    refresh,
+    error,
+  } = await useFetch("/api/user/get-groups", {
+    transform: (data) => data.items,
+    getCachedData: (key) => {
+      const inCache = nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+      console.log("groups are in cache", !!inCache);
+      return inCache;
+    },
+  });
+
+  const currentUserGroup = ref(userGroups.value?.[0]?.group);
+  watch(userGroups, () => {
+    currentUserGroup.value = userGroups.value?.[0]?.group;
+  });
+
   return {
-    allUserGroups,
+    allUserGroups: userGroups,
     currentUserGroup,
+    status,
+    refresh,
+    error,
   };
 };

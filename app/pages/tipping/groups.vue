@@ -7,10 +7,10 @@ if (!user?.id) {
   await navigateTo("/auth");
 }
 const {
-  data: groups,
+  allUserGroups: groups,
   error,
   refresh: refreshGroups,
-} = await useFetch(`/api/user/${user?.id}/get-groups`);
+} = await useGroup();
 
 const useCreateGroup = (options?: { runAfterCreate?: () => void }) => {
   const schema = createGroupSchema;
@@ -70,10 +70,10 @@ definePageMeta({
 NuxtLayout(name="tipping")
   template(#page-title)
     | Groups
-  .space-y-6
+  .space-y-6.is-page-height.is-container
     TextHero(:level="2" heading="Your groups" :description="!groups?.items?.length ? 'You are not yet a member of a group. Create a new group or join an existing one.' : ''")
     template(v-if="error")
-      p.bg-red-400.p-4.rounded Something went wrong: {{ error }}
+      p.bg-red-200.p-4.rounded Something went wrong: {{ error }}
     template(v-if="groups?.items?.length")
       ul.flex.flex.gap-2.flex-wrap
         template(v-for="{ group } in groups.items" :key='group.id')

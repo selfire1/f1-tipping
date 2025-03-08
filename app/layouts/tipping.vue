@@ -26,30 +26,7 @@ const links: HorizontalNavigationLink[][] = [
 
 const isMobileNavPresented = ref(false);
 
-const nuxtApp = useNuxtApp();
-const { authClient } = useAuth();
-// fetch inital groups
-const { data: authData } = await authClient.useSession(useFetch);
-const allUserGroupsState = useState<Database.Group[] | undefined>(
-  STATE_KEYS.usersGroupCache,
-  () => [],
-);
-const { data: allUserGroupsApi } = await useFetch(
-  `/api/user/${authData.value?.user.id}/get-groups`,
-  {
-    transform(data) {
-      return data.items?.map((el) => ({
-        ...el.group,
-        createdAt: new Date(el.group.createdAt),
-      }));
-    },
-    getCachedData: (key) =>
-      nuxtApp.payload.data[key] || nuxtApp.static.data[key],
-    lazy: true,
-  },
-);
-allUserGroupsState.value = allUserGroupsApi.value;
-const { currentUserGroup, allUserGroups } = useGroups();
+const { allUserGroups, currentUserGroup } = await useGroup();
 </script>
 
 <template lang="pug">

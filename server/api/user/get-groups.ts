@@ -1,10 +1,10 @@
-import { groupMembersTable, groupsTable } from "~~/server/db/schema";
+import { groupMembersTable } from "~~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { defineAuthedEventHandler } from "~~/server/utils/handlers";
 
 export default defineAuthedEventHandler(async (event) => {
   const session = event.context.auth;
-  const targetUserId = getRouterParam(event, "id");
+  const targetUserId = event.context.auth.user.id;
 
   if (!targetUserId) {
     throw createError({ statusMessage: "Bad Request", statusCode: 400 });
