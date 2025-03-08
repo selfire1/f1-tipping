@@ -1,3 +1,6 @@
+import type { Database } from "~~/types/db";
+import { useSessionStorage } from "@vueuse/core";
+
 export const useGroup = async () => {
   const nuxtApp = useNuxtApp();
 
@@ -7,7 +10,11 @@ export const useGroup = async () => {
     refresh,
     error,
   } = await useFetch("/api/user/get-groups", {
-    transform: (data) => data.items,
+    transform: (data) =>
+      data.items.map((el) => ({
+        ...el.group,
+        createdAt: new Date(el.group.createdAt),
+      })),
     getCachedData: (key) => {
       const inCache = nuxtApp.payload.data[key] || nuxtApp.static.data[key];
       console.log("groups are in cache", !!inCache);
@@ -15,9 +22,12 @@ export const useGroup = async () => {
     },
   });
 
-  const currentUserGroup = ref(userGroups.value?.[0]?.group);
+  const currentUserGroup = useSessionStorage<Database.Group | undefined>(
+    "current-group",
+    () => userGroups.value?.[0],
+  );
   watch(userGroups, () => {
-    currentUserGroup.value = userGroups.value?.[0]?.group;
+    currentUserGroup.value = userGroups.value?.[0];
   });
 
   return {
