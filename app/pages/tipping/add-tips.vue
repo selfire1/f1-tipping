@@ -1,45 +1,57 @@
 <script setup lang="ts">
-import { USelectMenu } from "#components";
-import { useRouteQuery } from "@vueuse/router";
-import { formatDistanceToNowStrict } from "date-fns";
-import DriverOption from "~/components/DriverOption.vue";
-import type { Constructor, Driver } from "~~/types";
-
-const { data: races } = await useFetch("/api/races");
-const { data: drivers } = await useFetch("/api/drivers/get");
-const { data: constructors } = await useFetch("/api/constructors/get");
-const roundIndex = useRouteQuery("round", "1", { transform: Number });
-
-const currentRace = computed(() => {
-  const race = races.value?.find((race) => +race.round === roundIndex.value);
-  if (!race) {
-    return;
-  }
-  return {
-    ...race,
-    fullDate: new Date(race.date + "T" + race.time),
-  };
+import { FetchError } from "ofetch";
+import { isBefore, formatDistanceToNowStrict } from "date-fns";
+import { useNow } from "@vueuse/core";
+import type { Database } from "~~/types/db";
+import type { FormSubmitEvent } from "#ui/types";
+import * as schemas from "~~/shared/schemas";
+import type { z } from "zod";
+import { getCutoffDate } from "~~/shared/utils";
+import SystemError from "~/components/SystemError.vue";
+definePageMeta({
+  layout: false,
 });
 
+const { currentUserGroup } = await useGroup();
+
+function getCutoffDateForCurrentGroup(race: Database.Race): Date {
+  return getCutoffDate(
+    race.qualifyingDate,
+    currentUserGroup.value?.cutoffInMinutes ?? 180,
+  );
+}
+
+const { allRaces } = await useRace();
+const { allDrivers: drivers } = await useDriver();
+const { allConstructors: constructors } = await useConstructor();
+const now = useNow();
+const racesInTheFuture = computed(() => {
+  const all = allRaces.value;
+  return all?.filter((race) => {
+    const lastChanceToEnterTips = getCutoffDateForCurrentGroup(race);
+    return isBefore(now.value, lastChanceToEnterTips);
+  });
+});
+const index = ref(0);
+const currentRace = computed(() => racesInTheFuture.value?.[index.value]);
+
 function goPrevious() {
-  roundIndex.value = Math.max(LOWEST_ROUND_NO, roundIndex.value - 1);
+  index.value = Math.max(0, index.value - 1);
 }
 function goNext() {
-  roundIndex.value = Math.min(HIGHEST_ROUND_NO, roundIndex.value + 1);
+  index.value = Math.min(racesInTheFuture.value?.length ?? 0, index.value + 1);
 }
 
 const state = reactive({
-  drivers: {
-    pole: undefined as Driver | undefined,
-    p1: undefined as Driver | undefined,
-    p10: undefined as Driver | undefined,
-    last: undefined as Driver | undefined,
-  },
-  constructorWithMostPoints: undefined as Constructor | undefined,
+  pole: undefined as Database.Driver | undefined,
+  p1: undefined as Database.Driver | undefined,
+  p10: undefined as Database.Driver | undefined,
+  last: undefined as Database.Driver | undefined,
+  constructorWithMostPoints: undefined as Database.Constructor | undefined,
 });
 
 const driverSelects: {
-  modelKey: keyof typeof state.drivers;
+  modelKey: keyof typeof state;
   label: string;
   description: string;
   hint?: string;
@@ -67,64 +79,130 @@ const driverSelects: {
   },
 ];
 
-function save() {
-  // TODO: add
+const schema = schemas.saveTipp;
+
+type Schema = z.infer<typeof schema>;
+type ServerSchema = z.infer<typeof schemas.serverSaveTipp>;
+
+const errorMessage = ref("");
+const fetchError = ref<FetchError>();
+const isSubmitPending = ref(false);
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  errorMessage.value = "";
+  fetchError.value = undefined;
+  isSubmitPending.value = true;
+  if (!currentUserGroup.value) {
+    errorMessage.value = "You are not a member of a group";
+    return;
+  }
+  if (!currentRace.value) {
+    errorMessage.value = "No race found";
+    return;
+  }
+  const body: ServerSchema = {
+    ...event.data,
+    group: currentUserGroup.value,
+    race: currentRace.value,
+  };
+  try {
+    const response = await $fetch("/api/prediction/add", {
+      method: "POST",
+      body,
+    });
+    console.log(response);
+  } catch (e) {
+    if (e instanceof FetchError) {
+      fetchError.value = e;
+    }
+    console.error(e);
+    errorMessage.value = "Something went wrong. Please try again.";
+  } finally {
+    isSubmitPending.value = false;
+  }
 }
 </script>
 
 <template lang="pug">
-.space-y-4
+NuxtLayout(name="tipping")
+  template(#page-title)
+    | Enter tips
   template(v-if="!currentRace")
-    //- TODO: handle missing race
+    p.text-faint Didn't find a current race.
   template(v-else)
-    section.fixed.inset-x-0.bottom-0.z-10.bg-faint
-      .is-container
-        .px-4.py-4.flex.gap-4
-          UButton(@click="goPrevious" :disabled="roundIndex === LOWEST_ROUND_NO") Previous
-          UButton(@click="save") Save
-          UButton(@click="goNext" :disabled="roundIndex === HIGHEST_ROUND_NO") Next
+    .is-page-height.py-0
+      section.py-4.is-bg-pattern
+        .is-container.flex.gap-4.items-center.is-container
+          template(v-if="COUNTRY_FLAGS[currentRace.country]")
+            .aspect-landscape.size-24.relative
+              .absolute.inset-0.flex.items-center.justify-center
+                NuxtImg.border.bg-faint.rounded(:src="COUNTRY_FLAGS[currentRace.country]")
+          .w-full
+            .flex.items-center.justify-between.is-size-8.uppercase.text-muted
+              p {{ "Round " + currentRace.round }}
+              p.hidden(class="sm:block") {{ currentRace.circuitName }}
+            h1.is-display-4 {{ currentRace.raceName }}
+        
+        .is-container.grid(class="sm:grid-cols-3")
+          .flex.gap-1
+            UIcon(name="carbon:edit")
+            p.flex.flex-col.is-size-7
+              span.is-display-8 Tips due
+              span {{ (getCutoffDateForCurrentGroup(currentRace)).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
+              span
+                UBadge(color="gray")
+                  span.is-size-8 In {{ formatDistanceToNowStrict(getCutoffDateForCurrentGroup(currentRace)) }}
 
-    section.is-bg-pattern.py-4
-      .flex.gap-4.items-center.is-container
-        template(v-if="COUNTRY_FLAGS[currentRace?.Circuit.Location.country]")
-          .aspect-landscape.size-24.relative
-            .absolute.inset-0.flex.items-center.justify-center
-              NuxtImg.border.bg-faint.rounded(:src="COUNTRY_FLAGS[currentRace.Circuit.Location.country]")
-        .w-full
-          .flex.items-center.justify-between.is-size-8.uppercase
-            p {{ "Round " + currentRace.round }}
-            p {{ currentRace?.Circuit.circuitName }}
-          h1.is-display-4 {{ currentRace?.raceName }}
-          .flex.items-center.gap-2
-            p.is-size-8 {{ currentRace.fullDate.toLocaleString() }}
-            UBadge(variant="soft")
-              span In {{ formatDistanceToNowStrict(currentRace.fullDate)}}
+          .gap-1(class="hidden sm:flex")
+            UIcon(name="carbon:border-left")
+            p.flex.flex-col.is-size-7
+              span.is-display-8 Qualifying
+              span {{ (currentRace.qualifyingDate).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
+              span
+                UBadge(variant="soft" color="gray")
+                  span.is-size-8 In {{ formatDistanceToNowStrict(currentRace.qualifyingDate) }}
+          .gap-1(class="hidden sm:flex")
+            UIcon(name="carbon:trophy")
+            p.flex.flex-col.is-size-7
+              span.is-display-8 Grand Prix
+              span {{ (currentRace.grandPrixDate).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
+              span
+                UBadge(variant="soft" color="gray")
+                  span.is-size-8 In {{ formatDistanceToNowStrict(currentRace.grandPrixDate) }}
 
-    .is-container
-      section.py-4.space-y-8
+      section.pt-4.pb-2.flex.items-center.justify-between.is-container
+        UButton(@click="goPrevious" :disabled="index === 0" variant="soft")
+          | Previous
+        UButton(@click="goNext" :disabled="racesInTheFuture?.length === (index + 1)" variant="soft")
+          | Next
 
-        template(v-for="{ modelKey, label, description, hint } in driverSelects" :id="modelKey")
-          UFormGroup(:label :description :hint)
-            USelectMenu(:options="drivers" searchable option-attribute="fullName" v-model="state.drivers[modelKey]")
+        
+      section.is-container.py-4
+        UForm.space-y-8(:schema :state @submit="onSubmit")
+          template(v-for="{ modelKey, label, description, hint } in driverSelects" :id="modelKey")
+            UFormGroup(:label :description :hint :name="modelKey")
+              USelectMenu(:options="drivers?.sort((driverA, driverB) => driverA.familyName.localeCompare(driverB.familyName))" searchable option-attribute="fullName" v-model="state[modelKey]")
+                template(#label)
+                  .text-faint(v-if="!state[modelKey]") Pick a driver
+                  div(v-else)
+                    DriverOption(:option="state[modelKey]")
+                template(#option="{ option }")
+                  DriverOption(:option)
+          UFormGroup(label="Most constructor points" description="Which constructor will haul the most points in the Grand Prix?" name="constructorWithMostPoints")
+            USelectMenu(:options="constructors" searchable option-attribute="name" v-model="state.constructorWithMostPoints")
               template(#label)
-                .text-faint(v-if="!state.drivers[modelKey]") Pick a driver
+                .text-faint(v-if="!state.constructorWithMostPoints") Pick a constructor
                 div(v-else)
-                  DriverOption(:option="state.drivers[modelKey]")
+                  .flex.items-center.gap-2
+                    NuxtImg.size-6(:src="`/img/constructors/${state.constructorWithMostPoints.id}.avif`")
+                    span {{ state.constructorWithMostPoints.name }}
               template(#option="{ option }")
-                DriverOption(:option)
-
-        UFormGroup(label="Most constructor points" description="Which constructor will haul the most points in the Grand Prix?")
-          USelectMenu(:options="constructors" searchable option-attribute="name" v-model="state.constructorWithMostPoints")
-            template(#label)
-              .text-faint(v-if="!state.constructorWithMostPoints") Pick a constructor
-              div(v-else)
                 .flex.items-center.gap-2
-                  NuxtImg.size-6(:src="`/img/constructors/${state.constructorWithMostPoints.id}.avif`")
-                  span {{ state.constructorWithMostPoints.name }}
-            template(#option="{ option }")
-              .flex.items-center.gap-2
-                NuxtImg.size-6(:src="`/img/constructors/${option.id}.avif`")
-                span {{ option.name }}
+                  NuxtImg.size-6(:src="`/img/constructors/${option.id}.avif`")
+                  span {{ option.name }}
 
-
+          div
+            UButton(block type="submit") Save
+          div(v-if="errorMessage")
+            SystemError(:heading="fetchError ? undefined : errorMessage" :fetch-error)
 </template>

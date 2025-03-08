@@ -20,5 +20,5 @@ withDefaults(
   DevOnly
     pre.mt-4.overflow-y-auto.is-size-8.p-1.bg-faint
       slot
-        | {{ fetchError}}
+        | {{ fetchError }}
 </template>

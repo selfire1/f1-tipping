@@ -1,4 +1,3 @@
-// import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { createId } from "@paralleldrive/cuid2";
 import { user } from "./auth-schema";
@@ -92,7 +91,9 @@ export const predictionsTable = sqliteTable("predictions", {
   raceId: text("race_id")
     .notNull()
     .references(() => racesTable.id, { onDelete: "cascade" }),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(new Date())
+    .notNull(),
 });
 
 export const predictionEntriesTable = sqliteTable("prediction_entries", {
@@ -107,7 +108,9 @@ export const predictionEntriesTable = sqliteTable("prediction_entries", {
   constructorId: text("constructor_id").references(() => constructorsTable.id, {
     onDelete: "cascade",
   }),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(new Date())
+    .notNull(),
 });
 
 export type Group = typeof groupsTable.$inferSelect;
@@ -115,3 +118,5 @@ export type Race = typeof racesTable.$inferSelect;
 export type InsertDriver = typeof driversTable.$inferInsert;
 export type Driver = typeof driversTable.$inferSelect;
 export type Constructor = typeof constructorsTable.$inferSelect;
+export type InsertPrediction = typeof predictionsTable.$inferInsert;
+export type InsertPredictionEntry = typeof predictionEntriesTable.$inferInsert;
