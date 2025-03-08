@@ -4,6 +4,7 @@ import { defineBasicAuthedEventHandler } from "~~/server/utils/handlers";
 import { RaceResponse } from "~~/types/ergast";
 
 export default defineBasicAuthedEventHandler(async (event) => {
+  assertMethod(event, "GET");
   const response = await fetchJolpica<RaceResponse>("/ergast/f1/2025/races/");
   const races = response.MRData.RaceTable?.Races;
   if (!races?.length) {
