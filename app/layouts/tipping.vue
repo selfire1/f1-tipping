@@ -104,7 +104,7 @@ div
       UVerticalNavigation(:links)
 </template>
 
-<style>
+<style scoped>
 .is-header {
   @apply py-2 space-y-1;
   &-wrapper {
