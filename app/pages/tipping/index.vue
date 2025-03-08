@@ -4,12 +4,12 @@ if (!user?.id) {
   await navigateTo("/auth");
 }
 
-const { allUserGroups } = useGroups();
+const { allUserGroups } = useGroup();
 
 definePageMeta({
   layout: false,
 });
-const { allRaces } = await useRaces();
+const { allRaces } = await useRace();
 </script>
 
 <template lang="pug">

@@ -1,6 +1,6 @@
 import type { Database } from "~~/types/db";
 
-export const useGroups = () => {
+export const useGroup = () => {
   const allUserGroups = useState<Database.Group[] | undefined>(
     STATE_KEYS.usersGroupCache,
     () => [],

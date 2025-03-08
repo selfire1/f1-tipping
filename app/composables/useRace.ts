@@ -1,4 +1,4 @@
-export const useRaces = async () => {
+export const useRace = async () => {
   const nuxtApp = useNuxtApp();
 
   const { data: apiRaces } = await useFetch("/api/races", {
