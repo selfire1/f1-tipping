@@ -112,3 +112,6 @@ export const predictionEntriesTable = sqliteTable("prediction_entries", {
 
 export type Group = typeof groupsTable.$inferSelect;
 export type Race = typeof racesTable.$inferSelect;
+export type InsertDriver = typeof driversTable.$inferInsert;
+export type Driver = typeof driversTable.$inferSelect;
+export type Constructor = typeof constructorsTable.$inferSelect;
