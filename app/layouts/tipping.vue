@@ -53,7 +53,7 @@ const { currentUserGroup, allUserGroups } = useGroups();
 </script>
 
 <template lang="pug">
-div
+.is-layout-tipping
   div(class="md:flex md:flex-row")
     // desktop header
     header.hidden.space-y-4.border-r(class="w-[15%] min-w-[10rem] bg-gray-50/50 md:block")
@@ -90,7 +90,7 @@ div
           h1.hidden.is-display-6(class="md:block")
             slot(name="page-title")
         UDivider.hidden(class="md:block")
-        .is-layout-tipping(class="md:overflow-y-auto md:flex md:flex-col md:flex-1 md:min-h-0")
+        div(class="md:overflow-y-auto md:flex md:flex-col md:flex-1 md:min-h-0")
           slot
 
   USlideover(v-model="isMobileNavPresented" side="left")
