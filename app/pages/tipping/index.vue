@@ -17,7 +17,7 @@ const nextRace = computed(
   () => getRacesInTheFuture(currentUserGroup.value?.cutoffInMinutes)?.[0],
 );
 
-const cutOffDate = computed(() =>
+const nextRaceCutOffDate = computed(() =>
   nextRace?.value?.qualifyingDate
     ? $getCutoffDate(
         nextRace.value?.qualifyingDate,
@@ -55,12 +55,12 @@ NuxtLayout(name="tipping")
                       span {{ nextRace.locality + ", " }}
                       span {{ nextRace.country }}
                   p.is-display-5 {{ nextRace.raceName }}
-              .is-size-7(v-if="cutOffDate")
+              .is-size-7(v-if="nextRaceCutOffDate")
                 p.is-display-7.flex.items-center.gap-2
                   | Tipping closes
-                  BadgeTimeTo(:date="cutOffDate")
+                  BadgeTimeTo(:date="nextRaceCutOffDate")
                 .flex
                   .pl-2
-                    p {{ cutOffDate.toLocaleString(undefined, { hour: "numeric", minute: "2-digit"}) }}
-                    p {{ cutOffDate.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric" }) }}
+                    p {{ nextRaceCutOffDate.toLocaleString(undefined, { hour: "numeric", minute: "2-digit"}) }}
+                    p {{ nextRaceCutOffDate.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric" }) }}
 </template>
