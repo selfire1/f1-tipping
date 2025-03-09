@@ -48,7 +48,7 @@ const description = (() => {
 </script>
 
 <template lang="pug">
-.is-bg-pattern
+.is-bg-pattern.is-page-height
   .is-container.flex
     UCard.mx-auto.max-w-prose.text-center
       .space-y-8

@@ -2,7 +2,7 @@
 div
   header
     AppHeader
-  main.min-h-screen.py-4.pb-12
+  main
     slot
   footer
     UDivider

@@ -31,6 +31,9 @@
       minmax(min(var(--card-width, 320px), 100%), 1fr)
     );
   }
+  .is-page-height {
+    @apply min-h-screen py-4 pb-12;
+  }
   /* Sets the widths within `/tipping` */
   .is-layout-tipping .is-container {
     @apply md:w-full md:px-8;

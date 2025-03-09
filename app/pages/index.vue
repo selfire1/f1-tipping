@@ -3,7 +3,7 @@ const { isSignedIn } = useAuth();
 </script>
 
 <template lang="pug">
-.is-container
+.is-container.is-page-height
   .py-8.text-center.space-y-6.max-w-prose.mx-auto
     div
       h1.sr-only.text-primary GridTipp
