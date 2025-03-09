@@ -157,6 +157,7 @@ export type InsertDriver = typeof driversTable.$inferInsert;
 
 export type Constructor = typeof constructorsTable.$inferSelect;
 
+export type Prediction = typeof predictionsTable.$inferSelect;
 export type InsertPrediction = typeof predictionsTable.$inferInsert;
 
 export type PredictionEntry = typeof predictionEntriesTable.$inferSelect;
