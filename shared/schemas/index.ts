@@ -23,3 +23,7 @@ export const serverSaveTipp = saveTipp.extend({
   race: idObject,
   group: idObject,
 });
+
+export const getResultOptions = z.object({
+  race: idObject.optional(),
+});

@@ -5,9 +5,11 @@ import type { Database } from "~~/types/db";
 import type { FormSubmitEvent } from "#ui/types";
 import * as schemas from "~~/shared/schemas";
 import type { z } from "zod";
-import { getCutoffDate } from "~~/shared/utils";
+import { $getCutoffDate } from "~~/shared/utils";
 import SystemError from "~/components/SystemError.vue";
 import type { Race } from "~~/server/db/schema";
+import BadgeTimeTo from "~/components/BadgeTimeTo.vue";
+import RaceFlag from "~/components/Race/RaceFlag.vue";
 definePageMeta({
   layout: false,
 });
@@ -17,9 +19,9 @@ const { currentUserGroup } = await useGroup();
 function getCutoffDateForCurrentGroup(
   qualifyingDate: Database.Race["qualifyingDate"],
 ): Date {
-  return getCutoffDate(
+  return $getCutoffDate(
     qualifyingDate,
-    currentUserGroup.value?.cutoffInMinutes ?? 180,
+    currentUserGroup.value?.cutoffInMinutes,
   );
 }
 
@@ -216,11 +218,8 @@ NuxtLayout(name="tipping")
   template(v-else)
     .is-page-height.py-0
       section.py-4.is-bg-pattern
-        .is-container.flex.gap-4.items-center.is-container
-          template(v-if="COUNTRY_FLAGS[currentRace.country]")
-            .aspect-landscape.size-24.relative
-              .absolute.inset-0.flex.items-center.justify-center
-                NuxtImg.border.bg-faint.rounded(:src="COUNTRY_FLAGS[currentRace.country]")
+        .is-container.flex.gap-4.items-center
+          RaceFlag(:country="currentRace.country")
           .w-full
             .flex.items-center.justify-between.is-size-8.uppercase.text-muted
               p {{ "Round " + currentRace.round }}
@@ -234,8 +233,7 @@ NuxtLayout(name="tipping")
               span.is-display-8 Tips due
               span {{ (getCutoffDateForCurrentGroup(currentRace.qualifyingDate)).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
               span
-                UBadge(color="gray")
-                  span.is-size-8 In {{ formatDistanceToNowStrict(getCutoffDateForCurrentGroup(currentRace.qualifyingDate)) }}
+                BadgeTimeTo(:date="getCutoffDateForCurrentGroup(currentRace.qualifyingDate)")
 
           .gap-1(class="hidden sm:flex")
             UIcon(name="carbon:border-left")
@@ -243,16 +241,14 @@ NuxtLayout(name="tipping")
               span.is-display-8 Qualifying
               span {{ (currentRace.qualifyingDate).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
               span
-                UBadge(variant="soft" color="gray")
-                  span.is-size-8 In {{ formatDistanceToNowStrict(currentRace.qualifyingDate) }}
+                BadgeTimeTo(:badge="{variant: 'soft', color: 'gray'}" :date="currentRace.qualifyingDate")
           .gap-1(class="hidden sm:flex")
             UIcon(name="carbon:trophy")
             p.flex.flex-col.is-size-7
               span.is-display-8 Grand Prix
               span {{ (currentRace.grandPrixDate).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
               span
-                UBadge(variant="soft" color="gray")
-                  span.is-size-8 In {{ formatDistanceToNowStrict(currentRace.grandPrixDate) }}
+                BadgeTimeTo(:badge="{variant: 'soft', color: 'gray'}" :date="currentRace.grandPrixDate")
 
       section.pt-4.pb-2.flex.items-center.justify-between.is-container
         UButton(@click="goPrevious" :disabled="index === 0" variant="soft")

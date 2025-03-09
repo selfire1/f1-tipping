@@ -60,6 +60,8 @@ export const racesTable = sqliteTable("races", {
   grandPrixDate: integer({ mode: "timestamp" }).notNull(),
   qualifyingDate: integer({ mode: "timestamp" }).notNull(),
   locality: text("locality").notNull(),
+  lastUpdated: integer({ mode: "timestamp" }).notNull(),
+  created: integer({ mode: "timestamp" }).default(new Date()).notNull(),
 });
 
 export const driversTable = sqliteTable("drivers", {
@@ -72,12 +74,16 @@ export const driversTable = sqliteTable("drivers", {
   constructorId: text("constructor_id")
     .notNull()
     .references(() => constructorsTable.id, { onDelete: "cascade" }),
+  lastUpdated: integer({ mode: "timestamp" }).notNull(),
+  created: integer({ mode: "timestamp" }).default(new Date()).notNull(),
 });
 
 export const constructorsTable = sqliteTable("constructors", {
   id: text("id").primaryKey().notNull(),
   name: text("name").notNull(),
   nationality: text("nationality").notNull(),
+  created: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  lastUpdated: integer({ mode: "timestamp" }).default(new Date()).notNull(),
 });
 
 export const predictionsTable = sqliteTable("predictions", {

@@ -7,7 +7,7 @@ import {
   racesTable,
 } from "~~/server/db/schema";
 import { serverSaveTipp } from "~~/shared/schemas";
-import { getCutoffDate } from "~~/shared/utils";
+import { $getCutoffDate } from "~~/shared/utils";
 import { Constructor, Driver } from "~~/types";
 import { Database } from "~~/types/db";
 
@@ -180,7 +180,7 @@ export default defineAuthedEventHandler(async (event) => {
       });
     }
 
-    const cutoffDate = getCutoffDate(
+    const cutoffDate = $getCutoffDate(
       targetRace.qualifyingDate,
       currentGroup.cutoffInMinutes,
     );

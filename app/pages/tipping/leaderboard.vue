@@ -8,5 +8,6 @@ definePageMeta({
 NuxtLayout(name="tipping")
   template(#page-title)
     | Leaderboard
-  pre TODO: leaderboard
+  .is-page-height.is-container
+    pre here
 </template>

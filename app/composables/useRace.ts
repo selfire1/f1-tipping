@@ -22,11 +22,11 @@ export const useRace = async () => {
 
   return {
     allRaces: apiRaces,
-    getRacesInTheFuture(cutoffInMinutes: MaybeRef<number> = 180) {
+    getRacesInTheFuture(cutoffInMinutes?: MaybeRef<number>) {
       const now = useNow();
       const all = apiRaces.value;
       return all?.filter((race) => {
-        const lastChanceToEnterTips = getCutoffDate(
+        const lastChanceToEnterTips = $getCutoffDate(
           race.qualifyingDate,
           unref(cutoffInMinutes),
         );
