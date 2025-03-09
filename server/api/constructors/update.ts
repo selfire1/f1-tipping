@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { constructorsTable } from "~~/server/db/schema";
 import { fetchJolpica } from "~~/server/utils";
 import { defineBasicAuthedEventHandler } from "~~/server/utils/handlers";
@@ -26,9 +27,19 @@ export default defineBasicAuthedEventHandler(async (event) => {
           id: constructor.constructorId,
           name: constructor.name,
           nationality: constructor.nationality ?? "",
+          lastUpdated: new Date(),
         };
       }),
     )
+    .onConflictDoUpdate({
+      target: constructorsTable.id,
+      set: {
+        name: sql`excluded.name`,
+        nationality: sql`excluded.nationality`,
+        lastUpdated: sql`excluded.last_updated`,
+      },
+    })
+
     .returning({
       id: constructorsTable.id,
     });

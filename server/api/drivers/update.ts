@@ -4,6 +4,7 @@ import { defineBasicAuthedEventHandler } from "~~/server/utils/handlers";
 import { DriverResponse } from "~~/types/ergast";
 import { setTimeout } from "timers/promises";
 import { Database } from "~~/types/db";
+import { sql } from "drizzle-orm";
 
 export default defineBasicAuthedEventHandler(async (event) => {
   assertMethod(event, "GET");
@@ -17,7 +18,7 @@ export default defineBasicAuthedEventHandler(async (event) => {
   const drivers: Database.InsertDriver[] = [];
 
   for await (const constructor of constructors) {
-    setTimeout(1000); // NOTE: to keep within API burst limit
+    await setTimeout(1000); // NOTE: to keep within API burst limit
 
     const {
       MRData: {
@@ -40,14 +41,30 @@ export default defineBasicAuthedEventHandler(async (event) => {
           familyName: driver.familyName,
           nationality: driver.nationality,
           constructorId: constructor.id,
+          lastUpdated: new Date(),
         }),
       ),
     );
   }
 
-  const returning = await db.insert(driversTable).values(drivers).returning({
-    id: driversTable.id,
-  });
+  const returning = await db
+    .insert(driversTable)
+    .values(drivers)
+    .onConflictDoUpdate({
+      target: driversTable.id,
+      set: {
+        permanentNumber: sql`excluded.permanent_number`,
+        fullName: sql`excluded.full_name`,
+        givenName: sql`excluded.given_name`,
+        familyName: sql`excluded.family_name`,
+        nationality: sql`excluded.nationality`,
+        constructorId: sql`excluded.constructor_id`,
+        lastUpdated: sql`excluded.last_updated`,
+      },
+    })
+    .returning({
+      id: driversTable.id,
+    });
 
   setResponseStatus(event, 201);
 

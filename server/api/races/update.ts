@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { racesTable } from "~~/server/db/schema";
 import { fetchJolpica } from "~~/server/utils";
 import { defineBasicAuthedEventHandler } from "~~/server/utils/handlers";
@@ -31,9 +32,23 @@ export default defineBasicAuthedEventHandler(async (event) => {
             `${race.Qualifying.date}T${race.Qualifying.time}`,
           ),
           locality: race.Circuit.Location.locality,
+          lastUpdated: new Date(),
         };
       }),
     )
+    .onConflictDoUpdate({
+      target: racesTable.id,
+      set: {
+        country: sql`excluded.country`,
+        round: sql`excluded.round`,
+        circuitName: sql`excluded.circuit_name`,
+        raceName: sql`excluded.race_name`,
+        grandPrixDate: sql`excluded.grand_prix_date`,
+        qualifyingDate: sql`excluded.qualifying_date`,
+        locality: sql`excluded.locality`,
+        lastUpdated: sql`excluded.last_updated`,
+      },
+    })
     .returning({
       id: racesTable.id,
     });
