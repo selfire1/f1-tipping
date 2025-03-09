@@ -89,6 +89,67 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     isSubmitPending.value = false;
   }
 }
+
+const { data: savedPredictions } = useFetch(
+  () => `/api/prediction/${currentUserGroup.value?.id}/get`,
+  {
+    transform(predictionEntries) {
+      const onlyChampionshipEntries = predictionEntries.filter((entry) =>
+        ["championshipDriver", "championshipConstructor"].includes(
+          entry.position,
+        ),
+      );
+      return onlyChampionshipEntries.reduce(
+        (acc, entry) => {
+          const parsedEntry = {
+            ...entry,
+            createdAt: new Date(entry.createdAt),
+          };
+          // @ts-expect-error We checked for position constraint above
+          acc[entry.position] = parsedEntry;
+          return acc;
+        },
+        {} as Record<keyof typeof state, Database.PredictionEntry>,
+      );
+    },
+  },
+);
+
+function setStateToEmpty() {
+  Object.keys(state).forEach((key) => {
+    const stateKey = key as keyof typeof state;
+    state[stateKey] = undefined;
+  });
+}
+
+const { allDrivers } = await useDriver();
+const { allConstructors } = await useConstructor();
+
+function populateStateFromSavedEntry() {
+  // @ts-expect-error date mismatch
+  state.championshipConstructor =
+    allConstructors.value?.find(
+      (constructor) =>
+        constructor.id ==
+        savedPredictions.value?.championshipConstructor?.constructorId,
+    ) || undefined;
+
+  // @ts-expect-error date mismatch
+  state.championshipDriver =
+    allDrivers.value?.find(
+      (driver) =>
+        driver.id == savedPredictions.value?.championshipDriver?.driverId,
+    ) || undefined;
+}
+
+onMounted(() => {
+  populateStateFromSavedEntry();
+});
+
+watchEffect(() => {
+  setStateToEmpty();
+  populateStateFromSavedEntry();
+});
 </script>
 
 <template lang="pug">
