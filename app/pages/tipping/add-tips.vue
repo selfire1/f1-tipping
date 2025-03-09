@@ -263,6 +263,7 @@ NuxtLayout(name="tipping")
 
           div
             UButton(block type="submit" :disabled="isSubmitPending" :loading="isSubmitPending") Save
+          p.text-center.text-muted.is-size-8 1 point is awareded per correct answer.
           div(v-if="errorMessage")
             SystemError(:heading="fetchError ? undefined : errorMessage" :fetch-error)
 </template>
