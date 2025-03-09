@@ -45,12 +45,12 @@ const useCreateGroup = (options?: { runAfterCreate?: () => void }) => {
 
         options?.runAfterCreate?.();
       } catch (e) {
-        toast.add({
-          title: "Error",
-          description: "Something went wrong. Please try again.",
-          color: "red",
-          icon: "carbon:error",
-        });
+        toast.add(
+          $getErrorToast({
+            title: "Error",
+            description: "Something went wrong. Please try again.",
+          }),
+        );
         console.error(e);
       } finally {
         isPending.value = false;

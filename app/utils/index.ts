@@ -19,3 +19,23 @@ export function $getSuccessToast(
     ...info,
   };
 }
+
+export function $getErrorToast(
+  info: Partial<Notification>,
+): Partial<Notification> {
+  return {
+    title: "Something went wrong",
+    color: "red",
+    timeout: 3000,
+    icon: "carbon:error",
+    ...info,
+  };
+}
+
+export const $localeDateTimeOptions: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+};
