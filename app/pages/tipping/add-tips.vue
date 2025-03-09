@@ -227,7 +227,7 @@ NuxtLayout(name="tipping")
             UIcon(name="carbon:edit")
             p.flex.flex-col.is-size-7
               span.is-display-8 Tips due
-              span {{ (getCutoffDateForCurrentGroup(currentRace.qualifyingDate)).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
+              span {{ (getCutoffDateForCurrentGroup(currentRace.qualifyingDate)).toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(:date="getCutoffDateForCurrentGroup(currentRace.qualifyingDate)")
 
@@ -235,14 +235,14 @@ NuxtLayout(name="tipping")
             UIcon(name="carbon:border-left")
             p.flex.flex-col.is-size-7
               span.is-display-8 Qualifying
-              span {{ (currentRace.qualifyingDate).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
+              span {{ (currentRace.qualifyingDate).toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(:badge="{variant: 'soft', color: 'gray'}" :date="currentRace.qualifyingDate")
           .gap-1(class="hidden sm:flex")
             UIcon(name="carbon:trophy")
             p.flex.flex-col.is-size-7
               span.is-display-8 Grand Prix
-              span {{ (currentRace.grandPrixDate).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
+              span {{ (currentRace.grandPrixDate).toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(:badge="{variant: 'soft', color: 'gray'}" :date="currentRace.grandPrixDate")
 
