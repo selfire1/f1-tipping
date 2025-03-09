@@ -265,17 +265,7 @@ NuxtLayout(name="tipping")
                 template(#option="{ option }")
                   DriverOption(:option)
           UFormGroup(label="Most constructor points" description="Which constructor will haul the most points in the Grand Prix?" name="constructorWithMostPoints")
-            USelectMenu(:options="constructors" searchable option-attribute="name" v-model="state.constructorWithMostPoints")
-              template(#label)
-                .text-faint(v-if="!state.constructorWithMostPoints") Pick a constructor
-                div(v-else)
-                  .flex.items-center.gap-2
-                    NuxtImg.size-6(:src="`/img/constructors/${state.constructorWithMostPoints.id}.avif`")
-                    span {{ state.constructorWithMostPoints.name }}
-              template(#option="{ option }")
-                .flex.items-center.gap-2
-                  NuxtImg.size-6(:src="`/img/constructors/${option.id}.avif`")
-                  span {{ option.name }}
+            SelectConstructor(v-model="state.constructorWithMostPoints")
 
           div
             UButton(block type="submit" :disabled="isSubmitPending" :loading="isSubmitPending") Save
