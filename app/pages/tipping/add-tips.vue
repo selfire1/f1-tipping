@@ -15,9 +15,11 @@ definePageMeta({
 
 const { currentUserGroup } = await useGroup();
 
-function getCutoffDateForCurrentGroup(race: Database.Race): Date {
+function getCutoffDateForCurrentGroup(
+  qualifyingDate: Database.Race["qualifyingDate"],
+): Date {
   return getCutoffDate(
-    race.qualifyingDate,
+    qualifyingDate,
     currentUserGroup.value?.cutoffInMinutes ?? 180,
   );
 }
@@ -29,7 +31,9 @@ const now = useNow();
 const racesInTheFuture = computed(() => {
   const all = allRaces.value;
   return all?.filter((race) => {
-    const lastChanceToEnterTips = getCutoffDateForCurrentGroup(race);
+    const lastChanceToEnterTips = getCutoffDateForCurrentGroup(
+      race.qualifyingDate,
+    );
     return isBefore(now.value, lastChanceToEnterTips);
   });
 });
@@ -236,10 +240,10 @@ NuxtLayout(name="tipping")
             UIcon(name="carbon:edit")
             p.flex.flex-col.is-size-7
               span.is-display-8 Tips due
-              span {{ (getCutoffDateForCurrentGroup(currentRace)).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
+              span {{ (getCutoffDateForCurrentGroup(currentRace.qualifyingDate)).toLocaleString(undefined, {year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}) }}
               span
                 UBadge(color="gray")
-                  span.is-size-8 In {{ formatDistanceToNowStrict(getCutoffDateForCurrentGroup(currentRace)) }}
+                  span.is-size-8 In {{ formatDistanceToNowStrict(getCutoffDateForCurrentGroup(currentRace.qualifyingDate)) }}
 
           .gap-1(class="hidden sm:flex")
             UIcon(name="carbon:border-left")
