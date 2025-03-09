@@ -13,3 +13,5 @@ export type Constructor = {
   name?: string;
   nationality?: string;
 };
+
+export type PredictionField = (typeof PREDICTION_FIELDS)[number];

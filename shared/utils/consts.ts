@@ -4,4 +4,6 @@ export const PREDICTION_FIELDS = [
   "p10",
   "last",
   "constructorWithMostPoints",
+  "championshipConstructor",
+  "championshipDriver",
 ] as const;

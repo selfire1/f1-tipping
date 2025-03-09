@@ -94,9 +94,10 @@ export const predictionsTable = sqliteTable("predictions", {
   groupId: text("group_id")
     .notNull()
     .references(() => groupsTable.id, { onDelete: "cascade" }),
-  raceId: text("race_id")
-    .notNull()
-    .references(() => racesTable.id, { onDelete: "cascade" }),
+  isForChampionship: integer({ mode: "boolean" }).default(false).notNull(),
+  raceId: text("race_id").references(() => racesTable.id, {
+    onDelete: "cascade",
+  }),
   createdAt: integer("created_at", { mode: "timestamp" })
     .default(new Date())
     .notNull(),

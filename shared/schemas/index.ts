@@ -19,6 +19,15 @@ export const saveTipp = z.object({
   constructorWithMostPoints: idObject,
 });
 
+export const saveChampionships = z.object({
+  championshipConstructor: idObject,
+  championshipDriver: idObject,
+});
+
+export const serverSaveChampionships = saveChampionships.extend({
+  group: idObject,
+});
+
 export const serverSaveTipp = saveTipp.extend({
   race: idObject,
   group: idObject,

@@ -7,20 +7,26 @@ const links: HorizontalNavigationLink[][] = [
       label: "Dashboard",
       to: "/tipping",
     },
+  ],
+  [
     {
       label: "Enter tips",
       to: "/tipping/add-tips",
     },
     {
+      label: "Championships",
+      to: "/tipping/championships",
+    },
+    {
       label: "Leaderboard",
       to: "/tipping/leaderboard",
     },
+  ],
+  [
     {
       label: "Groups",
       to: "/tipping/groups",
     },
-  ],
-  [
     {
       label: "Settings",
       to: "/tipping/settings",
