@@ -8,6 +8,7 @@ import * as schemas from "~~/shared/schemas";
 import type { z } from "zod";
 import { getCutoffDate } from "~~/shared/utils";
 import SystemError from "~/components/SystemError.vue";
+import type { Race } from "~~/server/db/schema";
 definePageMeta({
   layout: false,
 });
@@ -50,6 +51,87 @@ const state = reactive({
   constructorWithMostPoints: undefined as Database.Constructor | undefined,
 });
 
+const { data: predictionsByRace } = useFetch(
+  () => `/api/prediction/${currentUserGroup.value?.id}/get`,
+  {
+    transform(predictionEntries) {
+      const groupedByRace = predictionEntries.reduce((acc, entry) => {
+        // @ts-expect-error TODO: fix type error
+        const raceId = entry.prediction.raceId as Race["id"];
+        const position = entry.position;
+
+        const parsedEntry = {
+          ...entry,
+          createdAt: new Date(entry.createdAt),
+        };
+        const insertObj = {
+          [position]: parsedEntry,
+        } as Record<
+          Database.PredictionEntry["position"],
+          Database.PredictionEntry
+        >;
+
+        if (!acc.has(raceId)) {
+          acc.set(raceId, insertObj);
+          return acc;
+        }
+
+        const existing = acc.get(raceId);
+        acc.set(raceId, {
+          ...existing,
+          ...insertObj,
+        });
+        return acc;
+      }, new Map<Race["id"], Record<Database.PredictionEntry["position"], Database.PredictionEntry>>());
+      return groupedByRace;
+    },
+  },
+);
+
+function setStateToEmpty() {
+  Object.keys(state).forEach((key) => {
+    const stateKey = key as keyof typeof state;
+    state[stateKey] = undefined;
+  });
+}
+
+function populateStateFromSavedEntry() {
+  if (!currentRace.value) {
+    return;
+  }
+  const savedEntries = predictionsByRace.value?.get(currentRace.value.id);
+  if (!savedEntries) {
+    return;
+  }
+  Object.keys(state).forEach((key) => {
+    const stateKey = key as keyof typeof state;
+    const saved = savedEntries?.[stateKey] as Database.PredictionEntry;
+    if (!saved) {
+      return;
+    }
+    const newStateValue = saved.driverId
+      ? drivers.value?.find((driver) => driver.id === saved.driverId)
+      : constructors.value?.find(
+          (constructor) => constructor.id === saved.constructorId,
+        );
+    if (!newStateValue) {
+      return;
+    }
+    //@ts-expect-error TODO: type mismatch between constructor and driver
+    state[stateKey] = newStateValue;
+  });
+}
+
+onMounted(() => {
+  populateStateFromSavedEntry();
+});
+
+watch([() => currentRace.value?.id, predictionsByRace], () => {
+  console.log("raceId", currentRace.value?.id);
+  setStateToEmpty();
+  populateStateFromSavedEntry();
+});
+
 const driverSelects: {
   modelKey: keyof typeof state;
   label: string;
@@ -88,6 +170,7 @@ const errorMessage = ref("");
 const fetchError = ref<FetchError>();
 const isSubmitPending = ref(false);
 
+const toast = useToast();
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   errorMessage.value = "";
   fetchError.value = undefined;
@@ -208,7 +291,7 @@ NuxtLayout(name="tipping")
                   span {{ option.name }}
 
           div
-            UButton(block type="submit") Save
+            UButton(block type="submit" :disabled="isSubmitPending" :loading="isSubmitPending") Save
           div(v-if="errorMessage")
             SystemError(:heading="fetchError ? undefined : errorMessage" :fetch-error)
 </template>

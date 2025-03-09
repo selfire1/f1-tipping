@@ -96,6 +96,24 @@ export const predictionsTable = sqliteTable("predictions", {
     .notNull(),
 });
 
+export const predictionRelations = relations(
+  predictionsTable,
+  ({ many, one }) => ({
+    user: one(user, {
+      fields: [predictionsTable.userId],
+      references: [user.id],
+    }),
+    group: one(groupsTable, {
+      fields: [predictionsTable.groupId],
+      references: [groupsTable.id],
+    }),
+    race: one(racesTable, {
+      fields: [predictionsTable.raceId],
+      references: [racesTable.id],
+    }),
+  }),
+);
+
 export const predictionEntriesTable = sqliteTable("prediction_entries", {
   id: text("id").primaryKey().$defaultFn(createId),
   predictionId: text("prediction_id")
@@ -113,10 +131,33 @@ export const predictionEntriesTable = sqliteTable("prediction_entries", {
     .notNull(),
 });
 
+export const predictionEntriesRelations = relations(
+  predictionEntriesTable,
+  ({ many, one }) => ({
+    prediction: one(predictionsTable, {
+      fields: [predictionEntriesTable.predictionId],
+      references: [predictionsTable.id],
+    }),
+    driver: one(driversTable, {
+      fields: [predictionEntriesTable.driverId],
+      references: [driversTable.id],
+    }),
+    constructor: one(constructorsTable, {
+      fields: [predictionEntriesTable.constructorId],
+      references: [constructorsTable.id],
+    }),
+  }),
+);
+
 export type Group = typeof groupsTable.$inferSelect;
 export type Race = typeof racesTable.$inferSelect;
-export type InsertDriver = typeof driversTable.$inferInsert;
+
 export type Driver = typeof driversTable.$inferSelect;
+export type InsertDriver = typeof driversTable.$inferInsert;
+
 export type Constructor = typeof constructorsTable.$inferSelect;
+
 export type InsertPrediction = typeof predictionsTable.$inferInsert;
+
+export type PredictionEntry = typeof predictionEntriesTable.$inferSelect;
 export type InsertPredictionEntry = typeof predictionEntriesTable.$inferInsert;
