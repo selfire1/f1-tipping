@@ -149,6 +149,53 @@ export const predictionEntriesRelations = relations(
   }),
 );
 
+export const resultsTable = sqliteTable("results", {
+  id: text("id").primaryKey().$defaultFn(createId),
+  /**
+   * The id of the circut the race is held at
+   */
+  raceId: text()
+    .notNull()
+    .references(() => racesTable.id, { onDelete: "cascade" }),
+  addedAt: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  updatedAt: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  driverId: text().references(() => driversTable.id, { onDelete: "cascade" }),
+  constructorId: text().references(() => constructorsTable.id, {
+    onDelete: "cascade",
+  }),
+  /**
+   * The driver's grid position
+   */
+  grid: integer(),
+  /**
+   * Finishing position of the driver
+   */
+  position: integer().notNull(),
+  /**
+   * Points the driver earned for this result
+   */
+  points: integer().notNull(),
+  /**
+   * The drivers finishing status in long form
+   */
+  status: text().notNull(),
+});
+
+export const resultsRelations = relations(resultsTable, ({ many, one }) => ({
+  race: one(racesTable, {
+    fields: [resultsTable.raceId],
+    references: [racesTable.id],
+  }),
+  driver: one(driversTable, {
+    fields: [resultsTable.driverId],
+    references: [driversTable.id],
+  }),
+  constructor: one(constructorsTable, {
+    fields: [resultsTable.constructorId],
+    references: [constructorsTable.id],
+  }),
+}));
+
 export type Group = typeof groupsTable.$inferSelect;
 export type Race = typeof racesTable.$inferSelect;
 
@@ -162,3 +209,6 @@ export type InsertPrediction = typeof predictionsTable.$inferInsert;
 
 export type PredictionEntry = typeof predictionEntriesTable.$inferSelect;
 export type InsertPredictionEntry = typeof predictionEntriesTable.$inferInsert;
+
+export type Result = typeof resultsTable.$inferSelect;
+export type InsertResult = typeof resultsTable.$inferInsert;

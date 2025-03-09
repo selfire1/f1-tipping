@@ -1,5 +1,18 @@
+import type { Constructor } from "..";
+
 export type RaceResponse = ErgastResponse<{
   RaceTable?: RaceTable;
+}>;
+
+export type ResultsResponse = ErgastResponse<{
+  RaceTable?: {
+    season: string;
+    Races: Array<
+      Race & {
+        Results: ResultRace[];
+      }
+    >;
+  };
 }>;
 
 export type DriverResponse = ErgastResponse<{
@@ -32,6 +45,38 @@ type ErgastResponse<T> = {
 interface RaceTable {
   season: string;
   Races: Race[];
+}
+
+interface ResultRace extends Race {
+  /**
+   * The drivers number
+   */
+  number: string;
+  /**
+   * Finishing position of the drive
+   */
+  position: string;
+  points: string;
+  Driver: Driver;
+  Constructor?: Constructor & { constructorId: string };
+  grid?: string;
+  laps?: string;
+  status?: "Finished" | string;
+  Time?: {
+    millis: string;
+    time: string;
+  };
+  FastestLap?: {
+    ranks: string;
+    lap: string;
+    Time: {
+      time: string;
+    };
+    AverageSpeed: {
+      units: string;
+      speed: string;
+    };
+  };
 }
 
 interface Race {
