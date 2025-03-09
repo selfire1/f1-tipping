@@ -19,3 +19,12 @@ Tip the Formula 1 season with your friends.
 ## Credits
 
 - https://heropatterns.com/
+
+## TODO
+
+### Dashboard
+
+- [ ] next race
+- [ ] last race
+- [ ] past races
+- [ ] current leaderboard position
