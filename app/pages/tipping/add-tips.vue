@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from "ofetch";
 import { isBefore, formatDistanceToNowStrict } from "date-fns";
-import { useNow } from "@vueuse/core";
 import type { Database } from "~~/types/db";
 import type { FormSubmitEvent } from "#ui/types";
 import * as schemas from "~~/shared/schemas";
@@ -24,18 +23,11 @@ function getCutoffDateForCurrentGroup(
   );
 }
 
-const { allRaces } = await useRace();
+const { getRacesInTheFuture } = await useRace();
 const { allDrivers: drivers } = await useDriver();
 const { allConstructors: constructors } = await useConstructor();
-const now = useNow();
 const racesInTheFuture = computed(() => {
-  const all = allRaces.value;
-  return all?.filter((race) => {
-    const lastChanceToEnterTips = getCutoffDateForCurrentGroup(
-      race.qualifyingDate,
-    );
-    return isBefore(now.value, lastChanceToEnterTips);
-  });
+  return getRacesInTheFuture(currentUserGroup.value?.cutoffInMinutes);
 });
 const index = ref(0);
 const currentRace = computed(() => racesInTheFuture.value?.[index.value]);

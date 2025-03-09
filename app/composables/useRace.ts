@@ -1,3 +1,6 @@
+import { useNow } from "@vueuse/core";
+import { isBefore } from "date-fns";
+
 export const useRace = async () => {
   const nuxtApp = useNuxtApp();
 
@@ -17,5 +20,18 @@ export const useRace = async () => {
     lazy: true,
   });
 
-  return { allRaces: apiRaces };
+  return {
+    allRaces: apiRaces,
+    getRacesInTheFuture(cutoffInMinutes: MaybeRef<number> = 180) {
+      const now = useNow();
+      const all = apiRaces.value;
+      return all?.filter((race) => {
+        const lastChanceToEnterTips = getCutoffDate(
+          race.qualifyingDate,
+          unref(cutoffInMinutes),
+        );
+        return isBefore(now.value, lastChanceToEnterTips);
+      });
+    },
+  };
 };
