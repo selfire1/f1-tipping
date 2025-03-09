@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { createGroup as createGroupSchema } from "~~/shared/schemas";
 import type { FormSubmitEvent, Form } from "#ui/types";
+import type { Database } from "~~/types/db";
 const { user } = await useAuthUser();
 if (!user?.id) {
   await navigateTo("/auth");
@@ -64,6 +65,28 @@ const createGroup = useCreateGroup({
 definePageMeta({
   layout: false,
 });
+const columns = [
+  {
+    key: "name",
+    label: "Name",
+  },
+  {
+    key: "id",
+    label: "Link",
+  },
+];
+
+function copyGroupInviteLink(group: Database.Group) {
+  const baseUrl = window.location.origin;
+  navigator.clipboard.writeText(`${baseUrl}/join/${group.id}`);
+  const toast = useToast();
+  toast.add(
+    $getSuccessToast({
+      title: "Copied link for " + group.name,
+      description: "Send it to your friends to join!",
+    }),
+  );
+}
 </script>
 
 <template lang="pug">
@@ -71,16 +94,17 @@ NuxtLayout(name="tipping")
   template(#page-title)
     | Groups
   .space-y-6.is-page-height.is-container
-    TextHero(:level="2" heading="Your groups" :description="!groups?.items?.length ? 'You are not yet a member of a group. Create a new group or join an existing one.' : ''")
-    template(v-if="error")
-      p.bg-red-200.p-4.rounded Something went wrong: {{ error }}
-    template(v-if="groups?.items?.length")
-      ul.flex.flex.gap-2.flex-wrap
-        template(v-for="{ group } in groups.items" :key='group.id')
-          li
-            UButton(:to="`/tipping/${group.id}`" :label="group.name")
+    UCard
+      template(#header)
+        TextHero(:level="2" heading="Your groups" :description="!groups?.length ? 'You are not yet a member of a group. Create a new group or join an existing one.' : ''")
+      template(v-if="error")
+        p.bg-red-200.p-4.rounded Something went wrong: {{ error }}
+      template(v-if="groups?.length")
+        UTable(:columns :rows="groups")
+          template(#id-data=" { row }")
+            UButton(type="button" label="Copy invite link" @click="copyGroupInviteLink(row)" variant="soft" icon="carbon:link")
     div
-      .grid.gap-4(class="sm:grid-cols-2")
+      .grid.gap-4(class="md:grid-cols-2")
         UCard
           template(#header)
             p.is-display-6 Create a new group
