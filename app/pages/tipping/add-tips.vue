@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { FetchError } from "ofetch";
-import { isBefore, formatDistanceToNowStrict } from "date-fns";
 import type { Database } from "~~/types/db";
 import type { FormSubmitEvent } from "#ui/types";
 import * as schemas from "~~/shared/schemas";
 import type { z } from "zod";
 import { $getCutoffDate } from "~~/shared/utils";
-import SystemError from "~/components/SystemError.vue";
 import type { Race } from "~~/server/db/schema";
-import BadgeTimeTo from "~/components/BadgeTimeTo.vue";
-import RaceFlag from "~/components/Race/RaceFlag.vue";
 definePageMeta({
   layout: false,
 });
