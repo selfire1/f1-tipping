@@ -42,7 +42,7 @@ const description = (() => {
     case QueryOrigin.Join:
       return "Please sign in or create an account first before joining this group.";
     default:
-      "Whether you already have started tipping with GridTipp, or are creating a new account, sign in with Google to get started.";
+      return "Whether you already have started tipping with GridTipp, or are creating a new account, sign in with Google to get started.";
   }
 })();
 </script>
