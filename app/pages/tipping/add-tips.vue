@@ -126,8 +126,7 @@ onMounted(() => {
   populateStateFromSavedEntry();
 });
 
-watch([() => currentRace.value?.id, predictionsByRace], () => {
-  console.log("raceId", currentRace.value?.id);
+watchEffect(() => {
   setStateToEmpty();
   populateStateFromSavedEntry();
 });
