@@ -52,4 +52,9 @@ NuxtLayout(name="tipping")
         b first Grand Prix 
         span of the season.
       p If you miss entering your predictions, you unfortunately miss out on gaining points for the category!
+      h2 Results
+      p Results are usually available on the 
+        b Monday after 
+        span the Grand Prix weekend.
+      
 </template>
