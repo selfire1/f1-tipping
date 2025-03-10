@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:seed": "bun run ./server/db/seed.ts"
+    "db:seed": "bun run ./server/db/seed.ts",
+    "www:prod": "open 'https://app.netlify.com/sites/gridtip/deploys'"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
