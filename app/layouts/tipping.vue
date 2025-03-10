@@ -22,15 +22,15 @@ const links: HorizontalNavigationLink[][] = [
       to: "/tipping/leaderboard",
     },
     {
+      label: "Groups",
+      to: "/tipping/groups",
+    },
+    {
       label: "Rules & Scoring",
       to: "/tipping/rules",
     },
   ],
   [
-    {
-      label: "Groups",
-      to: "/tipping/groups",
-    },
     {
       label: "Feedback",
       to: "/tipping/contact",
