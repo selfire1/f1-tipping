@@ -32,6 +32,9 @@ export default defineNuxtConfig({
     "/auth/*": {
       ssr: false,
     },
+    "/join/*": {
+      ssr: false,
+    },
   },
   app: {
     head: {
