@@ -11,7 +11,7 @@ const idObject = z
   })
   .passthrough();
 
-export const saveTipp = z.object({
+export const saveTip = z.object({
   pole: idObject,
   p1: idObject,
   p10: idObject,
@@ -28,7 +28,7 @@ export const serverSaveChampionships = saveChampionships.extend({
   group: idObject,
 });
 
-export const serverSaveTipp = saveTipp.extend({
+export const serverSaveTip = saveTip.extend({
   race: idObject,
   group: idObject,
 });

@@ -154,10 +154,10 @@ const driverSelects: {
   },
 ];
 
-const schema = schemas.saveTipp;
+const schema = schemas.saveTip;
 
 type Schema = z.infer<typeof schema>;
-type ServerSchema = z.infer<typeof schemas.serverSaveTipp>;
+type ServerSchema = z.infer<typeof schemas.serverSaveTip>;
 
 const errorMessage = ref("");
 const fetchError = ref<FetchError>();

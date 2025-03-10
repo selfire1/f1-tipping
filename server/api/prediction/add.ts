@@ -6,7 +6,7 @@ import {
   predictionsTable,
   racesTable,
 } from "~~/server/db/schema";
-import { serverSaveTipp } from "~~/shared/schemas";
+import { serverSaveTip } from "~~/shared/schemas";
 import { $getCutoffDate } from "~~/shared/utils";
 import { Constructor, Driver } from "~~/types";
 import { Database } from "~~/types/db";
@@ -14,7 +14,7 @@ import { Database } from "~~/types/db";
 export default defineAuthedEventHandler(async (event) => {
   const timeOfSubmission = new Date();
   assertMethod(event, "POST");
-  const body = await readValidatedBody(event, serverSaveTipp.parse);
+  const body = await readValidatedBody(event, serverSaveTip.parse);
 
   const { currentGroup, currentGroupMembership } =
     await getCurrentGroupOfUser();

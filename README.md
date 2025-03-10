@@ -1,4 +1,4 @@
-# GridTipp
+# GridTip
 
 Tip the Formula 1 season with your friends.
 

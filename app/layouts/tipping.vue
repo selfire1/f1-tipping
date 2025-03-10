@@ -66,7 +66,7 @@ const { allUserGroups, currentUserGroup } = await useGroup();
       .p-4.space-y-1
         NuxtLink.flex.items-center.gap-1.text-muted(to="/tipping")
           UIcon.transition-colors(name="carbon:trophy-filled" size="xs" class="group-hover:bg-primary")
-          span.is-size-7.font-medium GridTipp
+          span.is-size-7.font-medium GridTip
         template(v-if="!allUserGroups?.length")
           p.italic.is-size-7 No group
         template(v-else-if="allUserGroups.length === 1 && currentUserGroup")
