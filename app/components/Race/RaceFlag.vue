@@ -10,6 +10,6 @@ const props = defineProps<{
 template(v-if="country && COUNTRY_FLAGS[country]")
   .aspect-landscape.size-24.relative
     .absolute.inset-0.flex.items-center.justify-center
-      NuxtImg.border.bg-faint.rounded(:src="COUNTRY_FLAGS[country]")
+      AppImg.border.bg-faint.rounded(:src="COUNTRY_FLAGS[country]")
 
 </template>

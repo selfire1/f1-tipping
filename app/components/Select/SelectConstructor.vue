@@ -11,10 +11,10 @@ USelectMenu(:options="constructors" searchable option-attribute="name" v-model="
     .text-faint(v-if="!selectedConstructor") Pick a constructor
     div(v-else)
       .flex.items-center.gap-2
-        NuxtImg.size-6(:src="`/img/constructors/${selectedConstructor.id}.avif`")
+        AppImg.size-6(:src="`/img/constructors/${selectedConstructor.id}.avif`")
         span {{ selectedConstructor.name }}
   template(#option="{ option }")
     .flex.items-center.gap-2
-      NuxtImg.size-6(:src="`/img/constructors/${option.id}.avif`")
+      AppImg.size-6(:src="`/img/constructors/${option.id}.avif`")
       span {{ option.name }}
 </template>
