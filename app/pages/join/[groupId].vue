@@ -2,7 +2,7 @@
 import { FetchError } from "ofetch";
 const groupId = useRoute().params.groupId as string;
 if (!groupId) {
-  throw createError({ statusCode: 404, message: "The group was not found." });
+  throw createError({ statusCode: 404, message: "No valid id found." });
 }
 const { authClient } = useAuth();
 const { data: loggedIn } = await authClient.useSession(useFetch);
