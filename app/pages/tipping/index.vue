@@ -38,6 +38,7 @@ const championshipCutoffDate = computed(() => {
 
 useSeoMeta({
   title: "Dashboard",
+  ogTitle: "Dashboard",
 });
 </script>
 
@@ -60,7 +61,7 @@ NuxtLayout(name="tipping")
             template(#footer)
               UButton(label="Tip now" to="/tipping/add-tips" trailing icon="carbon:arrow-right")
             .space-y-4
-              .relative.overflow-hidden.py-4.-mx-6.-mt-6
+              .relative.overflow-hidden.py-4.-mx-4.-mt-5(class="sm:-mx-6 sm:-mt-6")
                 AppImg.pointer-events-none.opacity-5.h-full.w-full.object-cover.inset-0.absolute(:src="COUNTRY_FLAGS[nextRace.country]")
                 .px-6
                   .flex.items-center.justify-between.is-size-8.uppercase.text-muted
@@ -85,7 +86,7 @@ NuxtLayout(name="tipping")
             template(#footer)
               UButton(label="Tip now" to="/tipping/championships" trailing icon="carbon:arrow-right")
             .space-y-4
-              .relative.overflow-hidden.py-4.-mx-6.-mt-6
+              .relative.overflow-hidden.py-4.-mx-4.-mt-5(class="sm:-mx-6 sm:-mt-6")
                 AppImg.pointer-events-none.opacity-5.h-full.w-full.object-cover.inset-0.absolute(src="https://images.unsplash.com/photo-1514820720301-4c4790309f46?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
                 .px-6
                   p.is-size-7.text-muted Drivers’ and Constructors’
