@@ -153,6 +153,7 @@ watchEffect(() => {
 
 useSeoMeta({
   title: "Championships",
+  ogTitle: "Championships",
 });
 </script>
 

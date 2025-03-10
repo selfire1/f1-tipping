@@ -45,6 +45,7 @@ const {
 
 useSeoMeta({
   title: "Join Group",
+  ogTitle: "Join Group",
 });
 </script>
 

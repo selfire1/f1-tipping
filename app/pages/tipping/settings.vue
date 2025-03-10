@@ -29,6 +29,7 @@ async function onConfirmDelete() {
 
 useSeoMeta({
   title: "Settings",
+  ogTitle: "Settings",
 });
 </script>
 

@@ -48,6 +48,7 @@ const description = (() => {
 
 useSeoMeta({
   title: "Log in or Sign up",
+  ogTitle: "Log in or Sign up",
 });
 </script>
 

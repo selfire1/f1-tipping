@@ -1,5 +1,8 @@
 <script setup lang="ts">
 const { isSignedIn } = useAuth();
+useHead({
+  titleTemplate: "",
+});
 </script>
 
 <template lang="pug">

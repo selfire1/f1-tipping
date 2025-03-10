@@ -90,6 +90,7 @@ function copyGroupInviteLink(group: Database.Group) {
 
 useSeoMeta({
   title: "Groups",
+  ogTitle: "Groups",
 });
 </script>
 

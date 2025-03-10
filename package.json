@@ -19,7 +19,6 @@
     "@nuxt/icon": "^1.10.3",
     "@nuxt/image": "^1.9.0",
     "@nuxt/ui": "2.21.0",
-    "@nuxtjs/seo": "^2.2.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@vueuse/core": "^12.7.0",
     "@vueuse/router": "^12.7.0",

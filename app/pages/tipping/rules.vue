@@ -5,6 +5,7 @@ definePageMeta({
 
 useSeoMeta({
   title: "Rules",
+  ogTitle: "Rules",
 });
 </script>
 

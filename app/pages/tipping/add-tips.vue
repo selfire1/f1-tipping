@@ -206,6 +206,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 useSeoMeta({
   title: "Enter tips",
+  ogTitle: "Enter tips",
 });
 </script>
 

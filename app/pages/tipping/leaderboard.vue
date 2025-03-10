@@ -5,6 +5,7 @@ definePageMeta({
 
 useSeoMeta({
   title: "Leaderboard",
+  ogTitle: "Leaderboard",
 });
 </script>
 

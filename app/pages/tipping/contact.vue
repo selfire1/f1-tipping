@@ -5,6 +5,7 @@ definePageMeta({
 
 useSeoMeta({
   title: "Contact",
+  ogTitle: "Contact",
 });
 </script>
 
