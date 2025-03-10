@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { groupMembersTable } from "~~/server/db/schema";
+
 export default defineAuthedEventHandler(async (event) => {
   assertMethod(event, "POST");
   const { id: targetID } = await getValidatedRouterParams(
@@ -11,7 +12,10 @@ export default defineAuthedEventHandler(async (event) => {
   );
 
   const doesExist = await db.query.groupMembersTable.findFirst({
-    where: eq(groupMembersTable.groupId, targetID),
+    where: and(
+      eq(groupMembersTable.groupId, targetID),
+      eq(groupMembersTable.userId, event.context.auth.user.id),
+    ),
     columns: {
       id: true,
     },
