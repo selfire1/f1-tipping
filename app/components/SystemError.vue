@@ -17,6 +17,10 @@ withDefaults(
   .space-y-1
     p.is-size-6.text-red-600 {{ heading ?? fetchError?.data?.message ?? "Something went wrong"  }}
     p.text-muted.is-size-7 {{ description }}
+    p.text-muted.is-size-7
+      span If this issue persists, please
+      NuxtLink.text-primary(to="/tipping/contact" class="hover:underline") contact us
+      span .
   DevOnly
     pre.mt-4.overflow-y-auto.is-size-8.p-1.bg-faint
       slot
