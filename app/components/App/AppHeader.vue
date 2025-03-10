@@ -1,19 +1,5 @@
 <script setup lang="ts">
-const { isSignedIn, authClient } = useAuth();
-async function signOut() {
-  authClient.signOut();
-  await navigateTo({
-    path: "/",
-    query: {
-      ...$getQueryOrigin(QueryOrigin.SignedOut),
-    },
-  });
-  const toast = useToast();
-  toast.add({
-    title: "Signed out",
-    description: "You have been signed out",
-  });
-}
+const { isSignedIn, signOut } = useAuth();
 </script>
 
 <template lang="pug">
