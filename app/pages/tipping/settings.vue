@@ -47,8 +47,9 @@ NuxtLayout(name="tipping")
         TextHero(:level="3" heading="Delete account")
           template(#description)
             p Are you sure? This will delete the account 
-              b {{ data?.user.name }}
-              b {{ ` (${data?.user.email}) ` }}
+              b {{ (data?.user?.name ?? "Unknown") + " " }}
+              template(v-if="data?.user?.email")
+                b {{ `(${data?.user?.email}) ` }}
               span and all connected data.
       .flex.items-center.justify-between
         UButton(@click="isConfirmDeleteModalPresented = false" label="Cancel" variant="outline")
