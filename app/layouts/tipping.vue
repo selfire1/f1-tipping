@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { HorizontalNavigationLink } from "#ui/types";
-import type { Database } from "~~/types/db";
 
 const { signOut } = useAuth();
 
