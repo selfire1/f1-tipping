@@ -4,7 +4,13 @@ Tip the Formula 1 season with your friends.
 
 ## Stack
 
+- [Nuxt](https://nuxt.com/)
 - [Nuxt UI](https://ui.nuxt.com/getting-started)
+- [tailwindcss v3](https://v3.tailwindcss.com/)
+- [Utopia](https://utopia.fyi/)
+- [Turso](https://turso.tech/)
+- [drizzle ORM](https://orm.drizzle.team/)
+- [Better Auth](https://better-auth.vercel.app/)
 
 ## Design system
 
