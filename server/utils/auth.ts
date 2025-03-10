@@ -3,6 +3,11 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db";
 
 export const auth = betterAuth({
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
