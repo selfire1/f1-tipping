@@ -21,6 +21,10 @@ const links: HorizontalNavigationLink[][] = [
       label: "Leaderboard",
       to: "/tipping/leaderboard",
     },
+    {
+      label: "Rules & Scoring",
+      to: "/tipping/rules",
+    },
   ],
   [
     {
