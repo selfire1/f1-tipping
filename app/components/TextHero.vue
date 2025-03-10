@@ -23,6 +23,8 @@ const headingClass = (() => {
 .TextHero.space-y-2
   slot(name="heading")
     component(:is="`h${props.level}`" :class="headingClass") {{ props.heading }}
-  p.text-muted.text-pretty(v-if="description") {{ description }}
+  .text-muted.text-pretty
+    slot(name="description")
+      p(v-if="description") {{ description }}
 
 </template>
