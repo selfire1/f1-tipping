@@ -8,6 +8,13 @@
       "when": 1741066200705,
       "tag": "0000_confused_roland_deschain",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1741598960619,
+      "tag": "0001_strong_lord_hawal",
+      "breakpoints": true
     }
   ]
 }
