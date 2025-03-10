@@ -58,3 +58,8 @@ export enum QueryOrigin {
 export enum STATE_KEYS {
   usersGroupCache = "allUserGroups",
 }
+
+export const enum HREF_LINKS {
+  GithubIssues = "https://github.com/selfire1/f1-tipping/issues",
+  Email = "mailto:hi+gridtip@joschua.io",
+}

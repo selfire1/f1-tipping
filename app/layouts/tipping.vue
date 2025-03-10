@@ -32,6 +32,10 @@ const links: HorizontalNavigationLink[][] = [
       to: "/tipping/groups",
     },
     {
+      label: "Feedback",
+      to: "/tipping/contact",
+    },
+    {
       label: "Settings",
       to: "/tipping/settings",
     },
