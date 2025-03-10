@@ -1,5 +1,16 @@
 body {
-  @apply text-primary-400;
+  @apply text-primary-400 dark:text-primary-100;
+  @apply dark:bg-gray-950;
+}
+
+.text-muted {
+  @apply dark:text-gray-400;
+}
+.text-faint {
+  @apply dark:text-gray-600;
+}
+.text-primary {
+  @apply dark:text-gray-100;
 }
 
 :root {

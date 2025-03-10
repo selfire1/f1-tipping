@@ -43,7 +43,7 @@ const { allUserGroups, currentUserGroup } = await useGroup();
 .is-layout-tipping
   div(class="md:flex md:flex-row")
     // desktop header
-    header.hidden.space-y-4.border-r(class="w-[15%] min-w-[10rem] bg-gray-50/50 md:block")
+    header.hidden.space-y-4.border-r(class="w-[15%] min-w-[10rem] bg-gray-50/50 md:block dark:bg-gray-900 dark:border-gray-700")
       .p-4.space-y-1
         NuxtLink.flex.items-center.gap-1.text-muted(to="/tipping")
           UIcon.transition-colors(name="carbon:trophy-filled" size="xs" class="group-hover:bg-primary")
