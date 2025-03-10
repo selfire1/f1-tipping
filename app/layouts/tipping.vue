@@ -7,8 +7,6 @@ const links: HorizontalNavigationLink[][] = [
       label: "Dashboard",
       to: "/tipping",
     },
-  ],
-  [
     {
       label: "Enter tips",
       to: "/tipping/add-tips",
@@ -17,6 +15,8 @@ const links: HorizontalNavigationLink[][] = [
       label: "Championships",
       to: "/tipping/championships",
     },
+  ],
+  [
     {
       label: "Leaderboard",
       to: "/tipping/leaderboard",
