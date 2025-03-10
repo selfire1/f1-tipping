@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { HorizontalNavigationLink } from "#ui/types";
 import type { Database } from "~~/types/db";
+
+const { signOut } = useAuth();
+
 const links: HorizontalNavigationLink[][] = [
   [
     {
@@ -38,6 +41,15 @@ const links: HorizontalNavigationLink[][] = [
     {
       label: "Settings",
       to: "/tipping/settings",
+    },
+  ],
+  [
+    {
+      label: "Sign out",
+      icon: "carbon:exit",
+      async click() {
+        await signOut();
+      },
     },
   ],
 ];
