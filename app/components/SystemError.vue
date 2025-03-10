@@ -18,7 +18,7 @@ withDefaults(
     p.is-size-6.text-red-600 {{ heading ?? fetchError?.data?.message ?? "Something went wrong"  }}
     p.text-muted.is-size-7 {{ description }}
     p.text-muted.is-size-7
-      span If this issue persists, please
+      span If this issue persists, please 
       NuxtLink.text-primary(to="/tipping/contact" class="hover:underline") contact us
       span .
   DevOnly
