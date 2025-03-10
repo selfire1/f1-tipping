@@ -12,22 +12,6 @@ export default defineBasicAuthedEventHandler(async (event) => {
 
   let results: Database.InsertResult[] = [];
 
-  const circuitsThisYear = (
-    await db.query.racesTable.findMany({
-      columns: {
-        circuitName: true,
-      },
-    })
-  ).map((race) => race.circuitName);
-
-  const driversThisYear = (
-    await db.query.driversTable.findMany({
-      columns: {
-        id: true,
-      },
-    })
-  ).map((driver) => driver.id);
-
   while (total === null || offset < total) {
     console.log({ total, offset });
     const response = await fetchJolpica<ResultsResponse>(
