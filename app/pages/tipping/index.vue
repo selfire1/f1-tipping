@@ -35,6 +35,10 @@ const championshipCutoffDate = computed(() => {
   }
   return $getCutoffDate(firstRace?.qualifyingDate, groupCutoff);
 });
+
+useSeoMeta({
+  title: "Dashboard",
+});
 </script>
 
 <template lang="pug">

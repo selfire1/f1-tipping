@@ -203,6 +203,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     isSubmitPending.value = false;
   }
 }
+
+useSeoMeta({
+  title: "Enter tips",
+});
 </script>
 
 <template lang="pug">

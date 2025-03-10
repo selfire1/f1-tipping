@@ -45,6 +45,10 @@ const description = (() => {
       return "Whether you already have started tipping with GridTipp, or are creating a new account, sign in with Google to get started.";
   }
 })();
+
+useSeoMeta({
+  title: "Log in or Sign up",
+});
 </script>
 
 <template lang="pug">

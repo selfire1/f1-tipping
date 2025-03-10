@@ -42,6 +42,10 @@ const {
     await navigateTo("/tipping");
   },
 });
+
+useSeoMeta({
+  title: "Join Group",
+});
 </script>
 
 <template lang="pug">

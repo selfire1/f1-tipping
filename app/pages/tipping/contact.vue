@@ -2,6 +2,10 @@
 definePageMeta({
   layout: false,
 });
+
+useSeoMeta({
+  title: "Contact",
+});
 </script>
 
 <template lang="pug">

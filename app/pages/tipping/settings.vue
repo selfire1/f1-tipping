@@ -26,6 +26,10 @@ async function onConfirmDelete() {
     );
   }
 }
+
+useSeoMeta({
+  title: "Settings",
+});
 </script>
 
 <template lang="pug">

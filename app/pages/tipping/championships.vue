@@ -150,6 +150,10 @@ watchEffect(() => {
   setStateToEmpty();
   populateStateFromSavedEntry();
 });
+
+useSeoMeta({
+  title: "Championships",
+});
 </script>
 
 <template lang="pug">

@@ -2,6 +2,10 @@
 definePageMeta({
   layout: false,
 });
+
+useSeoMeta({
+  title: "Leaderboard",
+});
 </script>
 
 <template lang="pug">

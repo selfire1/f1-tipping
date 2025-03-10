@@ -2,6 +2,10 @@
 definePageMeta({
   layout: false,
 });
+
+useSeoMeta({
+  title: "Rules",
+});
 </script>
 
 <template lang="pug">

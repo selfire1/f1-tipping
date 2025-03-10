@@ -87,6 +87,10 @@ function copyGroupInviteLink(group: Database.Group) {
     }),
   );
 }
+
+useSeoMeta({
+  title: "Groups",
+});
 </script>
 
 <template lang="pug">
