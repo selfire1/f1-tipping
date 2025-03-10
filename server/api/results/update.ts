@@ -73,6 +73,13 @@ export default defineBasicAuthedEventHandler(async (event) => {
     await setTimeout(1000); // NOTE: to keep within API burst limit
   }
 
+  if (!results.length) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "No results found",
+    });
+  }
+
   await db.delete(resultsTable); // reset table
   const returning = await db.insert(resultsTable).values(results).returning({
     id: resultsTable.id,
