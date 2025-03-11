@@ -9,6 +9,10 @@
   html {
     scroll-behavior: smooth;
   }
+  b,
+  strong {
+    @apply font-semibold;
+  }
 }
 
 @layer utilities {
