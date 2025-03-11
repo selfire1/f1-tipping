@@ -3,11 +3,6 @@ import { isFuture } from "date-fns";
 import BadgeTimeTo from "~/components/BadgeTimeTo.vue";
 import { $getCutoffDate } from "~~/shared/utils";
 
-const { user } = await useAuthUser();
-if (!user?.id) {
-  await navigateTo("/auth");
-}
-
 definePageMeta({
   layout: false,
 });
