@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { isFuture } from "date-fns";
-import BadgeTimeTo from "~/components/BadgeTimeTo.vue";
 import { $getCutoffDate } from "~~/shared/utils";
 
 definePageMeta({
