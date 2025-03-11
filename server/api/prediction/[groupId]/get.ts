@@ -1,12 +1,9 @@
 import { and, eq, inArray } from "drizzle-orm";
-import {
-  predictionEntriesTable,
-  predictionsTable,
-  Race,
-} from "~~/server/db/schema";
+import { predictionEntriesTable, predictionsTable } from "~~/server/db/schema";
 import z from "zod";
 
 export default defineAuthedEventHandler(async (event) => {
+  assertMethod(event, "GET");
   const { groupId } = await getValidatedRouterParams(
     event,
     z.object({
@@ -14,7 +11,14 @@ export default defineAuthedEventHandler(async (event) => {
     }).parse,
   );
 
-  assertMethod(event, "GET");
+  const { raceId = "" } = await getValidatedQuery(
+    event,
+    z.object({
+      raceId: z.string().or(z.literal("championships")),
+    }).parse,
+  );
+
+  const whereQuery = getSubqueryCondition(raceId);
 
   const predictionEntries = await db.query.predictionEntriesTable.findMany({
     where: inArray(
@@ -22,12 +26,7 @@ export default defineAuthedEventHandler(async (event) => {
       db
         .select({ id: predictionsTable.id })
         .from(predictionsTable)
-        .where(
-          and(
-            eq(predictionsTable.userId, event.context.auth.user.id),
-            eq(predictionsTable.groupId, groupId),
-          ),
-        ),
+        .where(whereQuery),
     ),
     // @ts-expect-error TODO: fix type error
     with: {
@@ -40,4 +39,30 @@ export default defineAuthedEventHandler(async (event) => {
   });
 
   return predictionEntries;
+
+  // helper methods
+
+  function getSubqueryCondition(targetRaceId?: string) {
+    const conditions = {
+      isForCurrentUser: eq(predictionsTable.userId, event.context.auth.user.id),
+      isForSuppliedGroup: eq(predictionsTable.groupId, groupId),
+      onlyChampionship: eq(predictionsTable.isForChampionship, true),
+    };
+    if (targetRaceId === "championships") {
+      return and(
+        conditions.isForCurrentUser,
+        conditions.isForSuppliedGroup,
+        conditions.onlyChampionship,
+      );
+    }
+
+    if (targetRaceId) {
+      return and(
+        conditions.isForCurrentUser,
+        conditions.isForSuppliedGroup,
+        eq(predictionsTable.raceId, targetRaceId),
+      );
+    }
+    return and(conditions.isForCurrentUser, conditions.isForSuppliedGroup);
+  }
 });
