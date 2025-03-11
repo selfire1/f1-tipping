@@ -4,7 +4,7 @@ import { isBefore } from "date-fns";
 export const useRace = async () => {
   const nuxtApp = useNuxtApp();
 
-  const { data: apiRaces } = await useFetch("/api/races", {
+  const { data: apiRaces, status } = await useFetch("/api/races", {
     transform(data) {
       return data.items?.map((race) => ({
         ...race,
@@ -22,6 +22,7 @@ export const useRace = async () => {
 
   return {
     allRaces: apiRaces,
+    status,
     getRacesInTheFuture(cutoffInMinutes?: MaybeRef<number>) {
       const now = useNow();
       const all = apiRaces.value;
