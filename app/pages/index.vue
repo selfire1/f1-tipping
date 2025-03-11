@@ -1,9 +1,21 @@
 <script setup lang="ts">
+import { whenever } from "@vueuse/core";
 const { authClient } = useAuth();
 const { data, isPending } = await authClient.useSession(useFetch);
 const isSignedIn = computed(() => data.value?.user);
 useHead({
   titleTemplate: "",
+});
+
+onMounted(async () => {
+  if (!isSignedIn.value) {
+    return;
+  }
+  await navigateTo("/tipping");
+});
+
+whenever(isSignedIn, async () => {
+  await navigateTo("/tipping");
 });
 </script>
 
