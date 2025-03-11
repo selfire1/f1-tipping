@@ -30,8 +30,9 @@ NuxtLayout(name="tipping")
         li Driver who finished in 
           b P10
           span : 1 point 
-        li Driver who crosses the finish line
-          b  last
+        li Driver who is
+          b  last to 
+            em finish
           span : 1 point. This excludes “Did Not Finish”s.
       h3 Championships
       p You can bolster your points by correctly predicting the Constructors’ and Drivers’ Championships.

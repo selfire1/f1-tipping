@@ -125,35 +125,6 @@ watchEffect(() => {
   populateStateFromSavedEntry();
 });
 
-const driverSelects: {
-  modelKey: keyof typeof state;
-  label: string;
-  description: string;
-  hint?: string;
-}[] = [
-  {
-    modelKey: "pole",
-    label: "Pole Position",
-    description: "Which driver will start at the front?",
-  },
-  {
-    modelKey: "p1",
-    label: "P1",
-    description: "Who will finish first in the GP?",
-  },
-  {
-    modelKey: "p10",
-    label: "P10",
-    description: "Which driver will just snatch some points?",
-  },
-  {
-    modelKey: "last",
-    label: "Last place",
-    description: "Who crosses the finish line last?",
-    hint: "Excluding DNFs",
-  },
-];
-
 const schema = schemas.saveTip;
 
 type Schema = z.infer<typeof schema>;
@@ -258,11 +229,18 @@ NuxtLayout(name="tipping")
           | Next
 
         
-      section.is-container.py-4
-        UForm.space-y-8(:schema :state @submit="onSubmit")
-          template(v-for="{ modelKey, label, description, hint } in driverSelects" :id="modelKey")
-            UFormGroup(:label :description :hint :name="modelKey")
-              SelectDriver(v-model="state[modelKey]")
+      section.is-container.py-8
+        UForm.space-y-6(:schema :state @submit="onSubmit")
+          UFormGroup(label="Pole Position" description="Which driver will start at the front?"  name="pole")
+            SelectDriver(v-model="state.pole")
+          UFormGroup(label="P1" description="Who will finish first in the GP?"  name="p1")
+            SelectDriver(v-model="state.p1")
+          UFormGroup(label="P10" description="Which driver will just snatch some points?"  name="p10")
+            SelectDriver(v-model="state.p10")
+          UFormGroup(label="Last place"  name="last" hint="Excluding DNFs")
+            template(#description)
+              p Which driver is last to finish?
+            SelectDriver(v-model="state.last")
           UFormGroup(label="Most constructor points" description="Which constructor will haul the most points in the Grand Prix?" name="constructorWithMostPoints")
             SelectConstructor(v-model="state.constructorWithMostPoints")
 
