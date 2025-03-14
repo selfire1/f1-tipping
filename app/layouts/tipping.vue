@@ -75,7 +75,7 @@ const { allUserGroups, currentUserGroup } = await useGroup();
           USelectMenu(:options="allUserGroups" v-model="currentUserGroup" option-attribute="name")
       UVerticalNavigation.px-1(:links)
     // mobile header
-    header.sticky.top-0.bg-white(class="dark:bg-gray-800 md:hidden")
+    header.z-10.sticky.top-0.bg-white(class="dark:bg-gray-800 md:hidden")
       .is-container.is-header(class="md:hidden")
         .is-header-wrapper
           .is-header-wrapper-link
