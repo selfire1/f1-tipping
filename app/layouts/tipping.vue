@@ -82,12 +82,15 @@ const { allUserGroups, currentUserGroup } = await useGroup();
             UButton(icon="carbon:open-panel-filled-left" aria-label="Open mobile navigation" variant="ghost" @click="isMobileNavPresented = true")
             h1.is-display-6
               slot(name="page-title")
-          template(v-if="!allUserGroups?.length")
-            p.italic.is-size-7.text-muted No group
-          template(v-else-if="allUserGroups.length === 1 && currentUserGroup")
-            p.italic.is-size-7.text-muted {{currentUserGroup.name}}
-          template(v-else)
-            USelectMenu(:options="allUserGroups" v-model="currentUserGroup" option-attribute="name")
+          .flex.items-center.gap-4
+            div
+              template(v-if="!allUserGroups?.length")
+                p.italic.is-size-7.text-muted No group
+              template(v-else-if="allUserGroups.length === 1 && currentUserGroup")
+                p.italic.is-size-7.text-muted {{currentUserGroup.name}}
+              template(v-else)
+                USelectMenu(:options="allUserGroups" v-model="currentUserGroup" option-attribute="name")
+            UButton(icon="carbon:home" aria-label="Home" to="/tipping" title="Dashboard" variant="ghost")
       UDivider
 
     main.w-full
