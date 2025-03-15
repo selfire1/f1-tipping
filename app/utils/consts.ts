@@ -1,3 +1,5 @@
+import type { RacePredictionField } from "~~/types";
+
 export const LOWEST_ROUND_NO = 1;
 export const HIGHEST_ROUND_NO = 23;
 
@@ -63,3 +65,11 @@ export const enum HREF_LINKS {
   GithubIssues = "https://github.com/selfire1/f1-tipping/issues",
   Email = "mailto:hi+gridtip@joschua.io",
 }
+
+export const RACE_KEYS_TO_LABEL: Record<RacePredictionField, string> = {
+  pole: "Pole position",
+  p1: "P1",
+  p10: "P10",
+  last: "Last position",
+  constructorWithMostPoints: "Constructor with most points",
+};
