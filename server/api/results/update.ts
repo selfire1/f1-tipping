@@ -46,7 +46,9 @@ export default defineBasicAuthedEventHandler(async (event) => {
             driverId: result.Driver.driverId,
             constructorId: result.Constructor.constructorId,
             grid: result.grid ? +result.grid : null,
-            position: +result.position,
+            position: isNaN(parseInt(result.positionText))
+              ? null
+              : +result.positionText,
             points: +result.points,
             status: result.status,
           };
