@@ -13,14 +13,17 @@ const {
   currentUserGroup,
   status: groupStatus,
 } = await useGroup();
-const {
-  getRacesInTheFuture,
-  allRaces,
-  status: raceStatus,
-  getIsRaceAfterCutoff,
-} = await useRace();
+const { getRacesInTheFuture, deserialise, getIsRaceAfterCutoff } = useRace();
+const { data: allRaces, status: raceStatus } = useFetch("/api/races", {
+  ...$getCachedFetchConfig("races"),
+  transform: (data) => data.items.map(deserialise),
+});
 const nextRace = computed(
-  () => getRacesInTheFuture(currentUserGroup.value?.cutoffInMinutes)?.[0],
+  () =>
+    getRacesInTheFuture(
+      allRaces.value,
+      currentUserGroup.value?.cutoffInMinutes,
+    )?.[0],
 );
 
 const championshipCutoffDate = computed(() => {

@@ -21,11 +21,20 @@ function getCutoffDateForCurrentGroup(
   );
 }
 
-const { getRacesInTheFuture } = await useRace();
+const { getRacesInTheFuture, deserialise } = useRace();
+const { data: races } = useFetch("/api/races", {
+  ...$getCachedFetchConfig("races"),
+});
 const { allDrivers: drivers } = await useDriver();
 const { allConstructors: constructors } = await useConstructor();
 const racesInTheFuture = computed(() => {
-  return getRacesInTheFuture(currentUserGroup.value?.cutoffInMinutes);
+  if (!races.value?.items?.length) {
+    return;
+  }
+  return getRacesInTheFuture(
+    races.value.items.map(deserialise),
+    currentUserGroup.value?.cutoffInMinutes,
+  );
 });
 const index = ref(0);
 const currentRace = computed(() => racesInTheFuture.value?.[index.value]);

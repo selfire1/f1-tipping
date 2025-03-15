@@ -15,7 +15,11 @@ definePageMeta({
 });
 
 const { currentUserGroup } = await useGroup();
-const { allRaces } = await useRace();
+const { deserialise } = useRace();
+const { data: allRaces } = useFetch("/api/races", {
+  ...$getCachedFetchConfig("races"),
+  transform: (data) => data.items.map(deserialise),
+});
 
 const cutoffDate = computed(() => {
   const groupCutoff = currentUserGroup.value?.cutoffInMinutes;
