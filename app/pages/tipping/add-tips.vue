@@ -190,7 +190,10 @@ NuxtLayout(name="tipping")
     .is-page-height.py-0
       section.py-4.is-bg-pattern
         .is-container.flex.gap-4.items-center
-          RaceFlag(:country="currentRace.country")
+          template(v-if="currentRace.country && COUNTRY_FLAGS[currentRace.country]")
+            .aspect-landscape.size-24.relative
+              .absolute.inset-0.flex.items-center.justify-center
+                AppImg.border.bg-faint.rounded(:src="COUNTRY_FLAGS[currentRace.country]")
           .w-full
             .flex.items-center.justify-between.is-size-8.uppercase.text-muted
               p {{ "Round " + currentRace.round }}
