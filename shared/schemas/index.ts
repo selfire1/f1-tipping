@@ -34,5 +34,5 @@ export const serverSaveTip = saveTip.extend({
 });
 
 export const getResultOptions = z.object({
-  race: idObject.optional(),
+  raceId: z.string().optional(),
 });
