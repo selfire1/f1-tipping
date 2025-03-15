@@ -1,5 +1,5 @@
 import { setTimeout } from "timers/promises";
-import { resultsTable } from "~~/server/db/schema";
+import { InsertResult, resultsTable } from "~~/server/db/schema";
 import type { Database } from "~~/types/db";
 import type { ResultsResponse } from "~~/types/ergast";
 
@@ -41,15 +41,16 @@ export default defineBasicAuthedEventHandler(async (event) => {
             });
           }
 
-          return {
+          const item: InsertResult = {
             raceId: race.Circuit.circuitId,
             driverId: result.Driver.driverId,
-            constructorId: result.Constructor?.constructorId,
+            constructorId: result.Constructor.constructorId,
             grid: result.grid ? +result.grid : null,
             position: +result.position,
             points: +result.points,
             status: result.status,
           };
+          return item;
         }).filter(Boolean);
       }),
     );

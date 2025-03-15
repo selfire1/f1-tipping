@@ -181,6 +181,11 @@ export const resultsTable = sqliteTable("results", {
     .default(sql`(unixepoch())`)
     .notNull(),
   driverId: text().references(() => driversTable.id, { onDelete: "cascade" }),
+  constructorId: text()
+    .references(() => constructorsTable.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   /**
    * The driver's grid (qualifying) position
    */
@@ -207,6 +212,10 @@ export const resultsRelations = relations(resultsTable, ({ many, one }) => ({
   driver: one(driversTable, {
     fields: [resultsTable.driverId],
     references: [driversTable.id],
+  }),
+  constructor: one(constructorsTable, {
+    fields: [resultsTable.constructorId],
+    references: [constructorsTable.id],
   }),
 }));
 
