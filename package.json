@@ -11,6 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:generate:staging": "bun --env-file=.env.staging run db:generate",
     "db:migrate:staging": "bun --env-file=.env.staging run db:migrate",
+    "db:push:staging": "bun --env-file=.env.staging run db:push",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "bun run ./server/db/seed.ts",
