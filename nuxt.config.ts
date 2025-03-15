@@ -26,13 +26,13 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    "/tipping/*": {
+    "/tipping/**": {
       ssr: false,
     },
-    "/auth/*": {
+    "/auth/**": {
       ssr: false,
     },
-    "/join/*": {
+    "/join/**": {
       ssr: false,
     },
   },
