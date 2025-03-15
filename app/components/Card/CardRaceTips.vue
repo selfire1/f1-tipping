@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AccordionItem } from "#ui/types";
 import { RACE_KEYS_TO_LABEL } from "~/utils/consts";
-import type { RacePredictionField } from "~~/types";
+import type { Component, RacePredictionField } from "~~/types";
 import type { Database } from "~~/types/db";
 import DriverOption from "../DriverOption.vue";
 const props = defineProps<{
