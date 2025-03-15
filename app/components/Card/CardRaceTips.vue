@@ -1,0 +1,88 @@
+<script setup lang="ts">
+import type { AccordionItem } from "#ui/types";
+import { RACE_KEYS_TO_LABEL } from "~/utils/consts";
+import type { RacePredictionField } from "~~/types";
+import type { Database } from "~~/types/db";
+import DriverOption from "../DriverOption.vue";
+const props = defineProps<{
+  race: Omit<Database.Race, "lastUpdated" | "created">;
+}>();
+
+const { currentUserGroup } = await useGroup();
+const { data } = await useFetch(
+  `/api/prediction/${currentUserGroup.value?.id}/get`,
+  {
+    query: {
+      entireGroup: true,
+      raceId: props.race.id,
+    },
+    ...$getCachedFetchConfig("all predictions"),
+    transform: (entries) => {
+      return entries.reduce(
+        (acc, entry) => {
+          const position = entry.position as RacePredictionField;
+          const mappedEntry = {
+            id: entry.id,
+            // @ts-expect-error Exists with this query
+            userName: entry.prediction.user.name,
+            position,
+            value: entry.driver || entry.constructor,
+          };
+          if (!acc[position]) {
+            acc[position] = [mappedEntry];
+            return acc;
+          }
+          acc[position].push(mappedEntry);
+          return acc;
+        },
+        {} as Record<
+          RacePredictionField,
+          {
+            id: string;
+            userName: string;
+            position: RacePredictionField;
+            value: Database.Driver | Database.Constructor | null;
+          }[]
+        >,
+      );
+    },
+  },
+);
+
+const { user } = await useAuthUser();
+
+const items = computed(() => {
+  return Object.entries(data.value ?? {}).map(
+    ([position, predictions], index) => {
+      const item: AccordionItem = {
+        label: RACE_KEYS_TO_LABEL[position as RacePredictionField],
+        defaultOpen: !index,
+        content: predictions.sort((a, b) =>
+          a.userName.localeCompare(b.userName),
+        ),
+      };
+      return item;
+    },
+  );
+});
+</script>
+
+<template lang="pug">
+UCard
+  template(#header)
+    h2.is-display-7 Race tips
+  template(v-if="!items?.length")
+    p.text-muted None found.
+  template(v-else)
+    UAccordion(:items="items" multiple)
+      template(#item="{ item }")
+        template(v-for="prediction in item.content" :key='prediction.id')
+          .border.p-1.grid.grid-cols-2.gap-2(:class="prediction.userName !== user?.name ? 'border-transparent': ''")
+            p.is-display-7.truncate {{ prediction.userName }}
+            .is-size-7
+              template(v-if="'familyName' in prediction.value")
+                DriverOption(:option="prediction.value")
+              template(v-else)
+                ConstructorOption(:option="prediction.value")
+
+</template>

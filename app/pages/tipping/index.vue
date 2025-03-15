@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { isFuture } from "date-fns";
+import { isFuture, isThisWeek } from "date-fns";
+import CardRaceTips from "~/components/Card/CardRaceTips.vue";
+import { $getCachedFetchConfig } from "~/utils";
 import { $getCutoffDate } from "~~/shared/utils";
 
 definePageMeta({
@@ -11,18 +13,14 @@ const {
   currentUserGroup,
   status: groupStatus,
 } = await useGroup();
-const { getRacesInTheFuture, allRaces, status: raceStatus } = await useRace();
+const {
+  getRacesInTheFuture,
+  allRaces,
+  status: raceStatus,
+  getIsRaceAfterCutoff,
+} = await useRace();
 const nextRace = computed(
   () => getRacesInTheFuture(currentUserGroup.value?.cutoffInMinutes)?.[0],
-);
-
-const nextRaceCutOffDate = computed(() =>
-  nextRace?.value?.qualifyingDate
-    ? $getCutoffDate(
-        nextRace.value?.qualifyingDate,
-        currentUserGroup.value?.cutoffInMinutes,
-      )
-    : null,
 );
 
 const championshipCutoffDate = computed(() => {
@@ -38,6 +36,28 @@ useSeoMeta({
   title: "Dashboard",
   ogTitle: "Dashboard",
 });
+
+const { data: predictions } = useFetch(
+  `/api/prediction/${currentUserGroup.value?.id}/get`,
+  {
+    ...$getCachedFetchConfig("predictions"),
+  },
+);
+
+const raceThisWeek = computed(() => {
+  return allRaces.value?.find((race) =>
+    isThisWeek(new Date(race.qualifyingDate)),
+  );
+});
+const isRaceThisWeekAfterTippingCutoff = computed(() => {
+  if (!raceThisWeek.value) {
+    return false;
+  }
+  return getIsRaceAfterCutoff(
+    raceThisWeek.value,
+    currentUserGroup.value?.cutoffInMinutes,
+  );
+});
 </script>
 
 <template lang="pug">
@@ -51,54 +71,14 @@ NuxtLayout(name="tipping")
     template(v-else)
       .grid.is-grid-card-fit.gap-8
         template(v-if="!allUserGroups?.length")
-          UCard
-            template(#header)
-              TextHero(:level="2" heading="Join or start a group" description="You are not yet a member of a group. Get started tipping by joining or creating a group.")
-            UButton(to="/tipping/groups" label="Manage groups")
+          LazyCardJoinGroup
         template(v-else)
+          template(v-if="isRaceThisWeekAfterTippingCutoff && raceThisWeek")
+            div
+              CardRaceTips(:race="raceThisWeek")
           template(v-if="championshipCutoffDate && isFuture(championshipCutoffDate)")
-            UCard
-              template(#header)
-                h2.is-display-7 Tip the Championships
-              template(#footer)
-                UButton(label="Tip now" to="/tipping/championships" trailing icon="carbon:arrow-right")
-              .space-y-4
-                .relative.overflow-hidden.py-4.-mx-4.-mt-5(class="sm:-mx-6 sm:-mt-6")
-                  AppImg.pointer-events-none.opacity-5.h-full.w-full.object-cover.inset-0.absolute(src="https://images.unsplash.com/photo-1514820720301-4c4790309f46?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
-                  .px-6
-                    p.is-size-7.text-muted Drivers’ and Constructors’
-                    p.is-display-5 Championships
-                .is-size-7
-                  p.is-display-7.flex.items-center.gap-2
-                    | Tipping closes
-                    BadgeTimeTo(:date="championshipCutoffDate")
-                  .flex
-                    .pl-2
-                      p {{ championshipCutoffDate.toLocaleString(undefined, { hour: "numeric", minute: "2-digit"}) }}
-                      p {{ championshipCutoffDate.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric" }) }}
+            LazyCardTipChampionships(:cutoff-date="championshipCutoffDate")
           template(v-if="nextRace")
-            UCard
-              template(#header)
-                h2.is-display-7 Predict the next race
-              template(#footer)
-                UButton(label="Tip now" to="/tipping/add-tips" trailing icon="carbon:arrow-right")
-              .space-y-4
-                .relative.overflow-hidden.py-4.-mx-4.-mt-5(class="sm:-mx-6 sm:-mt-6")
-                  AppImg.pointer-events-none.opacity-5.h-full.w-full.object-cover.inset-0.absolute(:src="COUNTRY_FLAGS[nextRace.country]")
-                  .px-6
-                    .flex.items-center.justify-between.is-size-8.uppercase.text-muted
-                      p {{ "Round " + nextRace.round }}
-                      p
-                        span {{ nextRace.locality + ", " }}
-                        span {{ nextRace.country }}
-                    p.is-display-5 {{ nextRace.raceName }}
-                .is-size-7(v-if="nextRaceCutOffDate")
-                  p.is-display-7.flex.items-center.gap-2
-                    | Tipping closes
-                    BadgeTimeTo(:date="nextRaceCutOffDate")
-                  .flex
-                    .pl-2
-                      p {{ nextRaceCutOffDate.toLocaleString(undefined, { hour: "numeric", minute: "2-digit"}) }}
-                      p {{ nextRaceCutOffDate.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric" }) }}
+            LazyCardTipRace(:race='nextRace')
 
 </template>

@@ -1,5 +1,6 @@
 import { useNow } from "@vueuse/core";
-import { isBefore } from "date-fns";
+import { isAfter } from "date-fns";
+import type { Database } from "~~/types/db";
 
 export const useRace = async () => {
   const nuxtApp = useNuxtApp();
@@ -20,19 +21,33 @@ export const useRace = async () => {
     lazy: true,
   });
 
+  function getIsRaceAfterCutoff(
+    race: Pick<Database.Race, "qualifyingDate">,
+    cutoffInMinutes?: MaybeRef<number>,
+  ): boolean {
+    const now = useNow();
+    const lastChanceToEnterTips = $getCutoffDate(
+      race.qualifyingDate,
+      unref(cutoffInMinutes),
+    );
+    return isAfter(now.value, lastChanceToEnterTips);
+  }
+
   return {
     allRaces: apiRaces,
     status,
-    getRacesInTheFuture(cutoffInMinutes?: MaybeRef<number>) {
-      const now = useNow();
+    getIsRaceAfterCutoff,
+    getRacesInTheFuture(cutoffInMinutes?: MaybeRef<number>): Database.Race[] {
       const all = apiRaces.value;
-      return all?.filter((race) => {
-        const lastChanceToEnterTips = $getCutoffDate(
-          race.qualifyingDate,
-          unref(cutoffInMinutes),
-        );
-        return isBefore(now.value, lastChanceToEnterTips);
-      });
+      return (
+        all
+          ?.filter((race) => !getIsRaceAfterCutoff(race, cutoffInMinutes))
+          ?.map((race) => ({
+            ...race,
+            created: new Date(race.created),
+            lastUpdated: new Date(race.lastUpdated),
+          })) ?? []
+      );
     },
   };
 };

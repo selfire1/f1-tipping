@@ -2,7 +2,7 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { createId } from "@paralleldrive/cuid2";
 import { user } from "./auth-schema";
 import { PREDICTION_FIELDS } from "../../shared/utils/consts";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const groupsTable = sqliteTable("groups", {
   id: text().primaryKey().$defaultFn(createId),
@@ -11,7 +11,7 @@ export const groupsTable = sqliteTable("groups", {
     .notNull()
     .references(() => user.id, { onDelete: "set null" }),
   createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
+    .default(sql`(unixepoch())`)
     .notNull(),
   cutoffInMinutes: integer("cutoff_in_minutes", { mode: "number" })
     .default(3 * 60)
@@ -34,7 +34,9 @@ export const groupMembersTable = sqliteTable("group_members", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   // role: text("role").notNull(), TODO: admin, member
-  joinedAt: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  joinedAt: integer({ mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
 export const groupMembersRelations = relations(
@@ -61,7 +63,9 @@ export const racesTable = sqliteTable("races", {
   qualifyingDate: integer({ mode: "timestamp" }).notNull(),
   locality: text("locality").notNull(),
   lastUpdated: integer({ mode: "timestamp" }).notNull(),
-  created: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  created: integer({ mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
 export const driversTable = sqliteTable("drivers", {
@@ -75,15 +79,21 @@ export const driversTable = sqliteTable("drivers", {
     .notNull()
     .references(() => constructorsTable.id, { onDelete: "cascade" }),
   lastUpdated: integer({ mode: "timestamp" }).notNull(),
-  created: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  created: integer({ mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
 export const constructorsTable = sqliteTable("constructors", {
   id: text("id").primaryKey().notNull(),
   name: text("name").notNull(),
   nationality: text("nationality").notNull(),
-  created: integer({ mode: "timestamp" }).default(new Date()).notNull(),
-  lastUpdated: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  created: integer({ mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
+  lastUpdated: integer({ mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
 export const predictionsTable = sqliteTable("predictions", {
@@ -99,7 +109,7 @@ export const predictionsTable = sqliteTable("predictions", {
     onDelete: "cascade",
   }),
   createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
+    .default(sql`(unixepoch())`)
     .notNull(),
 });
 
@@ -134,7 +144,7 @@ export const predictionEntriesTable = sqliteTable("prediction_entries", {
     onDelete: "cascade",
   }),
   createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
+    .default(sql`(unixepoch())`)
     .notNull(),
 });
 
@@ -164,20 +174,26 @@ export const resultsTable = sqliteTable("results", {
   raceId: text()
     .notNull()
     .references(() => racesTable.id, { onDelete: "cascade" }),
-  addedAt: integer({ mode: "timestamp" }).default(new Date()).notNull(),
-  updatedAt: integer({ mode: "timestamp" }).default(new Date()).notNull(),
+  addedAt: integer({ mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
+  updatedAt: integer({ mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
   driverId: text().references(() => driversTable.id, { onDelete: "cascade" }),
-  constructorId: text().references(() => constructorsTable.id, {
-    onDelete: "cascade",
-  }),
+  constructorId: text()
+    .references(() => constructorsTable.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   /**
-   * The driver's grid position
+   * The driver's grid (qualifying) position
    */
   grid: integer(),
   /**
-   * Finishing position of the driver
+   * Finishing position of the driver. Empty if the driver failed to finish.
    */
-  position: integer().notNull(),
+  position: integer(),
   /**
    * Points the driver earned for this result
    */
@@ -206,10 +222,12 @@ export const resultsRelations = relations(resultsTable, ({ many, one }) => ({
 export type Group = typeof groupsTable.$inferSelect;
 export type Race = typeof racesTable.$inferSelect;
 
-export type Driver = typeof driversTable.$inferSelect;
+type DriverFull = typeof driversTable.$inferSelect;
+export type Driver = Omit<DriverFull, "created" | "lastUpdated">;
 export type InsertDriver = typeof driversTable.$inferInsert;
 
-export type Constructor = typeof constructorsTable.$inferSelect;
+type ConstructorFull = typeof constructorsTable.$inferSelect;
+export type Constructor = Omit<ConstructorFull, "created" | "lastUpdated">;
 
 export type Prediction = typeof predictionsTable.$inferSelect;
 export type InsertPrediction = typeof predictionsTable.$inferInsert;
