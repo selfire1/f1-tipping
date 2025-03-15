@@ -37,13 +37,6 @@ useSeoMeta({
   ogTitle: "Dashboard",
 });
 
-const { data: predictions } = useFetch(
-  `/api/prediction/${currentUserGroup.value?.id}/get`,
-  {
-    ...$getCachedFetchConfig("predictions"),
-  },
-);
-
 const raceThisWeek = computed(() => {
   return allRaces.value?.find((race) =>
     isThisWeek(new Date(race.qualifyingDate)),
