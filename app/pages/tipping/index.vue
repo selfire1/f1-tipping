@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isFuture, isThisWeek } from "date-fns";
+import { isFuture, isToday } from "date-fns";
 import CardRaceTips from "~/components/Card/CardRaceTips.vue";
 import { $getCachedFetchConfig } from "~/utils";
 import { $getCutoffDate } from "~~/shared/utils";
@@ -40,19 +40,15 @@ useSeoMeta({
   ogTitle: "Dashboard",
 });
 
-const raceThisWeek = computed(() => {
-  return allRaces.value?.find((race) =>
-    isThisWeek(new Date(race.qualifyingDate)),
-  );
-});
-const isRaceThisWeekAfterTippingCutoff = computed(() => {
-  if (!raceThisWeek.value) {
-    return false;
-  }
-  return getIsRaceAfterCutoff(
-    raceThisWeek.value,
-    currentUserGroup.value?.cutoffInMinutes,
-  );
+const ongoingRace = computed(() => {
+  return allRaces.value?.find((race) => {
+    const isAfterCutoff = getIsRaceAfterCutoff(
+      race,
+      currentUserGroup.value?.cutoffInMinutes,
+    );
+    const isOnGpDay = isToday(new Date(race.grandPrixDate));
+    return isAfterCutoff && isOnGpDay;
+  });
 });
 </script>
 
@@ -69,9 +65,9 @@ NuxtLayout(name="tipping")
         template(v-if="!allUserGroups?.length")
           LazyCardJoinGroup
         template(v-else)
-          template(v-if="isRaceThisWeekAfterTippingCutoff && raceThisWeek")
+          template(v-if="ongoingRace")
             div
-              LazyCardRaceTips(:race="raceThisWeek")
+              LazyCardRaceTips(:race="ongoingRace")
           template(v-if="championshipCutoffDate && isFuture(championshipCutoffDate)")
             LazyCardTipChampionships(:cutoff-date="championshipCutoffDate")
           template(v-if="nextRace")
