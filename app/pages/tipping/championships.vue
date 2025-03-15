@@ -8,14 +8,18 @@ import {
 import type { Database } from "~~/types/db";
 import type { FormSubmitEvent } from "#ui/types";
 import type z from "zod";
-import type { PredictionField } from "~~/types";
+import type { ChampionshipPredictionField } from "~~/types";
 
 definePageMeta({
   layout: false,
 });
 
 const { currentUserGroup } = await useGroup();
-const { allRaces } = await useRace();
+const { deserialise } = useRace();
+const { data: allRaces } = useFetch("/api/races", {
+  ...$getCachedFetchConfig("races"),
+  transform: (data) => data.items.map(deserialise),
+});
 
 const cutoffDate = computed(() => {
   const groupCutoff = currentUserGroup.value?.cutoffInMinutes;
@@ -33,7 +37,7 @@ const isCutoffInFuture = computed(() =>
 const state = reactive({
   championshipConstructor: undefined as Database.Constructor | undefined,
   championshipDriver: undefined as Database.Driver | undefined,
-}) satisfies Partial<Record<PredictionField, any>>;
+}) satisfies Record<ChampionshipPredictionField, any>;
 const schema = saveChampionshipSchema;
 type Schema = z.output<typeof schema>;
 type ServerSchema = z.output<typeof serverSaveChampionships>;
@@ -126,7 +130,6 @@ const { allDrivers } = await useDriver();
 const { allConstructors } = await useConstructor();
 
 function populateStateFromSavedEntry() {
-  // @ts-expect-error date mismatch
   state.championshipConstructor =
     allConstructors.value?.find(
       (constructor) =>
@@ -134,7 +137,6 @@ function populateStateFromSavedEntry() {
         savedPredictions.value?.championshipConstructor?.constructorId,
     ) || undefined;
 
-  // @ts-expect-error date mismatch
   state.championshipDriver =
     allDrivers.value?.find(
       (driver) =>

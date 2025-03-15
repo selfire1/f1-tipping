@@ -25,7 +25,7 @@ UCard
     UButton(label="Tip now" to="/tipping/add-tips" trailing icon="carbon:arrow-right")
   .space-y-4
     .relative.overflow-hidden.py-4.-mx-4.-mt-5(class="sm:-mx-6 sm:-mt-6")
-      AppImg.pointer-events-none.opacity-5.h-full.w-full.object-cover.inset-0.absolute(:src="COUNTRY_FLAGS[race.country]")
+      AppImg.pointer-events-none.opacity-5.h-full.w-full.object-cover.inset-0.absolute(:src="COUNTRY_FLAGS[race.country]" lazy)
       .px-6
         .flex.items-center.justify-between.is-size-8.uppercase.text-muted
           p {{ "Round " + race.round }}

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AccordionItem } from "#ui/types";
 import { RACE_KEYS_TO_LABEL } from "~/utils/consts";
-import type { RacePredictionField } from "~~/types";
+import type { Component, RacePredictionField } from "~~/types";
 import type { Database } from "~~/types/db";
 import DriverOption from "../DriverOption.vue";
 const props = defineProps<{
@@ -9,9 +9,10 @@ const props = defineProps<{
 }>();
 
 const { currentUserGroup } = await useGroup();
-const { data } = await useFetch(
+const { data, status } = await useFetch(
   `/api/prediction/${currentUserGroup.value?.id}/get`,
   {
+    lazy: true,
     query: {
       entireGroup: true,
       raceId: props.race.id,
@@ -41,7 +42,7 @@ const { data } = await useFetch(
             id: string;
             userName: string;
             position: RacePredictionField;
-            value: Database.Driver | Database.Constructor | null;
+            value: Component.DriverOption | Database.Constructor | null;
           }[]
         >,
       );
@@ -71,7 +72,10 @@ const items = computed(() => {
 UCard
   template(#header)
     h2.is-display-7 Race tips
-  template(v-if="!items?.length")
+  template(v-if="status === 'idle' || status === 'pending'")
+    .space-y-4
+      USkeleton.w-full.h-12(v-for="i in 3" :key="i")
+  template(v-else-if="!items?.length")
     p.text-muted None found.
   template(v-else)
     UAccordion(:items="items" multiple)

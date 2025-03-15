@@ -1,4 +1,10 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  index,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 import { createId } from "@paralleldrive/cuid2";
 import { user } from "./auth-schema";
 import { PREDICTION_FIELDS } from "../../shared/utils/consts";
@@ -96,22 +102,31 @@ export const constructorsTable = sqliteTable("constructors", {
     .notNull(),
 });
 
-export const predictionsTable = sqliteTable("predictions", {
-  id: text("id").primaryKey().$defaultFn(createId),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  groupId: text("group_id")
-    .notNull()
-    .references(() => groupsTable.id, { onDelete: "cascade" }),
-  isForChampionship: integer({ mode: "boolean" }).default(false).notNull(),
-  raceId: text("race_id").references(() => racesTable.id, {
-    onDelete: "cascade",
-  }),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(sql`(unixepoch())`)
-    .notNull(),
-});
+export const predictionsTable = sqliteTable(
+  "predictions",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    groupId: text("group_id")
+      .notNull()
+      .references(() => groupsTable.id, { onDelete: "cascade" }),
+    isForChampionship: integer({ mode: "boolean" }).default(false).notNull(),
+    raceId: text("race_id").references(() => racesTable.id, {
+      onDelete: "cascade",
+    }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+  },
+  (table) => [
+    index("predictions_user_id_idx").on(table.userId),
+    index("predictions_group_id_idx").on(table.groupId),
+    index("predictions_is_for_championship_idx").on(table.isForChampionship),
+    index("predictions_race_id_idx").on(table.raceId),
+  ],
+);
 
 export const predictionRelations = relations(
   predictionsTable,

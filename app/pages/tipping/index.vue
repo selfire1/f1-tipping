@@ -13,14 +13,17 @@ const {
   currentUserGroup,
   status: groupStatus,
 } = await useGroup();
-const {
-  getRacesInTheFuture,
-  allRaces,
-  status: raceStatus,
-  getIsRaceAfterCutoff,
-} = await useRace();
+const { getRacesInTheFuture, deserialise, getIsRaceAfterCutoff } = useRace();
+const { data: allRaces, status: raceStatus } = useFetch("/api/races", {
+  ...$getCachedFetchConfig("races"),
+  transform: (data) => data.items.map(deserialise),
+});
 const nextRace = computed(
-  () => getRacesInTheFuture(currentUserGroup.value?.cutoffInMinutes)?.[0],
+  () =>
+    getRacesInTheFuture(
+      allRaces.value,
+      currentUserGroup.value?.cutoffInMinutes,
+    )?.[0],
 );
 
 const championshipCutoffDate = computed(() => {
@@ -36,13 +39,6 @@ useSeoMeta({
   title: "Dashboard",
   ogTitle: "Dashboard",
 });
-
-const { data: predictions } = useFetch(
-  `/api/prediction/${currentUserGroup.value?.id}/get`,
-  {
-    ...$getCachedFetchConfig("predictions"),
-  },
-);
 
 const raceThisWeek = computed(() => {
   return allRaces.value?.find((race) =>
@@ -75,7 +71,7 @@ NuxtLayout(name="tipping")
         template(v-else)
           template(v-if="isRaceThisWeekAfterTippingCutoff && raceThisWeek")
             div
-              CardRaceTips(:race="raceThisWeek")
+              LazyCardRaceTips(:race="raceThisWeek")
           template(v-if="championshipCutoffDate && isFuture(championshipCutoffDate)")
             LazyCardTipChampionships(:cutoff-date="championshipCutoffDate")
           template(v-if="nextRace")

@@ -1,4 +1,5 @@
 import type { RACE_PREDICTION_FIELDS } from "~~/shared/utils/consts";
+export * as Component from "./components";
 
 export type Driver = {
   id: string;
@@ -18,3 +19,5 @@ export type Constructor = {
 
 export type PredictionField = (typeof PREDICTION_FIELDS)[number];
 export type RacePredictionField = (typeof RACE_PREDICTION_FIELDS)[number];
+export type ChampionshipPredictionField =
+  (typeof CHAMPIONSHIP_PREDICTION_FIELDS)[number];
