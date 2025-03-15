@@ -8,7 +8,7 @@ import {
 import type { Database } from "~~/types/db";
 import type { FormSubmitEvent } from "#ui/types";
 import type z from "zod";
-import type { ChampionshipPredictionField, PredictionField } from "~~/types";
+import type { ChampionshipPredictionField } from "~~/types";
 
 definePageMeta({
   layout: false,
