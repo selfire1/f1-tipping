@@ -8,7 +8,7 @@ import {
 import type { Database } from "~~/types/db";
 import type { FormSubmitEvent } from "#ui/types";
 import type z from "zod";
-import type { PredictionField } from "~~/types";
+import type { ChampionshipPredictionField, PredictionField } from "~~/types";
 
 definePageMeta({
   layout: false,
@@ -37,7 +37,7 @@ const isCutoffInFuture = computed(() =>
 const state = reactive({
   championshipConstructor: undefined as Database.Constructor | undefined,
   championshipDriver: undefined as Database.Driver | undefined,
-}) satisfies Partial<Record<PredictionField, any>>;
+}) satisfies Record<ChampionshipPredictionField, any>;
 const schema = saveChampionshipSchema;
 type Schema = z.output<typeof schema>;
 type ServerSchema = z.output<typeof serverSaveChampionships>;
@@ -130,7 +130,6 @@ const { allDrivers } = await useDriver();
 const { allConstructors } = await useConstructor();
 
 function populateStateFromSavedEntry() {
-  // @ts-expect-error date mismatch
   state.championshipConstructor =
     allConstructors.value?.find(
       (constructor) =>
@@ -138,7 +137,6 @@ function populateStateFromSavedEntry() {
         savedPredictions.value?.championshipConstructor?.constructorId,
     ) || undefined;
 
-  // @ts-expect-error date mismatch
   state.championshipDriver =
     allDrivers.value?.find(
       (driver) =>
