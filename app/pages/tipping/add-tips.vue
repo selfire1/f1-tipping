@@ -22,8 +22,9 @@ function getCutoffDateForCurrentGroup(
 }
 
 const { getRacesInTheFuture, deserialise } = useRace();
-const { data: races } = useFetch("/api/races", {
+const { data: races, status: raceStatus } = useFetch("/api/races", {
   ...$getCachedFetchConfig("races"),
+  lazy: true,
 });
 const { allDrivers: drivers } = await useDriver();
 const { allConstructors: constructors } = await useConstructor();
@@ -193,7 +194,13 @@ useSeoMeta({
 NuxtLayout(name="tipping")
   template(#page-title)
     | Enter tips
-  template(v-if="!currentRace")
+  template(v-if="raceStatus === 'idle' || raceStatus === 'pending'")
+    .is-page-height.space-y-12
+      USkeleton.w-full.h-48.py-4
+      .is-container.space-y-8
+        template(v-for="i in 6" :key="i")
+          USkeleton.w-full.h-24
+  template(v-else-if="!currentRace")
     p.text-faint Didn't find a current race.
   template(v-else)
     .is-page-height.py-0
