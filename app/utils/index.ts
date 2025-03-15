@@ -39,3 +39,14 @@ export const $localeDateTimeOptions: Intl.DateTimeFormatOptions = {
   hour: "numeric",
   minute: "2-digit",
 };
+
+export const $getCachedFetchConfig = (message?: string) => {
+  const nuxtApp = useNuxtApp();
+  return {
+    getCachedData: (key: string) => {
+      const inCache = nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+      console.log(message, "is in cache:", !!inCache);
+      return inCache;
+    },
+  };
+};
