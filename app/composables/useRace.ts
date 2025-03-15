@@ -1,5 +1,5 @@
 import { useNow } from "@vueuse/core";
-import { isBefore } from "date-fns";
+import { isAfter } from "date-fns";
 import type { Database } from "~~/types/db";
 
 export const useRace = async () => {
@@ -30,7 +30,7 @@ export const useRace = async () => {
       race.qualifyingDate,
       unref(cutoffInMinutes),
     );
-    return isBefore(now.value, lastChanceToEnterTips);
+    return isAfter(now.value, lastChanceToEnterTips);
   }
 
   return {
@@ -41,7 +41,7 @@ export const useRace = async () => {
       const all = apiRaces.value;
       return (
         all
-          ?.filter((race) => getIsRaceAfterCutoff(race, cutoffInMinutes))
+          ?.filter((race) => !getIsRaceAfterCutoff(race, cutoffInMinutes))
           ?.map((race) => ({
             ...race,
             created: new Date(race.created),
