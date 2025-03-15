@@ -11,14 +11,14 @@ export default defineAuthedEventHandler(async (event) => {
     }).parse,
   );
 
-  const { raceId = "" } = await getValidatedQuery(
-    event,
-    z.object({
-      raceId: z.string().or(z.literal("championships")),
-    }).parse,
-  );
+  // const { raceId = "" } = await getValidatedQuery(
+  //   event,
+  //   z.object({
+  //     raceId: z.string(),
+  //   }).parse,
+  // );
 
-  const whereQuery = getSubqueryCondition(raceId);
+  const whereQuery = getSubqueryCondition(undefined);
 
   const predictionEntries = await db.query.predictionEntriesTable.findMany({
     where: inArray(
