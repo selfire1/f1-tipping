@@ -21,21 +21,27 @@ export const useRace = async () => {
     lazy: true,
   });
 
+  function getIsRaceAfterCutoff(
+    race: Pick<Database.Race, "qualifyingDate">,
+    cutoffInMinutes?: MaybeRef<number>,
+  ): boolean {
+    const now = useNow();
+    const lastChanceToEnterTips = $getCutoffDate(
+      race.qualifyingDate,
+      unref(cutoffInMinutes),
+    );
+    return isBefore(now.value, lastChanceToEnterTips);
+  }
+
   return {
     allRaces: apiRaces,
     status,
+    getIsRaceAfterCutoff,
     getRacesInTheFuture(cutoffInMinutes?: MaybeRef<number>): Database.Race[] {
-      const now = useNow();
       const all = apiRaces.value;
       return (
         all
-          ?.filter((race) => {
-            const lastChanceToEnterTips = $getCutoffDate(
-              race.qualifyingDate,
-              unref(cutoffInMinutes),
-            );
-            return isBefore(now.value, lastChanceToEnterTips);
-          })
+          ?.filter((race) => getIsRaceAfterCutoff(race, cutoffInMinutes))
           ?.map((race) => ({
             ...race,
             created: new Date(race.created),
