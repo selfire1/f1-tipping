@@ -1,5 +1,4 @@
 import type { Database } from "~~/types/db";
-import { useSessionStorage } from "@vueuse/core";
 
 export const useGroup = async () => {
   const nuxtApp = useNuxtApp();
@@ -22,9 +21,9 @@ export const useGroup = async () => {
     },
   });
 
-  const currentUserGroup = useSessionStorage<Database.Group | undefined>(
+  const currentUserGroup = useState<Database.Group | undefined>(
     "current-group",
-    () => userGroups.value?.[0],
+    () => userGroups.value?.[0] ?? undefined,
   );
   watch(userGroups, () => {
     currentUserGroup.value = userGroups.value?.[0];
