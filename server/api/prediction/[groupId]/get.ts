@@ -91,7 +91,6 @@ export default defineAuthedEventHandler(async (event) => {
               },
             }
           : {}),
-        // ...(entireGroup ? {} : {})
       },
       driver: query.entireGroup
         ? {
