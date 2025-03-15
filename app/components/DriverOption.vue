@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Database } from "~~/types/db";
+import type { Component } from "~~/types";
 
 defineProps<{
-  option: Database.Driver;
+  option: Component.DriverOption;
 }>();
 </script>
 

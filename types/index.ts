@@ -1,4 +1,5 @@
 import type { RACE_PREDICTION_FIELDS } from "~~/shared/utils/consts";
+export * as Component from "./components";
 
 export type Driver = {
   id: string;
