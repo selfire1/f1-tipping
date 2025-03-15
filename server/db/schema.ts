@@ -20,7 +20,7 @@ export const groupsTable = sqliteTable("groups", {
     .default(sql`(unixepoch())`)
     .notNull(),
   cutoffInMinutes: integer("cutoff_in_minutes", { mode: "number" })
-    .default(DEFAULT_CUTOFF_MINS)
+    .default(3 * 60)
     .notNull(),
 });
 
