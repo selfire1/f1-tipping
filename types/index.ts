@@ -1,3 +1,5 @@
+import type { RACE_PREDICTION_FIELDS } from "~~/shared/utils/consts";
+
 export type Driver = {
   id: string;
   permanentNumber: string;
@@ -15,3 +17,4 @@ export type Constructor = {
 };
 
 export type PredictionField = (typeof PREDICTION_FIELDS)[number];
+export type RacePredictionField = (typeof RACE_PREDICTION_FIELDS)[number];
