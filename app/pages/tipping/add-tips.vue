@@ -50,7 +50,6 @@ const { data: predictionsByRace } = useFetch(
   {
     transform(predictionEntries) {
       const groupedByRace = predictionEntries.reduce((acc, entry) => {
-        // @ts-expect-error TODO: fix type error
         const raceId = entry.prediction.raceId as Race["id"];
         const position = entry.position;
 
