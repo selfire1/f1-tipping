@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { isFuture } from "date-fns";
+import { isFuture, isThisWeek } from "date-fns";
+import CardRaceTips from "~/components/Card/CardRaceTips.vue";
+import { $getCachedFetchConfig } from "~/utils";
 import { $getCutoffDate } from "~~/shared/utils";
 
 definePageMeta({
@@ -11,7 +13,12 @@ const {
   currentUserGroup,
   status: groupStatus,
 } = await useGroup();
-const { getRacesInTheFuture, allRaces, status: raceStatus } = await useRace();
+const {
+  getRacesInTheFuture,
+  allRaces,
+  status: raceStatus,
+  getIsRaceAfterCutoff,
+} = await useRace();
 const nextRace = computed(
   () => getRacesInTheFuture(currentUserGroup.value?.cutoffInMinutes)?.[0],
 );
@@ -29,6 +36,28 @@ useSeoMeta({
   title: "Dashboard",
   ogTitle: "Dashboard",
 });
+
+const { data: predictions } = useFetch(
+  `/api/prediction/${currentUserGroup.value?.id}/get`,
+  {
+    ...$getCachedFetchConfig("predictions"),
+  },
+);
+
+const raceThisWeek = computed(() => {
+  return allRaces.value?.find((race) =>
+    isThisWeek(new Date(race.qualifyingDate)),
+  );
+});
+const isRaceThisWeekAfterTippingCutoff = computed(() => {
+  if (!raceThisWeek.value) {
+    return false;
+  }
+  return getIsRaceAfterCutoff(
+    raceThisWeek.value,
+    currentUserGroup.value?.cutoffInMinutes,
+  );
+});
 </script>
 
 <template lang="pug">
@@ -44,6 +73,9 @@ NuxtLayout(name="tipping")
         template(v-if="!allUserGroups?.length")
           LazyCardJoinGroup
         template(v-else)
+          template(v-if="isRaceThisWeekAfterTippingCutoff && raceThisWeek")
+            div
+              CardRaceTips(:race="raceThisWeek")
           template(v-if="championshipCutoffDate && isFuture(championshipCutoffDate)")
             LazyCardTipChampionships(:cutoff-date="championshipCutoffDate")
           template(v-if="nextRace")
