@@ -9,9 +9,10 @@ const props = defineProps<{
 }>();
 
 const { currentUserGroup } = await useGroup();
-const { data } = await useFetch(
+const { data, status } = await useFetch(
   `/api/prediction/${currentUserGroup.value?.id}/get`,
   {
+    lazy: true,
     query: {
       entireGroup: true,
       raceId: props.race.id,
@@ -71,7 +72,10 @@ const items = computed(() => {
 UCard
   template(#header)
     h2.is-display-7 Race tips
-  template(v-if="!items?.length")
+  template(v-if="status === 'idle' || status === 'pending'")
+    .space-y-4
+      USkeleton.w-full.h-12(v-for="i in 3" :key="i")
+  template(v-else-if="!items?.length")
     p.text-muted None found.
   template(v-else)
     UAccordion(:items="items" multiple)
