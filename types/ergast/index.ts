@@ -57,6 +57,11 @@ interface ResultRace extends Race {
    */
   position: string;
   points: string;
+  /**
+   * either an integer (finishing position), or
+   * “R” (retired), “D” (disqualified), “E” (excluded), “W” (withdrawn), “F” (failed to qualify) or “N” (not classified)
+   */
+  positionText: string;
   Driver: Driver;
   Constructor?: Constructor & { constructorId: string };
   grid?: string;
