@@ -41,7 +41,7 @@ const { data } = await useFetch(
             id: string;
             userName: string;
             position: RacePredictionField;
-            value: Database.Driver | Database.Constructor | null;
+            value: Component.DriverOption | Database.Constructor | null;
           }[]
         >,
       );
