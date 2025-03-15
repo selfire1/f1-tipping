@@ -68,7 +68,7 @@ NuxtLayout(name="tipping")
         template(v-else)
           template(v-if="isRaceThisWeekAfterTippingCutoff && raceThisWeek")
             div
-              CardRaceTips(:race="raceThisWeek")
+              LazyCardRaceTips(:race="raceThisWeek")
           template(v-if="championshipCutoffDate && isFuture(championshipCutoffDate)")
             LazyCardTipChampionships(:cutoff-date="championshipCutoffDate")
           template(v-if="nextRace")
