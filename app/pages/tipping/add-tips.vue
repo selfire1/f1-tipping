@@ -131,6 +131,10 @@ onMounted(() => {
 });
 
 watchEffect(() => {
+  populateStateFromSavedEntry();
+});
+
+watch(currentRace, () => {
   setStateToEmpty();
   populateStateFromSavedEntry();
 });
