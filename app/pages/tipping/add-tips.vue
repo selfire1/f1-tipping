@@ -106,6 +106,7 @@ function populateStateFromSavedEntry() {
   if (!savedEntries) {
     return;
   }
+  setStateToEmpty();
   Object.keys(state).forEach((key) => {
     const stateKey = key as keyof typeof state;
     const saved = savedEntries?.[stateKey] as Database.PredictionEntry;
