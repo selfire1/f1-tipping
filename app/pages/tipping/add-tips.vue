@@ -55,7 +55,7 @@ const state = reactive({
   constructorWithMostPoints: undefined as Database.Constructor | undefined,
 });
 
-const { data: predictionsByRace } = useFetch(
+const { data: predictionsByRace, status: savedStatus } = useFetch(
   () => `/api/prediction/${currentUserGroup.value?.id}/get`,
   {
     transform(predictionEntries) {
@@ -199,7 +199,7 @@ useSeoMeta({
 NuxtLayout(name="tipping")
   template(#page-title)
     | Enter tips
-  template(v-if="raceStatus === 'idle' || raceStatus === 'pending'")
+  template(v-if="raceStatus === 'idle' || raceStatus === 'pending' || savedStatus === 'pending' || savedStatus === 'idle'")
     .is-page-height.space-y-12
       USkeleton.w-full.h-48.py-4
       .is-container.space-y-8
