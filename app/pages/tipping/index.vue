@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isFuture, isToday } from "date-fns";
+import { differenceInDays, isFuture, isToday } from "date-fns";
 import { $getCachedFetchConfig } from "~/utils";
 import { $getCutoffDate } from "~~/shared/utils";
 
@@ -49,6 +49,29 @@ const ongoingRace = computed(() => {
     return isAfterCutoff && isOnGpDay;
   });
 });
+
+const previousRace = computed(() => {
+  const nextRound = nextRace.value?.round;
+  if (!nextRound || nextRound === 1) {
+    return;
+  }
+  const previousRace = allRaces.value?.find(
+    (race) => race.round === nextRound - 1,
+  );
+  if (!previousRace) {
+    return;
+  }
+  const isAfterCutoff = getIsRaceAfterCutoff(
+    previousRace,
+    currentUserGroup.value?.cutoffInMinutes,
+  );
+  const isFiveDaysAgo =
+    differenceInDays(new Date(), new Date(previousRace.grandPrixDate)) <= 5;
+  if (!isAfterCutoff || !isFiveDaysAgo) {
+    return;
+  }
+  return previousRace;
+});
 </script>
 
 <template lang="pug">
@@ -67,6 +90,8 @@ NuxtLayout(name="tipping")
           template(v-if="ongoingRace")
             div
               LazyCardRaceTips(:race="ongoingRace")
+          template(v-if="previousRace")
+            LazyCardResults(:race="previousRace")
           template(v-if="championshipCutoffDate && isFuture(championshipCutoffDate)")
             LazyCardTipChampionships(:cutoff-date="championshipCutoffDate")
           template(v-if="nextRace")

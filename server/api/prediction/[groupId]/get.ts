@@ -98,6 +98,7 @@ export default defineAuthedEventHandler(async (event) => {
               constructorId: true,
               givenName: true,
               familyName: true,
+              id: true,
             },
           }
         : undefined,

@@ -20,7 +20,7 @@ const links: HorizontalNavigationLink[][] = [
   ],
   [
     {
-      label: "Leaderboard",
+      label: "Results",
       to: "/tipping/leaderboard",
     },
     {
@@ -86,7 +86,7 @@ const { allUserGroups, currentUserGroup } = await useGroup();
       UDivider
 
     main.w-full
-      div(class="md:w-full md:h-screen md:overflow-hidden md:flex md:flex-col md:p-0")
+      div(class="md:w-full md:min-h-screen md:overflow-hidden md:flex md:flex-col md:p-0")
         .is-container(class="md:px-8 md:py-4")
           h1.hidden.is-display-6(class="md:block")
             slot(name="page-title")

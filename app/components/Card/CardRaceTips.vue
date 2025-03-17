@@ -19,38 +19,13 @@ const { data, status } = await useFetch(
     },
     ...$getCachedFetchConfig("all predictions"),
     transform: (entries) => {
-      return entries.reduce(
-        (acc, entry) => {
-          const position = entry.position as RacePredictionField;
-          const mappedEntry = {
-            id: entry.id,
-            // @ts-expect-error Exists with this query
-            userName: entry.prediction.user.name,
-            position,
-            value: entry.driver || entry.constructor,
-          };
-          if (!acc[position]) {
-            acc[position] = [mappedEntry];
-            return acc;
-          }
-          acc[position].push(mappedEntry);
-          return acc;
-        },
-        {} as Record<
-          RacePredictionField,
-          {
-            id: string;
-            userName: string;
-            position: RacePredictionField;
-            value: Component.DriverOption | Database.Constructor | null;
-          }[]
-        >,
-      );
+      return reduceIntoObject(entries);
     },
   },
 );
 
 const { user } = await useAuthUser();
+const { reduceIntoObject } = usePrediction();
 
 const items = computed(() => {
   return Object.entries(data.value ?? {}).map(
