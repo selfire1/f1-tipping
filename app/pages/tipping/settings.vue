@@ -31,16 +31,24 @@ useSeoMeta({
   title: "Settings",
   ogTitle: "Settings",
 });
+
+const [date = "", commit = ""] =
+  useRuntimeConfig().public.version.split(/(?<=\+\d{4})\s/);
 </script>
 
 <template lang="pug">
 NuxtLayout(name="tipping")
   template(#page-title)
     | Settings
-  .is-page-height.is-container
+  .is-page-height.is-container.flex.flex-col
     .space-y-4
       TextHero(:level="2" heading="Danger Zone")
       UButton(@click="isConfirmDeleteModalPresented = true" label="Delete account" color="red")
+    section.mt-auto.text-faint.space-y-1
+      p.is-display-8 Version
+      div
+        pre.is-size-8.line-clamp-1 {{ commit }} 
+        p.is-size-8 {{ date }}
   UModal(v-model="isConfirmDeleteModalPresented")
     UCard
       template(#header)
