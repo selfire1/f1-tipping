@@ -92,17 +92,15 @@ export default defineAuthedEventHandler(async (event) => {
             }
           : {}),
       },
-      driver: query.entireGroup
-        ? {
-            columns: {
-              constructorId: true,
-              givenName: true,
-              familyName: true,
-              id: true,
-            },
-          }
-        : undefined,
-      constructor: query.entireGroup ? true : undefined,
+      driver: {
+        columns: {
+          constructorId: true,
+          givenName: true,
+          familyName: true,
+          id: true,
+        },
+      },
+      constructor: true,
     },
   });
 

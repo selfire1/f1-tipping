@@ -4,92 +4,88 @@ import type { Database } from "~~/types/db";
 import type { FormSubmitEvent } from "#ui/types";
 import * as schemas from "~~/shared/schemas";
 import type { z } from "zod";
-import { $getCutoffDate } from "~~/shared/utils";
 import type { Race } from "~~/server/db/schema";
+import type { Component } from "~~/types";
 definePageMeta({
   layout: false,
 });
 
-const { currentUserGroup } = await useGroup();
-
-function getCutoffDateForCurrentGroup(
-  qualifyingDate: Database.Race["qualifyingDate"],
-): Date {
-  return $getCutoffDate(
-    qualifyingDate,
-    currentUserGroup.value?.cutoffInMinutes,
-  );
-}
+const {
+  currentUserGroup,
+  getCutoffForCurrentGroup: getCutoffDateForCurrentGroup,
+} = await useGroup();
 
 const { getRacesInTheFuture, deserialise } = useRace();
-const { data: races, status: raceStatus } = useFetch("/api/races", {
+const { data: races, status: raceStatus } = await useFetch("/api/races", {
   ...$getCachedFetchConfig("races"),
   lazy: true,
 });
-const { allDrivers: drivers } = await useDriver();
-const { allConstructors: constructors } = await useConstructor();
-const racesInTheFuture = computed(() => {
-  if (!races.value?.items?.length) {
-    return;
-  }
-  return getRacesInTheFuture(
-    races.value.items.map(deserialise),
+
+const racesInTheFuture = computed(() =>
+  getRacesInTheFuture(
+    races.value?.items?.map(deserialise),
     currentUserGroup.value?.cutoffInMinutes,
-  );
-});
+  ),
+);
 const index = ref(0);
 const currentRace = computed(() => racesInTheFuture.value?.[index.value]);
 
+function setStateToSaved() {
+  setStateToEmpty();
+  populateStateFromSavedEntry();
+}
+
 function goPrevious() {
   index.value = Math.max(0, index.value - 1);
+  setStateToSaved();
 }
 function goNext() {
   index.value = Math.min(racesInTheFuture.value?.length ?? 0, index.value + 1);
+  setStateToSaved();
 }
 
 const state = reactive({
-  pole: undefined as Database.Driver | undefined,
-  p1: undefined as Database.Driver | undefined,
-  p10: undefined as Database.Driver | undefined,
-  last: undefined as Database.Driver | undefined,
+  pole: undefined as Component.DriverOption | undefined,
+  p1: undefined as Component.DriverOption | undefined,
+  p10: undefined as Component.DriverOption | undefined,
+  last: undefined as Component.DriverOption | undefined,
   constructorWithMostPoints: undefined as Database.Constructor | undefined,
 });
 
-const { data: predictionsByRace, status: savedStatus } = useFetch(
+type State = typeof state;
+
+const { data: apiPredictions, status: savedStatus } = await useFetch(
   () => `/api/prediction/${currentUserGroup.value?.id}/get`,
   {
-    transform(predictionEntries) {
-      const groupedByRace = predictionEntries.reduce((acc, entry) => {
+    transform(predictions) {
+      return predictions.reduce((acc, entry) => {
         const raceId = entry.prediction.raceId as Race["id"];
-        const position = entry.position;
-
-        const parsedEntry = {
-          ...entry,
-          createdAt: new Date(entry.createdAt),
+        const position = entry.position as keyof State;
+        const data: State[keyof State] =
+          (entry.driver || entry.constructor) ?? undefined;
+        const stateLike = {
+          [position]: data,
         };
-        const insertObj = {
-          [position]: parsedEntry,
-        } as Record<
-          Database.PredictionEntry["position"],
-          Database.PredictionEntry
-        >;
 
         if (!acc.has(raceId)) {
-          acc.set(raceId, insertObj);
+          // @ts-expect-error Typescript doesn't know that `position` is the same as keyof State
+          acc.set(raceId, stateLike);
           return acc;
         }
 
         const existing = acc.get(raceId);
+        // @ts-expect-error Typescript doesn't know that `position` is the same as keyof State
         acc.set(raceId, {
           ...existing,
-          ...insertObj,
+          ...stateLike,
         });
         return acc;
-      }, new Map<Race["id"], Record<Database.PredictionEntry["position"], Database.PredictionEntry>>());
-      return groupedByRace;
+      }, new Map<Race["id"], State>());
     },
   },
 );
+
+const predictionsByRaceMap = ref(apiPredictions.value);
 
 function setStateToEmpty() {
   Object.keys(state).forEach((key) => {
@@ -102,40 +98,19 @@ function populateStateFromSavedEntry() {
   if (!currentRace.value) {
     return;
   }
-  const savedEntries = predictionsByRace.value?.get(currentRace.value.id);
+  const savedEntries = predictionsByRaceMap.value?.get(currentRace.value.id);
   if (!savedEntries) {
     return;
   }
   setStateToEmpty();
-  Object.keys(state).forEach((key) => {
-    const stateKey = key as keyof typeof state;
-    const saved = savedEntries?.[stateKey] as Database.PredictionEntry;
-    if (!saved) {
-      return;
-    }
-    const newStateValue = saved.driverId
-      ? drivers.value?.find((driver) => driver.id === saved.driverId)
-      : constructors.value?.find(
-          (constructor) => constructor.id === saved.constructorId,
-        );
-    if (!newStateValue) {
-      return;
-    }
-    //@ts-expect-error TODO: type mismatch between constructor and driver
-    state[stateKey] = newStateValue;
+  Object.entries(savedEntries).forEach(([key, value]) => {
+    const stateKey = key as keyof State;
+    // @ts-expect-error Typescript doesn't know that `position` is the same as keyof State
+    state[stateKey] = value;
   });
 }
 
 onMounted(() => {
-  populateStateFromSavedEntry();
-});
-
-watchEffect(() => {
-  populateStateFromSavedEntry();
-});
-
-watch(currentRace, () => {
-  setStateToEmpty();
   populateStateFromSavedEntry();
 });
 
@@ -166,6 +141,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     group: currentUserGroup.value,
     race: currentRace.value,
   };
+  // @ts-expect-error Types are fine.
+  predictionsByRaceMap.value?.set(currentRace.value.id, event.data);
   try {
     const response = await $fetch("/api/prediction/add", {
       method: "POST",
