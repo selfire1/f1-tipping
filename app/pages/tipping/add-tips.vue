@@ -18,7 +18,6 @@ const {
 const { getRacesInTheFuture, deserialise } = useRace();
 const { data: races, status: raceStatus } = await useFetch("/api/races", {
   ...$getCachedFetchConfig("races"),
-  lazy: true,
 });
 
 const racesInTheFuture = computed(() =>
