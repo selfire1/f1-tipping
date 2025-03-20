@@ -9,6 +9,9 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   devtools: { enabled: false },
   runtimeConfig: {
+    public: {
+      version: process.env.GIT_COMMIT,
+    },
     turso: {
       databaseUrl: "",
       authToken: "",

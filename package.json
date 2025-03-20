@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
+    "build": "GIT_COMMIT=`git log -1 --pretty='%aD %B'` nuxt build",
+    "dev": "GIT_COMMIT=`git log -1 --pretty='%aD %B'` nuxt dev",
     "dev:staging": "nuxt dev --dotenv .env.staging",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
