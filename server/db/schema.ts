@@ -252,3 +252,5 @@ export type InsertPredictionEntry = typeof predictionEntriesTable.$inferInsert;
 
 export type Result = typeof resultsTable.$inferSelect;
 export type InsertResult = typeof resultsTable.$inferInsert;
+
+export type User = typeof user.$inferSelect;

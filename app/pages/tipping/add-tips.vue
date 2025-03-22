@@ -6,6 +6,7 @@ import * as schemas from "~~/shared/schemas";
 import type { z } from "zod";
 import type { Race } from "~~/server/db/schema";
 import type { Component } from "~~/types";
+import { Icons } from "~/utils/consts";
 definePageMeta({
   layout: false,
 });
@@ -207,14 +208,14 @@ NuxtLayout(name="tipping")
                 BadgeTimeTo(:date="getCutoffDateForCurrentGroup(currentRace.qualifyingDate)")
 
           .gap-1(class="hidden sm:flex")
-            UIcon(name="carbon:border-left")
+            UIcon(:name="Icons.Qualifying")
             p.flex.flex-col.is-size-7
               span.is-display-8 Qualifying
               span {{ (currentRace.qualifyingDate).toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(:badge="{variant: 'soft', color: 'gray'}" :date="currentRace.qualifyingDate")
           .gap-1(class="hidden sm:flex")
-            UIcon(name="carbon:trophy")
+            UIcon(:name="Icons.GrandPrix")
             p.flex.flex-col.is-size-7
               span.is-display-8 Grand Prix
               span {{ (currentRace.grandPrixDate).toLocaleString(undefined, $localeDateTimeOptions) }}

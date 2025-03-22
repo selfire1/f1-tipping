@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { Database } from "~~/types/db";
+import type { Component } from "~~/types";
 
-const props = defineProps<{
-  option: Database.Constructor;
+defineProps<{
+  option?: Component.ConstructorOption;
 }>();
 </script>
 
 <template lang="pug">
-.flex.items-center.gap-2
+.flex.items-center.gap-2(v-if="option")
   img.size-6(:src="`/img/constructors/${option.id}.avif`")
   span {{ option.name }}
 </template>

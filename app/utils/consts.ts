@@ -73,3 +73,8 @@ export const RACE_KEYS_TO_LABEL: Record<RacePredictionField, string> = {
   last: "Last position",
   constructorWithMostPoints: "Constructor with most points",
 };
+
+export enum Icons {
+  Qualifying = "carbon:border-left",
+  GrandPrix = "carbon:trophy",
+}

@@ -86,6 +86,7 @@ export default defineAuthedEventHandler(async (event) => {
                 user: {
                   columns: {
                     name: true,
+                    image: true,
                   },
                 },
               },
