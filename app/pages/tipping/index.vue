@@ -45,8 +45,8 @@ const ongoingRace = computed(() => {
       race,
       currentUserGroup.value?.cutoffInMinutes,
     );
-    const isOnGpDay = isToday(new Date(race.grandPrixDate));
-    return isAfterCutoff && isOnGpDay;
+    const isBeforeEndOfRace = isFuture(new Date(race.grandPrixDate));
+    return isAfterCutoff && isBeforeEndOfRace;
   });
 });
 
