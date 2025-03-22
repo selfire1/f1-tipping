@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { differenceInDays, isFuture, isToday } from "date-fns";
+import { differenceInDays, isFuture, isPast, isToday } from "date-fns";
 import { $getCachedFetchConfig } from "~/utils";
 import { $getCutoffDate } from "~~/shared/utils";
 
@@ -61,13 +61,10 @@ const previousRace = computed(() => {
   if (!previousRace) {
     return;
   }
-  const isAfterCutoff = getIsRaceAfterCutoff(
-    previousRace,
-    currentUserGroup.value?.cutoffInMinutes,
-  );
+  const isAfterRace = isPast(new Date(previousRace.grandPrixDate));
   const isFiveDaysAgo =
     differenceInDays(new Date(), new Date(previousRace.grandPrixDate)) <= 5;
-  if (!isAfterCutoff || !isFiveDaysAgo) {
+  if (!isAfterRace || !isFiveDaysAgo) {
     return;
   }
   return previousRace;
