@@ -1,12 +1,13 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db";
+import { hoursToSeconds } from "date-fns";
 
 export const auth = betterAuth({
   session: {
     cookieCache: {
       enabled: true,
-      maxAge: 30 * 60, // 30 minutes
+      maxAge: hoursToSeconds(24 * 14), // 14 days
     },
   },
   user: {
