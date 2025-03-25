@@ -16,7 +16,7 @@ definePageMeta({
 
 const { currentUserGroup } = await useGroup();
 const { deserialise } = useRace();
-const { data: allRaces } = useFetch("/api/races", {
+const { data: allRaces } = await useFetch("/api/races", {
   ...$getCachedFetchConfig("races"),
   transform: (data) => data.items.map(deserialise),
 });
@@ -94,7 +94,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   }
 }
 
-const { data: savedPredictions } = useFetch(
+const { data: savedPredictions } = await useFetch(
   () => `/api/prediction/${currentUserGroup.value?.id}/get`,
   {
     transform(predictionEntries) {
