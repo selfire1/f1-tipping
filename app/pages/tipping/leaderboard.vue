@@ -105,9 +105,7 @@ const racesWithResults = computed(() => {
 
 const selectedIndex = ref(0);
 const selectedRace = computed(() => {
-  return (
-    racesWithResults.value?.[selectedIndex.value] ?? races.value?.items?.[0]
-  );
+  return racesWithResults.value?.[selectedIndex.value];
 });
 
 function goPrevious() {
@@ -121,24 +119,25 @@ function goNext() {
 }
 
 const { currentUserGroup } = await useGroup();
+const selectedRaceId = computed(() => selectedRace.value?.id);
 const { data: currentRacePredictions, status: predictionStatus } =
-  await useFetch(`/api/prediction/${currentUserGroup.value?.id}/get`, {
+  await useFetch(() => `/api/prediction/${currentUserGroup.value?.id}/get`, {
     query: {
       entireGroup: true,
-      raceId: selectedRace.value?.id,
+      raceId: selectedRaceId,
     },
     ...$getCachedFetchConfig("all predictions"),
   });
 
 const { data: allPredictions } = await useFetch(
-  `/api/prediction/${currentUserGroup.value?.id}/getAll`,
+  () => `/api/prediction/${currentUserGroup.value?.id}/getAll`,
   {
     ...$getCachedFetchConfig("allPredictions"),
   },
 );
 
 const { data: groupMembers } = await useFetch(
-  `/api/group/get/${currentUserGroup.value?.id}/users`,
+  () => `/api/group/get/${currentUserGroup.value?.id}/users`,
   {
     ...$getCachedFetchConfig("groupMembers"),
     transform: (data) => data.items,
@@ -387,7 +386,7 @@ NuxtLayout(name="tipping")
   template(#page-title)
     | Results
   .is-page-height.space-y-12
-    template(v-if="[resultsStatus, predictionStatus, racesStatus].some(status => ['pending', 'idle'].includes(status))")
+    template(v-if="[resultsStatus, racesStatus].some(status => ['pending', 'idle'].includes(status))")
       .space-y-12.is-container
         USkeleton.w-full.h-60
         .space-y-4
@@ -413,88 +412,93 @@ NuxtLayout(name="tipping")
             UButton(type="button" @click="goPrevious" label="Previous" variant="soft" :disabled="selectedIndex === 0")
             TextHero(:level="2" :heading="selectedRace?.raceName")
             UButton(@click="goNext" :disabled="racesWithResults?.length === (selectedIndex + 1)" variant="soft" label="Next")
-        .is-container.space-y-12
-          div
-            h3.is-display-6.inline-flex.items-center.gap-1
-              UIcon(:name="Icons.GrandPrix")
-              | Grand Prix
-            UTable(:rows="gpResults" :columns="gpColumns")
-              template(#predictions-data=" { row }")
-                .grid.grid-cols-3
-                  div
-                    template(v-if="row.predictedP1By?.length")
-                      p.is-display-7 P1
-                      .flex.gap-1
-                        template(v-for="item in row.predictedP1By" :key='item.name')
-                          UTooltip(:text="item.name")
-                            UChip(inset :color="row.isP1Correct ? 'green' : 'gray'" position="bottom-right" size="md")
-                              template(#content)
-                                UIcon(:name="row.isP1Correct ? 'carbon:checkmark': 'carbon:close'")
-                              UAvatar(:alt="item.name")
-                  div
-                    template(v-if="row.predictedP10By?.length")
-                      p.is-display-7 P10
-                      .flex.gap-1
-                        template(v-for="item in row.predictedP10By" :key='item.name')
-                          UTooltip(:text="item.name")
-                            UChip(inset :color="row.isP10Correct ? 'green' : 'gray'" position="bottom-right" size="md")
-                              template(#content)
-                                UIcon(:name="row.isP10Correct ? 'carbon:checkmark': 'carbon:close'")
-                              UAvatar(:alt="item.name")
-                  div
-                    template(v-if="row.predictedLast?.length")
-                      p.is-display-7 Last
-                      .flex.gap-1
-                        template(v-for="item in row.predictedLast" :key='item.name')
-                          UTooltip(:text="item.name")
-                            UChip(inset :color="row.isLastCorrect ? 'green' : 'gray'" position="bottom-right" size="md")
-                              template(#content)
-                                UIcon(:name="row.isLastCorrect ? 'carbon:checkmark': 'carbon:close'")
-                              UAvatar(:alt="item.name")
-              template(#driver-data=" { row }")
-                DriverOption(:option="row.driver" short :class="{'opacity-50': !row.didAnyonePredict}")
+        template(v-if="[predictionStatus].some(status => ['pending', 'idle'].includes(status))")
+          .space-y-8.is-container
+            template(v-for="i in 3" :key='i')
+              USkeleton.w-full.h-60
+        template(v-else)
+          .is-container.space-y-12
+            div
+              h3.is-display-6.inline-flex.items-center.gap-1
+                UIcon(:name="Icons.GrandPrix")
+                | Grand Prix
+              UTable(:rows="gpResults" :columns="gpColumns")
+                template(#predictions-data=" { row }")
+                  .grid.grid-cols-3
+                    div
+                      template(v-if="row.predictedP1By?.length")
+                        p.is-display-7 P1
+                        .flex.gap-1
+                          template(v-for="item in row.predictedP1By" :key='item.name')
+                            UTooltip(:text="item.name")
+                              UChip(inset :color="row.isP1Correct ? 'green' : 'gray'" position="bottom-right" size="md")
+                                template(#content)
+                                  UIcon(:name="row.isP1Correct ? 'carbon:checkmark': 'carbon:close'")
+                                UAvatar(:alt="item.name")
+                    div
+                      template(v-if="row.predictedP10By?.length")
+                        p.is-display-7 P10
+                        .flex.gap-1
+                          template(v-for="item in row.predictedP10By" :key='item.name')
+                            UTooltip(:text="item.name")
+                              UChip(inset :color="row.isP10Correct ? 'green' : 'gray'" position="bottom-right" size="md")
+                                template(#content)
+                                  UIcon(:name="row.isP10Correct ? 'carbon:checkmark': 'carbon:close'")
+                                UAvatar(:alt="item.name")
+                    div
+                      template(v-if="row.predictedLast?.length")
+                        p.is-display-7 Last
+                        .flex.gap-1
+                          template(v-for="item in row.predictedLast" :key='item.name')
+                            UTooltip(:text="item.name")
+                              UChip(inset :color="row.isLastCorrect ? 'green' : 'gray'" position="bottom-right" size="md")
+                                template(#content)
+                                  UIcon(:name="row.isLastCorrect ? 'carbon:checkmark': 'carbon:close'")
+                                UAvatar(:alt="item.name")
+                template(#driver-data=" { row }")
+                  DriverOption(:option="row.driver" short :class="{'opacity-50': !row.didAnyonePredict}")
 
-          div
-            h3.is-display-6.inline-flex.items-center.gap-1
-              UIcon(:name="Icons.Qualifying")
-              | Qualifying
-            UTable(:rows="qualifyingResults" :columns="gpColumns")
-              template(#predictions-data=" { row }")
-                template(v-if="row.predictedP1By?.length")
-                  .flex.gap-1
-                    template(v-for="item in row.predictedP1By" :key='item.name')
-                      UTooltip(:text="item.name")
-                        UChip(inset :color="row.isP1Correct ? 'green' : 'gray'" position="bottom-right" size="md")
-                          template(#content)
-                            UIcon(:name="row.isP1Correct ? 'carbon:checkmark': 'carbon:close'")
-                          UAvatar(:alt="item.name")
-              template(#driver-data=" { row }")
-                DriverOption(:option="row.driver" short)
-          .space-y-4
-            TextHero(:level="3" heading="Constructors" description="With most points")
-            UTable(:rows="constructorResults" :columns="constructorColumns")
-              template(#users-data=" { row }")
-                template(v-if="row.users?.length")
-                  .flex.gap-1
-                    template(v-for="item in row.users" :key='item.name')
-                      UTooltip(:text="item.name")
-                        UChip(inset :color="row.isCorrect ? 'green' : 'gray'" position="bottom-right" size="md")
-                          template(#content)
-                            UIcon(:name="row.isCorrect ? 'carbon:checkmark': 'carbon:close'")
-                          UAvatar(:alt="item.name")
-                template(v-else)
-                  div
-              template(#constructor-data=" { row }")
-                template(v-if="['idle', 'pending'].includes(constructorsStatus)")
-                  USkeleton.h-8.w-full
-                template(v-else-if="constructorsMap?.has(row.constructorId)")
-                  ConstructorOption(:option="constructorsMap?.get(row.constructorId)")
-                template(v-else)
-                  p {{ row.constructorId }}
+            div
+              h3.is-display-6.inline-flex.items-center.gap-1
+                UIcon(:name="Icons.Qualifying")
+                | Qualifying
+              UTable(:rows="qualifyingResults" :columns="gpColumns")
+                template(#predictions-data=" { row }")
+                  template(v-if="row.predictedP1By?.length")
+                    .flex.gap-1
+                      template(v-for="item in row.predictedP1By" :key='item.name')
+                        UTooltip(:text="item.name")
+                          UChip(inset :color="row.isP1Correct ? 'green' : 'gray'" position="bottom-right" size="md")
+                            template(#content)
+                              UIcon(:name="row.isP1Correct ? 'carbon:checkmark': 'carbon:close'")
+                            UAvatar(:alt="item.name")
+                template(#driver-data=" { row }")
+                  DriverOption(:option="row.driver" short)
+            .space-y-4
+              TextHero(:level="3" heading="Constructors" description="With most points")
+              UTable(:rows="constructorResults" :columns="constructorColumns")
+                template(#users-data=" { row }")
+                  template(v-if="row.users?.length")
+                    .flex.gap-1
+                      template(v-for="item in row.users" :key='item.name')
+                        UTooltip(:text="item.name")
+                          UChip(inset :color="row.isCorrect ? 'green' : 'gray'" position="bottom-right" size="md")
+                            template(#content)
+                              UIcon(:name="row.isCorrect ? 'carbon:checkmark': 'carbon:close'")
+                            UAvatar(:alt="item.name")
+                  template(v-else)
+                    div
+                template(#constructor-data=" { row }")
+                  template(v-if="['idle', 'pending'].includes(constructorsStatus)")
+                    USkeleton.h-8.w-full
+                  template(v-else-if="constructorsMap?.has(row.constructorId)")
+                    ConstructorOption(:option="constructorsMap?.get(row.constructorId)")
+                  template(v-else)
+                    p {{ row.constructorId }}
 
         .is-bg-pattern.mt-8
           .flex.items-center.justify-between.is-container.py-2
-            UButton(type="button" @click="goPrevious" label="Previous" variant="soft" :disabled="selectedIndex === 0")
+            UButton(type="button" @click="goPrevious" label="Previous" variant="soft" :disabled="selectedIndex === 0 || [predictionStatus].some(status => ['pending', 'idle'].includes(status))")
             p.is-display-7 {{ selectedRace?.raceName}}
-            UButton(@click="goNext" :disabled="racesWithResults?.length === (selectedIndex + 1)" variant="soft" label="Next")
+            UButton(@click="goNext" :disabled="racesWithResults?.length === (selectedIndex + 1) || [predictionStatus].some(status => ['pending', 'idle'].includes(status))" variant="soft" label="Next")
 </template>
