@@ -7,7 +7,7 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { createId } from "@paralleldrive/cuid2";
 import { user } from "./auth-schema";
-import { PREDICTION_FIELDS } from "../../shared/utils/consts";
+import { PREDICTION_FIELDS } from "~~/shared/utils/consts";
 import { relations, sql } from "drizzle-orm";
 
 export const groupsTable = sqliteTable("groups", {
