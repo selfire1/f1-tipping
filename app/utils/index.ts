@@ -51,3 +51,7 @@ export const $getCachedFetchConfig = (message?: string) => {
     },
   }
 }
+
+export function $getUserImgSrc(user: Pick<Database.User, 'id'>) {
+  return `/img/user/${user.id}.png`
+}

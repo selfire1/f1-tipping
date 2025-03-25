@@ -402,7 +402,11 @@ NuxtLayout(name='tipping')
           UTable(:columns='leaderboardColumns', :rows='leaderboard')
             template(#user-data='{ row }')
               .flex.items-center.gap-2
-                UAvatar(:alt='row.user.name', size='sm')
+                UAvatar(
+                  :alt='row.user.name',
+                  size='sm',
+                  :src='$getUserImgSrc(row.user)'
+                )
                 p {{ row.user.name }}
       section.space-y-12
         .is-bg-pattern.py-4
@@ -455,7 +459,10 @@ NuxtLayout(name='tipping')
                                   UIcon(
                                     :name='row.isP1Correct ? "carbon:checkmark" : "carbon:close"'
                                   )
-                                UAvatar(:alt='item.name')
+                                UAvatar(
+                                  :alt='item.name',
+                                  :src='$getUserImgSrc(item)'
+                                )
                     div
                       template(v-if='row.predictedP10By?.length')
                         p.is-display-7 P10
@@ -475,7 +482,10 @@ NuxtLayout(name='tipping')
                                   UIcon(
                                     :name='row.isP10Correct ? "carbon:checkmark" : "carbon:close"'
                                   )
-                                UAvatar(:alt='item.name')
+                                UAvatar(
+                                  :alt='item.name',
+                                  :src='$getUserImgSrc(item)'
+                                )
                     div
                       template(v-if='row.predictedLast?.length')
                         p.is-display-7 Last
@@ -495,7 +505,10 @@ NuxtLayout(name='tipping')
                                   UIcon(
                                     :name='row.isLastCorrect ? "carbon:checkmark" : "carbon:close"'
                                   )
-                                UAvatar(:alt='item.name')
+                                UAvatar(
+                                  :alt='item.name',
+                                  :src='$getUserImgSrc(item)'
+                                )
                 template(#driver-data='{ row }')
                   DriverOption(
                     :option='row.driver',
@@ -526,7 +539,10 @@ NuxtLayout(name='tipping')
                               UIcon(
                                 :name='row.isP1Correct ? "carbon:checkmark" : "carbon:close"'
                               )
-                            UAvatar(:alt='item.name')
+                            UAvatar(
+                              :alt='item.name',
+                              :src='$getUserImgSrc(item)'
+                            )
                 template(#driver-data='{ row }')
                   DriverOption(:option='row.driver', short)
             .space-y-4
@@ -551,7 +567,10 @@ NuxtLayout(name='tipping')
                               UIcon(
                                 :name='row.isCorrect ? "carbon:checkmark" : "carbon:close"'
                               )
-                            UAvatar(:alt='item.name')
+                            UAvatar(
+                              :alt='item.name',
+                              :src='$getUserImgSrc(item)'
+                            )
                   template(v-else)
                     div
                 template(#constructor-data='{ row }')

@@ -26,3 +26,5 @@ logs
 dump.sql
 local.db
 server/db/seed.ts
+
+public/img/user
