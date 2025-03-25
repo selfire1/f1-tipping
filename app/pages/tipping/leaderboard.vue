@@ -183,7 +183,7 @@ const leaderboard = computed(() => {
       }
       const raceMap = resultsMap.get(raceId);
       if (!raceMap) {
-        console.warn("No race map");
+        console.info("No race map");
         return;
       }
       if (position === "constructorWithMostPoints") {
