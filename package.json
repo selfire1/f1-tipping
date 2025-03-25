@@ -15,7 +15,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "bun run ./server/db/seed.ts",
-    "www:prod": "open 'https://app.netlify.com/sites/gridtip/deploys'"
+    "www:prod": "open 'https://app.netlify.com/sites/gridtip/deploys'",
+    "save-images": "bun run scripts/save-avatars.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
@@ -40,11 +41,15 @@
   "devDependencies": {
     "@iconify-json/carbon": "^1.2.8",
     "@nuxt/eslint-config": "^0.6.2",
+    "@prettier/plugin-pug": "^3.2.1",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/bun": "^1.2.6",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
     "@vue/language-plugin-pug": "^2.2.2",
     "drizzle-kit": "^0.30.5",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "typescript": "^5.7.3"
   }
 }
