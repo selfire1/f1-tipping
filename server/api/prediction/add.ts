@@ -1,33 +1,32 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq } from 'drizzle-orm'
 import {
   groupMembersTable,
   InsertPredictionEntry,
   predictionEntriesTable,
   predictionsTable,
   racesTable,
-} from "~~/server/db/schema";
-import { serverSaveTip } from "~~/shared/schemas";
-import { $getCutoffDate } from "~~/shared/utils";
-import { Constructor, Driver } from "~~/types";
-import { Database } from "~~/types/db";
+} from '~~/server/db/schema'
+import { serverSaveTip } from '~~/shared/schemas'
+import { $getCutoffDate } from '~~/shared/utils'
+import { Constructor, Driver } from '~~/types'
+import { Database } from '~~/types/db'
 
 export default defineAuthedEventHandler(async (event) => {
-  const timeOfSubmission = new Date();
-  assertMethod(event, "POST");
-  const body = await readValidatedBody(event, serverSaveTip.parse);
+  const timeOfSubmission = new Date()
+  assertMethod(event, 'POST')
+  const body = await readValidatedBody(event, serverSaveTip.parse)
 
-  const { currentGroup, currentGroupMembership } =
-    await getCurrentGroupOfUser();
+  const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
 
-  const isAfterCutoffDate = await getIfPredictionIsAfterCutoffDate();
+  const isAfterCutoffDate = await getIfPredictionIsAfterCutoffDate()
   if (isAfterCutoffDate) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Too late to tip",
-    });
+      statusMessage: 'Too late to tip',
+    })
   }
 
-  await checkIfSuppliedIdsAreValid();
+  await checkIfSuppliedIdsAreValid()
 
   const existingPrediction = await db.query.predictionsTable.findFirst({
     where: and(
@@ -38,31 +37,31 @@ export default defineAuthedEventHandler(async (event) => {
     columns: {
       id: true,
     },
-  });
+  })
   if (existingPrediction) {
-    await updatePredictionEntries(existingPrediction.id);
-    setResponseStatus(event, 200);
+    await updatePredictionEntries(existingPrediction.id)
+    setResponseStatus(event, 200)
     return {
       items: [],
-      mode: "update",
-    };
+      mode: 'update',
+    }
   }
 
-  const entries = await createPrediction();
-  setResponseStatus(event, 201);
+  const entries = await createPrediction()
+  setResponseStatus(event, 201)
 
   return {
     items: entries,
-    mode: "save",
-  };
+    mode: 'save',
+  }
 
   async function updatePredictionEntries(
-    predictionId: Database.Prediction["id"],
+    predictionId: Database.Prediction['id'],
   ) {
-    const values = getValues(predictionId);
+    const values = getValues(predictionId)
     for await (const value of values) {
       if (!value.predictionId) {
-        continue;
+        continue
       }
       await db
         .update(predictionEntriesTable)
@@ -75,7 +74,7 @@ export default defineAuthedEventHandler(async (event) => {
             eq(predictionEntriesTable.predictionId, value.predictionId),
             eq(predictionEntriesTable.position, value.position),
           ),
-        );
+        )
     }
   }
 
@@ -89,36 +88,36 @@ export default defineAuthedEventHandler(async (event) => {
           raceId: body.race.id,
         },
       ])
-      .returning({ id: predictionsTable.id });
+      .returning({ id: predictionsTable.id })
 
-    const values = getValues(predictionId);
+    const values = getValues(predictionId)
 
     const entries = await db
       .insert(predictionEntriesTable)
       .values(values)
-      .returning();
-    return entries;
+      .returning()
+    return entries
   }
 
   function getValues(
-    predictionId: Database.Prediction["id"],
+    predictionId: Database.Prediction['id'],
   ): InsertPredictionEntry[] {
-    const driverPredictionEntryKeys: Database.InsertPredictionEntry["position"][] =
-      ["pole", "p1", "p10", "last"];
+    const driverPredictionEntryKeys: Database.InsertPredictionEntry['position'][] =
+      ['pole', 'p1', 'p10', 'last']
     const driverPredictionEntries = driverPredictionEntryKeys.map((entry) => ({
       predictionId,
       position: entry,
       driverId: body[entry].id,
-    }));
+    }))
     const values: InsertPredictionEntry[] = [
       ...driverPredictionEntries,
       {
         predictionId: predictionId,
-        position: "constructorWithMostPoints",
+        position: 'constructorWithMostPoints',
         constructorId: body.constructorWithMostPoints.id,
       },
-    ];
-    return values;
+    ]
+    return values
   }
 
   async function checkIfSuppliedIdsAreValid() {
@@ -127,41 +126,41 @@ export default defineAuthedEventHandler(async (event) => {
         id: true,
         constructorId: true,
       },
-    });
+    })
     const { constructorIds, driverIds } = drivers.reduce(
       (acc, el) => {
-        acc.constructorIds.push(el.constructorId);
-        acc.driverIds.push(el.id);
-        return acc;
+        acc.constructorIds.push(el.constructorId)
+        acc.driverIds.push(el.id)
+        return acc
       },
       {
-        constructorIds: [] as Constructor["id"][],
-        driverIds: [] as Driver["id"][],
+        constructorIds: [] as Constructor['id'][],
+        driverIds: [] as Driver['id'][],
       },
-    );
+    )
 
-    const driverKeys = ["p1", "pole", "last", "p10"] as const;
-    const constructorKeys = ["constructorWithMostPoints"] as const;
+    const driverKeys = ['p1', 'pole', 'last', 'p10'] as const
+    const constructorKeys = ['constructorWithMostPoints'] as const
 
     driverKeys.forEach((key) => {
-      const givenId = body[key].id;
+      const givenId = body[key].id
       if (givenId && !driverIds.includes(givenId)) {
         throw createError({
           statusCode: 400,
-          statusMessage: "Invalid driver",
-        });
+          statusMessage: 'Invalid driver',
+        })
       }
-    });
+    })
 
     constructorKeys.forEach((key) => {
-      const givenId = body[key].id;
+      const givenId = body[key].id
       if (givenId && !constructorIds.includes(givenId)) {
         throw createError({
           statusCode: 400,
-          statusMessage: "Invalid constructor",
-        });
+          statusMessage: 'Invalid constructor',
+        })
       }
-    });
+    })
   }
 
   async function getIfPredictionIsAfterCutoffDate() {
@@ -171,31 +170,28 @@ export default defineAuthedEventHandler(async (event) => {
         id: true,
         qualifyingDate: true,
       },
-    });
+    })
 
     if (!targetRace) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid race",
-      });
+        statusMessage: 'Invalid race',
+      })
     }
 
     const cutoffDate = $getCutoffDate(
       targetRace.qualifyingDate,
       currentGroup.cutoffInMinutes,
-    );
-    return timeOfSubmission > cutoffDate;
+    )
+    return timeOfSubmission > cutoffDate
   }
 
   async function getCurrentGroupOfUser() {
     const userIsMember = eq(
       groupMembersTable.userId,
       event.context.auth.user.id,
-    );
-    const givenGroupIdIsDbGroupId = eq(
-      groupMembersTable.groupId,
-      body.group.id,
-    );
+    )
+    const givenGroupIdIsDbGroupId = eq(groupMembersTable.groupId, body.group.id)
     const currentGroupMembership = await db.query.groupMembersTable.findFirst({
       columns: {
         id: true,
@@ -209,15 +205,15 @@ export default defineAuthedEventHandler(async (event) => {
           },
         },
       },
-    });
+    })
 
-    const currentGroup = currentGroupMembership?.group;
+    const currentGroup = currentGroupMembership?.group
     if (!currentGroup) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid group",
-      });
+        statusMessage: 'Invalid group',
+      })
     }
-    return { currentGroup, currentGroupMembership };
+    return { currentGroup, currentGroupMembership }
   }
-});
+})

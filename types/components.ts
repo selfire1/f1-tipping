@@ -1,8 +1,8 @@
-import type { Database } from "./db";
+import type { Database } from './db'
 
 export type DriverOption = Pick<
   Database.Driver,
-  "constructorId" | "givenName" | "familyName" | "id"
->;
+  'constructorId' | 'givenName' | 'familyName' | 'id'
+>
 
-export type ConstructorOption = Pick<Database.Constructor, "id" | "name">;
+export type ConstructorOption = Pick<Database.Constructor, 'id' | 'name'>

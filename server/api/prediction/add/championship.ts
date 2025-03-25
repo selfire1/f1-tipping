@@ -1,29 +1,28 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq } from 'drizzle-orm'
 import {
   groupMembersTable,
   predictionEntriesTable,
   predictionsTable,
   racesTable,
-} from "~~/server/db/schema";
-import { serverSaveChampionships } from "~~/shared/schemas";
-import { $getCutoffDate } from "~~/shared/utils";
-import { Database } from "~~/types/db";
+} from '~~/server/db/schema'
+import { serverSaveChampionships } from '~~/shared/schemas'
+import { $getCutoffDate } from '~~/shared/utils'
+import { Database } from '~~/types/db'
 
 export default defineAuthedEventHandler(async (event) => {
-  const timeOfSubmission = new Date();
-  assertMethod(event, "POST");
-  const body = await readValidatedBody(event, serverSaveChampionships.parse);
+  const timeOfSubmission = new Date()
+  assertMethod(event, 'POST')
+  const body = await readValidatedBody(event, serverSaveChampionships.parse)
 
-  const { currentGroup, currentGroupMembership } =
-    await getCurrentGroupOfUser();
+  const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
 
-  const isAfterCutoffDate = await getIfPredictionIsAfterCutoffDate();
+  const isAfterCutoffDate = await getIfPredictionIsAfterCutoffDate()
 
   if (isAfterCutoffDate) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Too late to tip",
-    });
+      statusMessage: 'Too late to tip',
+    })
   }
 
   const existingPrediction = await db.query.predictionsTable.findFirst({
@@ -35,42 +34,42 @@ export default defineAuthedEventHandler(async (event) => {
     columns: {
       id: true,
     },
-  });
+  })
   if (existingPrediction) {
-    await updatePredictionEntries(existingPrediction.id);
-    setResponseStatus(event, 200);
+    await updatePredictionEntries(existingPrediction.id)
+    setResponseStatus(event, 200)
     return {
       items: [],
-      mode: "update",
-    };
+      mode: 'update',
+    }
   }
 
-  const entries = await createPrediction();
-  setResponseStatus(event, 201);
+  const entries = await createPrediction()
+  setResponseStatus(event, 201)
 
   return {
     items: entries,
-    mode: "save",
-  };
+    mode: 'save',
+  }
 
   async function updatePredictionEntries(
-    predictionId: Database.Prediction["id"],
+    predictionId: Database.Prediction['id'],
   ) {
     const values: Database.InsertPredictionEntry[] = [
       {
         predictionId,
-        position: "championshipConstructor",
+        position: 'championshipConstructor',
         constructorId: body.championshipConstructor.id,
       },
       {
         predictionId,
-        position: "championshipDriver",
+        position: 'championshipDriver',
         driverId: body.championshipDriver.id,
       },
-    ];
+    ]
     for await (const value of values) {
       if (!value.predictionId) {
-        continue;
+        continue
       }
       await db
         .update(predictionEntriesTable)
@@ -83,7 +82,7 @@ export default defineAuthedEventHandler(async (event) => {
             eq(predictionEntriesTable.predictionId, value.predictionId),
             eq(predictionEntriesTable.position, value.position),
           ),
-        );
+        )
     }
   }
 
@@ -97,54 +96,51 @@ export default defineAuthedEventHandler(async (event) => {
           isForChampionship: true,
         },
       ])
-      .returning({ id: predictionsTable.id });
+      .returning({ id: predictionsTable.id })
 
     const entries = await db
       .insert(predictionEntriesTable)
       .values([
         {
           predictionId,
-          position: "championshipConstructor",
+          position: 'championshipConstructor',
           constructorId: body.championshipConstructor.id,
         },
         {
           predictionId,
-          position: "championshipDriver",
+          position: 'championshipDriver',
           driverId: body.championshipDriver.id,
         },
       ])
-      .returning();
-    return entries;
+      .returning()
+    return entries
   }
 
   async function getIfPredictionIsAfterCutoffDate() {
     const firstRace = await db.query.racesTable.findFirst({
       where: eq(racesTable.round, 1),
-    });
+    })
 
     if (!firstRace) {
       throw createError({
         statusCode: 400,
-        statusMessage: "No races found",
-      });
+        statusMessage: 'No races found',
+      })
     }
 
     const cutoffDate = $getCutoffDate(
       firstRace.qualifyingDate,
       currentGroup.cutoffInMinutes,
-    );
-    return timeOfSubmission > cutoffDate;
+    )
+    return timeOfSubmission > cutoffDate
   }
 
   async function getCurrentGroupOfUser() {
     const userIsMember = eq(
       groupMembersTable.userId,
       event.context.auth.user.id,
-    );
-    const givenGroupIdIsDbGroupId = eq(
-      groupMembersTable.groupId,
-      body.group.id,
-    );
+    )
+    const givenGroupIdIsDbGroupId = eq(groupMembersTable.groupId, body.group.id)
     const currentGroupMembership = await db.query.groupMembersTable.findFirst({
       columns: {
         id: true,
@@ -158,15 +154,15 @@ export default defineAuthedEventHandler(async (event) => {
           },
         },
       },
-    });
+    })
 
-    const currentGroup = currentGroupMembership?.group;
+    const currentGroup = currentGroupMembership?.group
     if (!currentGroup) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid group",
-      });
+        statusMessage: 'Invalid group',
+      })
     }
-    return { currentGroup, currentGroupMembership };
+    return { currentGroup, currentGroupMembership }
   }
-});
+})

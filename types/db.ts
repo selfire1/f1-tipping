@@ -1,1 +1,1 @@
-export * as Database from "../server/db/schema";
+export * as Database from '../server/db/schema'

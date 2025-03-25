@@ -1,15 +1,15 @@
-import { and, eq } from "drizzle-orm";
-import z from "zod";
-import { groupMembersTable } from "~~/server/db/schema";
+import { and, eq } from 'drizzle-orm'
+import z from 'zod'
+import { groupMembersTable } from '~~/server/db/schema'
 
 export default defineAuthedEventHandler(async (event) => {
-  assertMethod(event, "POST");
+  assertMethod(event, 'POST')
   const { id: targetID } = await getValidatedRouterParams(
     event,
     z.object({
       id: z.string(),
     }).parse,
-  );
+  )
 
   const doesExist = await db.query.groupMembersTable.findFirst({
     where: and(
@@ -19,13 +19,13 @@ export default defineAuthedEventHandler(async (event) => {
     columns: {
       id: true,
     },
-  });
+  })
 
   if (doesExist) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Already joined",
-    });
+      statusMessage: 'Already joined',
+    })
   }
 
   const [insertedItem] = await db
@@ -36,8 +36,8 @@ export default defineAuthedEventHandler(async (event) => {
         userId: event.context.auth.user.id,
       },
     ])
-    .returning({ id: groupMembersTable.id });
+    .returning({ id: groupMembersTable.id })
   return {
     item: insertedItem,
-  };
-});
+  }
+})

@@ -1,5 +1,5 @@
-@import url("./typography.css");
-@import url("./colours.css");
+@import url('./typography.css');
+@import url('./colours.css');
 
 @tailwind base;
 @tailwind components;
@@ -45,7 +45,7 @@
   /* sets the heights within `/tipping` */
   .is-layout-tipping .is-page-height {
     @apply py-4 md:py-6 md:pb-10;
-    @apply min-h-screen h-full;
+    @apply h-full min-h-screen;
   }
 }
 

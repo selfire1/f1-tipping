@@ -1,24 +1,24 @@
-import { driversTable } from "~~/server/db/schema";
-import { fetchJolpica } from "~~/server/utils";
-import { defineBasicAuthedEventHandler } from "~~/server/utils/handlers";
-import { DriverResponse } from "~~/types/ergast";
-import { setTimeout } from "timers/promises";
-import { Database } from "~~/types/db";
-import { sql } from "drizzle-orm";
+import { driversTable } from '~~/server/db/schema'
+import { fetchJolpica } from '~~/server/utils'
+import { defineBasicAuthedEventHandler } from '~~/server/utils/handlers'
+import { DriverResponse } from '~~/types/ergast'
+import { setTimeout } from 'timers/promises'
+import { Database } from '~~/types/db'
+import { sql } from 'drizzle-orm'
 
 export default defineBasicAuthedEventHandler(async (event) => {
-  assertMethod(event, "GET");
+  assertMethod(event, 'GET')
 
   const constructors = await db.query.constructorsTable.findMany({
     columns: {
       id: true,
     },
-  });
+  })
 
-  const drivers: Database.InsertDriver[] = [];
+  const drivers: Database.InsertDriver[] = []
 
   for await (const constructor of constructors) {
-    await setTimeout(1000); // NOTE: to keep within API burst limit
+    await setTimeout(1000) // NOTE: to keep within API burst limit
 
     const {
       MRData: {
@@ -26,9 +26,9 @@ export default defineBasicAuthedEventHandler(async (event) => {
       },
     } = await fetchJolpica<DriverResponse>(
       `/ergast/f1/2025/constructors/${constructor.id}/drivers/`,
-    );
+    )
     if (!apiDrivers?.length) {
-      continue;
+      continue
     }
 
     drivers.push(
@@ -36,7 +36,7 @@ export default defineBasicAuthedEventHandler(async (event) => {
         (driver): Database.InsertDriver => ({
           id: driver.driverId,
           permanentNumber: driver.permanentNumber,
-          fullName: driver.givenName + " " + driver.familyName,
+          fullName: driver.givenName + ' ' + driver.familyName,
           givenName: driver.givenName,
           familyName: driver.familyName,
           nationality: driver.nationality,
@@ -44,7 +44,7 @@ export default defineBasicAuthedEventHandler(async (event) => {
           lastUpdated: new Date(),
         }),
       ),
-    );
+    )
   }
 
   const returning = await db
@@ -64,13 +64,13 @@ export default defineBasicAuthedEventHandler(async (event) => {
     })
     .returning({
       id: driversTable.id,
-    });
+    })
 
-  setResponseStatus(event, 201);
+  setResponseStatus(event, 201)
 
   return {
     data: {
       updated: returning.length,
     },
-  };
-});
+  }
+})

@@ -1,17 +1,17 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const isUserNavigatingToTheApp = to.path.startsWith("/tipping");
+  const isUserNavigatingToTheApp = to.path.startsWith('/tipping')
   if (!isUserNavigatingToTheApp) {
-    return;
+    return
   }
 
-  const { authClient } = useAuth();
-  const { data: loggedIn } = await authClient.useSession(useFetch);
+  const { authClient } = useAuth()
+  const { data: loggedIn } = await authClient.useSession(useFetch)
   if (!loggedIn.value) {
     return navigateTo({
-      path: "/auth",
+      path: '/auth',
       query: {
         ...$getQueryOrigin(QueryOrigin.NotAllowed),
       },
-    });
+    })
   }
-});
+})

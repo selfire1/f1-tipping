@@ -1,7 +1,7 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./db";
-import { hoursToSeconds } from "date-fns";
+import { betterAuth } from 'better-auth'
+import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { db } from './db'
+import { hoursToSeconds } from 'date-fns'
 
 export const auth = betterAuth({
   session: {
@@ -22,6 +22,6 @@ export const auth = betterAuth({
     },
   },
   database: drizzleAdapter(db, {
-    provider: "sqlite",
+    provider: 'sqlite',
   }),
-});
+})

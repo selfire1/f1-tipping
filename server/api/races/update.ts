@@ -1,15 +1,15 @@
-import { sql } from "drizzle-orm";
-import { racesTable } from "~~/server/db/schema";
-import { fetchJolpica } from "~~/server/utils";
-import { defineBasicAuthedEventHandler } from "~~/server/utils/handlers";
-import { RaceResponse } from "~~/types/ergast";
+import { sql } from 'drizzle-orm'
+import { racesTable } from '~~/server/db/schema'
+import { fetchJolpica } from '~~/server/utils'
+import { defineBasicAuthedEventHandler } from '~~/server/utils/handlers'
+import { RaceResponse } from '~~/types/ergast'
 
 export default defineBasicAuthedEventHandler(async (event) => {
-  assertMethod(event, "GET");
-  const response = await fetchJolpica<RaceResponse>("/ergast/f1/2025/races/");
-  const races = response.MRData.RaceTable?.Races;
+  assertMethod(event, 'GET')
+  const response = await fetchJolpica<RaceResponse>('/ergast/f1/2025/races/')
+  const races = response.MRData.RaceTable?.Races
   if (!races?.length) {
-    throw createError({ statusCode: 404, statusMessage: "No Races found" });
+    throw createError({ statusCode: 404, statusMessage: 'No Races found' })
   }
   const returning = await db
     .insert(racesTable)
@@ -18,8 +18,8 @@ export default defineBasicAuthedEventHandler(async (event) => {
         if (!race.Qualifying) {
           throw createError({
             statusCode: 404,
-            statusMessage: "No Qualifying found",
-          });
+            statusMessage: 'No Qualifying found',
+          })
         }
         return {
           id: race.Circuit.circuitId,
@@ -33,7 +33,7 @@ export default defineBasicAuthedEventHandler(async (event) => {
           ),
           locality: race.Circuit.Location.locality,
           lastUpdated: new Date(),
-        };
+        }
       }),
     )
     .onConflictDoUpdate({
@@ -51,14 +51,14 @@ export default defineBasicAuthedEventHandler(async (event) => {
     })
     .returning({
       id: racesTable.id,
-    });
+    })
 
-  setResponseStatus(event, 201);
+  setResponseStatus(event, 201)
 
   return {
     data: {
       received: response.MRData.total,
       updated: returning.length,
     },
-  };
-});
+  }
+})

@@ -1,30 +1,30 @@
-import { and, eq, inArray, lt } from "drizzle-orm";
+import { and, eq, inArray, lt } from 'drizzle-orm'
 import {
   groupsTable,
   predictionEntriesTable,
   predictionsTable,
   racesTable,
-} from "~~/server/db/schema";
-import z from "zod";
-import { DEFAULT_CUTOFF_MINS } from "~~/shared/utils";
+} from '~~/server/db/schema'
+import z from 'zod'
+import { DEFAULT_CUTOFF_MINS } from '~~/shared/utils'
 
 export default defineAuthedEventHandler(async (event) => {
-  assertMethod(event, "GET");
+  assertMethod(event, 'GET')
   const { groupId } = await getValidatedRouterParams(
     event,
     z.object({
       groupId: z.string(),
     }).parse,
-  );
+  )
 
   const group = await db.query.groupsTable.findFirst({
     where: eq(groupsTable.id, groupId),
     columns: {
       cutoffInMinutes: true,
     },
-  });
-  const cutoffInMinutes = group?.cutoffInMinutes || DEFAULT_CUTOFF_MINS;
-  const cutoffDate = $getCutoffDate(new Date(), cutoffInMinutes);
+  })
+  const cutoffInMinutes = group?.cutoffInMinutes || DEFAULT_CUTOFF_MINS
+  const cutoffDate = $getCutoffDate(new Date(), cutoffInMinutes)
 
   const raceIds = (
     await db.query.racesTable.findMany({
@@ -33,7 +33,7 @@ export default defineAuthedEventHandler(async (event) => {
         id: true,
       },
     })
-  ).map((race) => race.id);
+  ).map((race) => race.id)
 
   const predictionEntries = await db
     .select({
@@ -54,7 +54,7 @@ export default defineAuthedEventHandler(async (event) => {
         eq(predictionsTable.groupId, groupId),
         inArray(predictionsTable.raceId, raceIds),
       ),
-    );
+    )
 
-  return predictionEntries;
-});
+  return predictionEntries
+})

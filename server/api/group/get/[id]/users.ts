@@ -1,14 +1,14 @@
-import { eq } from "drizzle-orm";
-import z from "zod";
-import { groupMembersTable } from "~~/server/db/schema";
+import { eq } from 'drizzle-orm'
+import z from 'zod'
+import { groupMembersTable } from '~~/server/db/schema'
 export default defineEventHandler(async (event) => {
-  assertMethod(event, "GET");
+  assertMethod(event, 'GET')
   const { id } = await getValidatedRouterParams(
     event,
     z.object({
       id: z.string(),
     }).parse,
-  );
+  )
 
   return {
     items: (
@@ -19,5 +19,5 @@ export default defineEventHandler(async (event) => {
         },
       })
     ).map((entry) => entry.user),
-  };
-});
+  }
+})

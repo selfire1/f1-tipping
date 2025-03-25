@@ -1,28 +1,28 @@
-import { FetchError } from "ofetch";
+import { FetchError } from 'ofetch'
 
 type BlockMethods = {
-  try: () => Promise<void>;
-};
+  try: () => Promise<void>
+}
 
 export const useFetchFunction = (methods: BlockMethods) => {
-  const fetchError = ref<FetchError>();
-  const isPending = ref(false);
-  const { try: tryMethod } = methods;
+  const fetchError = ref<FetchError>()
+  const isPending = ref(false)
+  const { try: tryMethod } = methods
 
   async function run() {
-    fetchError.value = undefined;
-    isPending.value = true;
+    fetchError.value = undefined
+    isPending.value = true
     try {
-      await tryMethod();
+      await tryMethod()
     } catch (e) {
-      console.error(e);
+      console.error(e)
 
       if (e instanceof FetchError) {
-        fetchError.value = e;
+        fetchError.value = e
       }
     } finally {
-      isPending.value = false;
+      isPending.value = false
     }
   }
-  return { isPending, fetchError, run };
-};
+  return { isPending, fetchError, run }
+}

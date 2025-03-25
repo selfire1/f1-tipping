@@ -1,15 +1,15 @@
 export const useConstructor = async () => {
-  const nuxtApp = useNuxtApp();
+  const nuxtApp = useNuxtApp()
 
-  const { data: apiConstructors } = await useFetch("/api/constructors", {
+  const { data: apiConstructors } = await useFetch('/api/constructors', {
     transform: (data) => data.items,
     getCachedData: (key) => {
-      const inCache = nuxtApp.payload.data[key] || nuxtApp.static.data[key];
-      console.log("constructors are in cache", !!inCache);
-      return inCache;
+      const inCache = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+      console.log('constructors are in cache', !!inCache)
+      return inCache
     },
     lazy: true,
-  });
+  })
 
-  return { allConstructors: apiConstructors };
-};
+  return { allConstructors: apiConstructors }
+}

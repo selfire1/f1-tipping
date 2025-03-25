@@ -1,7 +1,7 @@
-import { useNow } from "@vueuse/core";
-import type { SerializeObject } from "nitropack";
-import { isAfter } from "date-fns";
-import type { Database } from "~~/types/db";
+import { useNow } from '@vueuse/core'
+import type { SerializeObject } from 'nitropack'
+import { isAfter } from 'date-fns'
+import type { Database } from '~~/types/db'
 
 export const useRace = () => {
   // const nuxtApp = useNuxtApp();
@@ -23,15 +23,15 @@ export const useRace = () => {
   // });
 
   function getIsRaceAfterCutoff(
-    race: Pick<Database.Race, "qualifyingDate">,
+    race: Pick<Database.Race, 'qualifyingDate'>,
     cutoffInMinutes?: MaybeRef<number>,
   ): boolean {
-    const now = useNow();
+    const now = useNow()
     const lastChanceToEnterTips = $getCutoffDate(
       race.qualifyingDate,
       unref(cutoffInMinutes),
-    );
-    return isAfter(now.value, lastChanceToEnterTips);
+    )
+    return isAfter(now.value, lastChanceToEnterTips)
   }
 
   return {
@@ -42,14 +42,14 @@ export const useRace = () => {
         qualifyingDate: new Date(race.qualifyingDate),
         created: new Date(race.created),
         lastUpdated: new Date(race.lastUpdated),
-      };
+      }
     },
     getIsRaceAfterCutoff,
     getRacesInTheFuture(
       maybeRefRaces?: MaybeRef<Database.Race[]>,
       cutoffInMinutes?: MaybeRef<number>,
     ): Database.Race[] {
-      const races = unref(maybeRefRaces);
+      const races = unref(maybeRefRaces)
       return (
         races
           ?.filter((race) => !getIsRaceAfterCutoff(race, cutoffInMinutes))
@@ -58,7 +58,7 @@ export const useRace = () => {
             created: new Date(race.created),
             lastUpdated: new Date(race.lastUpdated),
           })) ?? []
-      );
+      )
     },
-  };
-};
+  }
+}

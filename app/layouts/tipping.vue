@@ -1,106 +1,132 @@
 <script setup lang="ts">
-import type { HorizontalNavigationLink } from "#ui/types";
+import type { HorizontalNavigationLink } from '#ui/types'
 
-const { signOut } = useAuth();
+const { signOut } = useAuth()
 
 const links: HorizontalNavigationLink[][] = [
   [
     {
-      label: "Dashboard",
-      to: "/tipping",
+      label: 'Dashboard',
+      to: '/tipping',
     },
     {
-      label: "Enter tips",
-      to: "/tipping/add-tips",
+      label: 'Enter tips',
+      to: '/tipping/add-tips',
     },
     {
-      label: "Championships",
-      to: "/tipping/championships",
-    },
-  ],
-  [
-    {
-      label: "Results",
-      to: "/tipping/leaderboard",
-    },
-    {
-      label: "Groups",
-      to: "/tipping/groups",
-    },
-    {
-      label: "Rules & Scoring",
-      to: "/tipping/rules",
+      label: 'Championships',
+      to: '/tipping/championships',
     },
   ],
   [
     {
-      label: "Feedback",
-      to: "/tipping/contact",
+      label: 'Results',
+      to: '/tipping/leaderboard',
     },
     {
-      label: "Settings",
-      to: "/tipping/settings",
+      label: 'Groups',
+      to: '/tipping/groups',
+    },
+    {
+      label: 'Rules & Scoring',
+      to: '/tipping/rules',
     },
   ],
   [
     {
-      label: "Sign out",
-      icon: "carbon:exit",
+      label: 'Feedback',
+      to: '/tipping/contact',
+    },
+    {
+      label: 'Settings',
+      to: '/tipping/settings',
+    },
+  ],
+  [
+    {
+      label: 'Sign out',
+      icon: 'carbon:exit',
       async click() {
-        await signOut();
+        await signOut()
       },
     },
   ],
-];
+]
 
-const isMobileNavPresented = ref(false);
+const isMobileNavPresented = ref(false)
 
-const { allUserGroups, currentUserGroup } = await useGroup();
+const { allUserGroups, currentUserGroup } = await useGroup()
 </script>
 
 <template lang="pug">
 .is-layout-tipping
-  div(class="md:flex md:flex-row")
+  div(class='md:flex md:flex-row')
     // desktop header
-    header.hidden.space-y-4.border-r(class="w-[15%] min-w-[10rem] bg-gray-50/50 md:block dark:bg-gray-900 dark:border-gray-700")
-      .p-4.space-y-1
-        NuxtLink.flex.items-center.gap-1.text-muted(to="/tipping")
-          UIcon.transition-colors(name="carbon:trophy-filled" size="xs" class="group-hover:bg-primary")
+    header.hidden.space-y-4.border-r(
+      class='w-[15%] min-w-[10rem] bg-gray-50/50 md:block dark:border-gray-700 dark:bg-gray-900'
+    )
+      .space-y-1.p-4
+        NuxtLink.flex.items-center.gap-1.text-muted(to='/tipping')
+          UIcon.transition-colors(
+            name='carbon:trophy-filled',
+            size='xs',
+            class='group-hover:bg-primary'
+          )
           span.is-size-7.font-medium GridTip
-        template(v-if="!allUserGroups?.length")
-          p.italic.is-size-7 No group
-        template(v-else-if="allUserGroups.length === 1 && currentUserGroup")
-          p.italic.is-size-7 {{currentUserGroup.name}}
+        template(v-if='!allUserGroups?.length')
+          p.is-size-7.italic No group
+        template(v-else-if='allUserGroups.length === 1 && currentUserGroup')
+          p.is-size-7.italic {{ currentUserGroup.name }}
         template(v-else)
-          USelectMenu(:options="allUserGroups" v-model="currentUserGroup" option-attribute="name")
+          USelectMenu(
+            :options='allUserGroups',
+            v-model='currentUserGroup',
+            option-attribute='name'
+          )
       UVerticalNavigation.px-1(:links)
     // mobile header
-    header.z-10.sticky.top-0.bg-white(class="dark:bg-gray-800 md:hidden")
-      .is-container.is-header(class="md:hidden")
+    header.sticky.top-0.z-10.bg-white(class='md:hidden dark:bg-gray-800')
+      .is-container.is-header(class='md:hidden')
         .is-header-wrapper
           .is-header-wrapper-link
-            UButton(icon="carbon:open-panel-filled-left" aria-label="Open mobile navigation" variant="ghost" @click="isMobileNavPresented = true")
+            UButton(
+              icon='carbon:open-panel-filled-left',
+              aria-label='Open mobile navigation',
+              variant='ghost',
+              @click='isMobileNavPresented = true'
+            )
             h1.is-display-6
-              slot(name="page-title")
-          UButton(icon="carbon:home" aria-label="Home" to="/tipping" title="Dashboard" variant="ghost")
+              slot(name='page-title')
+          UButton(
+            icon='carbon:home',
+            aria-label='Home',
+            to='/tipping',
+            title='Dashboard',
+            variant='ghost'
+          )
       UDivider
 
     main.w-full
-      div(class="md:w-full md:min-h-screen md:overflow-hidden md:flex md:flex-col md:p-0")
-        .is-container(class="md:px-8 md:py-4")
-          h1.hidden.is-display-6(class="md:block")
-            slot(name="page-title")
-        UDivider.hidden(class="md:block")
-        div(class="md:overflow-y-auto md:flex md:flex-col md:flex-1 md:min-h-0")
+      div(class='md:flex md:min-h-screen md:w-full md:flex-col md:overflow-hidden md:p-0')
+        .is-container(class='md:px-8 md:py-4')
+          h1.is-display-6.hidden(class='md:block')
+            slot(name='page-title')
+        UDivider.hidden(class='md:block')
+        div(class='md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-y-auto')
           slot
 
-  USlideover(v-model="isMobileNavPresented" side="left")
+  USlideover(v-model='isMobileNavPresented', side='left')
     .is-header
       .is-header-wrapper.is-container
         .is-header-wrapper-link
-          UButton(icon="carbon:close" aria-label="Open mobile navigation" variant="ghost" @click="isMobileNavPresented = false")
+          UButton(
+            icon='carbon:close',
+            aria-label='Open mobile navigation',
+            variant='ghost',
+            @click='isMobileNavPresented = false'
+          )
           p.font-bold
-            slot(name="page-title")
+            slot(name='page-title')
     UDivider
     .is-container.py-4
       UVerticalNavigation(:links)
@@ -108,7 +134,7 @@ const { allUserGroups, currentUserGroup } = await useGroup();
 
 <style>
 .is-header {
-  @apply py-2 space-y-1;
+  @apply space-y-1 py-2;
   &-wrapper {
     @apply flex items-center justify-between;
     &-link {

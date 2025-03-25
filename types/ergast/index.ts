@@ -1,135 +1,135 @@
-import type { Constructor } from "..";
+import type { Constructor } from '..'
 
 export type RaceResponse = ErgastResponse<{
-  RaceTable?: RaceTable;
-}>;
+  RaceTable?: RaceTable
+}>
 
 export type ResultsResponse = ErgastResponse<{
   RaceTable?: {
-    season: string;
+    season: string
     Races: Array<
       Race & {
-        Results: ResultRace[];
+        Results: ResultRace[]
       }
-    >;
-  };
-}>;
+    >
+  }
+}>
 
 export type DriverResponse = ErgastResponse<{
-  DriverTable: DriverTable;
-}>;
+  DriverTable: DriverTable
+}>
 export type ConstructorsResponse = ErgastResponse<{
   ConstructorTable: {
     Constructors: {
-      constructorId?: string;
-      url?: string;
-      name: string;
-      nationality?: string;
-    }[];
-  };
-}>;
+      constructorId?: string
+      url?: string
+      name: string
+      nationality?: string
+    }[]
+  }
+}>
 
 interface MRData {
-  xmlns: string;
-  series: "f1";
-  url: string;
-  limit: string;
-  offset: string;
-  total: string;
+  xmlns: string
+  series: 'f1'
+  url: string
+  limit: string
+  offset: string
+  total: string
 }
 
 type ErgastResponse<T> = {
-  MRData: MRData & T;
-};
+  MRData: MRData & T
+}
 
 interface RaceTable {
-  season: string;
-  Races: Race[];
+  season: string
+  Races: Race[]
 }
 
 interface ResultRace extends Race {
   /**
    * The drivers number
    */
-  number: string;
+  number: string
   /**
    * Finishing position of the drive
    */
-  position: string;
-  points: string;
+  position: string
+  points: string
   /**
    * either an integer (finishing position), or
    * “R” (retired), “D” (disqualified), “E” (excluded), “W” (withdrawn), “F” (failed to qualify) or “N” (not classified)
    */
-  positionText: string;
-  Driver: Driver;
-  Constructor?: Constructor & { constructorId: string };
-  grid?: string;
-  laps?: string;
-  status?: "Finished" | string;
+  positionText: string
+  Driver: Driver
+  Constructor?: Constructor & { constructorId: string }
+  grid?: string
+  laps?: string
+  status?: 'Finished' | string
   Time?: {
-    millis: string;
-    time: string;
-  };
+    millis: string
+    time: string
+  }
   FastestLap?: {
-    ranks: string;
-    lap: string;
+    ranks: string
+    lap: string
     Time: {
-      time: string;
-    };
+      time: string
+    }
     AverageSpeed: {
-      units: string;
-      speed: string;
-    };
-  };
+      units: string
+      speed: string
+    }
+  }
 }
 
 interface Race {
-  season: string;
-  round: string;
-  raceName: string;
-  Circuit: Circuit;
-  date: string; // ISO date string
-  time?: string; // Optional ISO time string
-  FirstPractice?: Session;
-  SecondPractice?: Session;
-  ThirdPractice?: Session;
-  Qualifying?: Session;
-  Sprint?: Session;
-  SprintQualifying?: Session;
+  season: string
+  round: string
+  raceName: string
+  Circuit: Circuit
+  date: string // ISO date string
+  time?: string // Optional ISO time string
+  FirstPractice?: Session
+  SecondPractice?: Session
+  ThirdPractice?: Session
+  Qualifying?: Session
+  Sprint?: Session
+  SprintQualifying?: Session
 }
 
 interface Circuit {
-  circuitId: string;
-  url: string;
-  circuitName: string;
-  Location: Location;
+  circuitId: string
+  url: string
+  circuitName: string
+  Location: Location
 }
 
 interface Location {
-  lat: string; // Latitude as a string
-  long: string; // Longitude as a string
-  locality: string;
-  country: string;
+  lat: string // Latitude as a string
+  long: string // Longitude as a string
+  locality: string
+  country: string
 }
 
 interface Session {
-  date: string; // ISO date string
-  time?: string; // Optional ISO time string
+  date: string // ISO date string
+  time?: string // Optional ISO time string
 }
 
 interface DriverTable {
-  season: string;
-  Drivers: Driver[];
+  season: string
+  Drivers: Driver[]
 }
 
 interface Driver {
-  driverId: string;
-  permanentNumber: string;
-  code: string;
-  url: string;
-  givenName: string;
-  familyName: string;
-  dateOfBirth: string; // ISO date string
-  nationality: string;
+  driverId: string
+  permanentNumber: string
+  code: string
+  url: string
+  givenName: string
+  familyName: string
+  dateOfBirth: string // ISO date string
+  nationality: string
 }
