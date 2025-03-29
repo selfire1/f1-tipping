@@ -24,13 +24,5 @@ Tip the Formula 1 season with your friends.
 
 ## Credits
 
+- [atinux/nuxthub-better-auth](https://github.com/atinux/nuxthub-better-auth)
 - https://heropatterns.com/
-
-## TODO
-
-### Dashboard
-
-- [ ] next race
-- [ ] last race
-- [ ] past races
-- [ ] current leaderboard position

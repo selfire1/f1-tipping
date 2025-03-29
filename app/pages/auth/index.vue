@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import TextHero from '~/components/TextHero.vue'
 
-const { authClient } = useAuth()
+const { signIn } = useAuth()
 const toast = useToast()
 const { query } = useRoute()
 async function signInWithGoogle() {
-  const data = await authClient.signIn.social({
+  const data = await signIn.social({
     provider: 'google',
     callbackURL: (query?.redirect as string | undefined) || '/tipping',
   })
