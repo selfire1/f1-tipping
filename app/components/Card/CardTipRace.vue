@@ -15,6 +15,18 @@ const nextRaceCutOffDate = computed(() =>
       )
     : null,
 )
+
+const { data: hasTipped } = await useFetch(
+  `/api/prediction/${currentUserGroup.value?.id}/get`,
+  {
+    params: {
+      raceId: props.race.id,
+    },
+    transform: (predictions) => !!predictions?.length,
+    lazy: true,
+    ...$getCachedFetchConfig('hasTippedNext'),
+  },
+)
 </script>
 
 <template lang="pug">
@@ -23,7 +35,7 @@ UCard
     h2.is-display-7 Predict the next race
   template(#footer)
     UButton(
-      label='Tip now',
+      :label='hasTipped ? "Review tips" : "Tip now"',
       to='/tipping/add-tips',
       trailing,
       icon='carbon:arrow-right'
