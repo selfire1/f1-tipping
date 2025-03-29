@@ -157,6 +157,18 @@ useSeoMeta({
   title: 'Championships',
   ogTitle: 'Championships',
 })
+
+const { data: dbDrivers } = await useFetch('/api/drivers', {
+  transform: (data) => data.items,
+  ...$getCachedFetchConfig('drivers'),
+})
+if (!dbDrivers.value?.length) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'No drivers found',
+  })
+}
+const drivers = dbDrivers as Ref<Database.Driver[]>
 </script>
 
 <template lang="pug">
@@ -193,7 +205,8 @@ NuxtLayout(name='tipping')
       )
         SelectDriver(
           v-model='state.championshipDriver',
-          :disabled='!isCutoffInFuture'
+          :disabled='!isCutoffInFuture',
+          :drivers
         )
       UButton(type='submit', label='Save', :disabled='!isCutoffInFuture')
 </template>

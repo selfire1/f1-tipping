@@ -2,7 +2,10 @@
 import type { Component } from '~~/types'
 import type { Database } from '~~/types/db'
 
-const { allDrivers: drivers } = await useDriver()
+defineProps<{
+  drivers: Array<Database.Driver | Component.DriverOption>
+}>()
+
 const selectedDriver = defineModel<Database.Driver | Component.DriverOption>()
 </script>
 

@@ -20,6 +20,17 @@ const { getRacesInTheFuture, deserialise } = useRace()
 const { data: races, status: raceStatus } = await useFetch('/api/races', {
   ...$getCachedFetchConfig('races'),
 })
+const { data: dbDrivers } = await useFetch('/api/drivers', {
+  transform: (data) => data.items,
+  ...$getCachedFetchConfig('drivers'),
+})
+if (!dbDrivers.value?.length) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'No drivers found',
+  })
+}
+const drivers = dbDrivers as Ref<Database.Driver[]>
 
 const racesInTheFuture = computed(() =>
   getRacesInTheFuture(
@@ -215,7 +226,7 @@ NuxtLayout(name='tipping')
                   :date='getCutoffDateForCurrentGroup(currentRace.qualifyingDate)'
                 )
 
-          .gap-1.hidden(class='sm:flex')
+          .hidden.gap-1(class='sm:flex')
             UIcon(:name='Icons.Qualifying')
             p.is-size-7.flex.flex-col
               span.is-display-8 Qualifying
@@ -225,7 +236,7 @@ NuxtLayout(name='tipping')
                   :badge='{ variant: "soft", color: "gray" }',
                   :date='currentRace.qualifyingDate'
                 )
-          .gap-1.hidden(class='sm:flex')
+          .hidden.gap-1(class='sm:flex')
             UIcon(:name='Icons.GrandPrix')
             p.is-size-7.flex.flex-col
               span.is-display-8 Grand Prix
@@ -253,23 +264,23 @@ NuxtLayout(name='tipping')
             description='Which driver will start at the front?',
             name='pole'
           )
-            SelectDriver(v-model='state.pole')
+            SelectDriver(v-model='state.pole', :drivers)
           UFormGroup(
             label='P1',
             description='Who will finish first in the GP?',
             name='p1'
           )
-            SelectDriver(v-model='state.p1')
+            SelectDriver(v-model='state.p1', :drivers)
           UFormGroup(
             label='P10',
             description='Which driver will just snatch some points?',
             name='p10'
           )
-            SelectDriver(v-model='state.p10')
+            SelectDriver(v-model='state.p10', :drivers)
           UFormGroup(label='Last place', name='last', hint='Excluding DNFs')
             template(#description)
               p Which driver is last to finish?
-            SelectDriver(v-model='state.last')
+            SelectDriver(v-model='state.last', :drivers)
           UFormGroup(
             label='Most constructor points',
             description='Which constructor will haul the most points in the Grand Prix?',
