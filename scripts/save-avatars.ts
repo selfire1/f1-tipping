@@ -1,10 +1,11 @@
-import { db } from '../server/utils/db'
+import { useDb } from '../server/utils/db'
 import path from 'path'
 
 async function main() {
   const rootPath = path.join(import.meta.dir, '..')
   const userImgsPath = path.join(rootPath, 'public', 'img', 'user')
 
+  const db = useDb()
   const users = await db.query.user.findMany({
     columns: {
       image: true,

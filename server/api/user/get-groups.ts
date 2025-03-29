@@ -1,8 +1,10 @@
 import { groupMembersTable } from '~~/server/db/schema'
 import { eq } from 'drizzle-orm'
 import { defineAuthedEventHandler } from '~~/server/utils/handlers'
+import { useDb } from '~~/server/utils/db'
 
 export default defineAuthedEventHandler(async (event) => {
+  const db = useDb()
   const session = event.context.auth
   const targetUserId = event.context.auth.user.id
 

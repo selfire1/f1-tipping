@@ -2,10 +2,12 @@ import { setTimeout } from 'timers/promises'
 import { InsertResult, resultsTable } from '~~/server/db/schema'
 import type { Database } from '~~/types/db'
 import type { ResultsResponse } from '~~/types/ergast'
+import { useDb } from '~~/server/utils/db'
 
 export default defineBasicAuthedEventHandler(async (event) => {
   assertMethod(event, 'GET')
 
+  const db = useDb()
   let offset = 0
   let total: null | number = null
   const limit = 100

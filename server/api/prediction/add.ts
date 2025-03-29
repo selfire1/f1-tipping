@@ -10,8 +10,10 @@ import { serverSaveTip } from '~~/shared/schemas'
 import { $getCutoffDate } from '~~/shared/utils'
 import { Constructor, Driver } from '~~/types'
 import { Database } from '~~/types/db'
+import { useDb } from '~~/server/utils/db'
 
 export default defineAuthedEventHandler(async (event) => {
+  const db = useDb()
   const timeOfSubmission = new Date()
   assertMethod(event, 'POST')
   const body = await readValidatedBody(event, serverSaveTip.parse)
