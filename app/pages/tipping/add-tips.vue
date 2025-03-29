@@ -162,8 +162,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     console.log(response)
     toast.add(
       $getSuccessToast({
-        title: 'Saved your tip',
-        description: `Your tip for the ${currentRace.value.raceName} has been saved. Good luck!`,
+        title: 'Tips saved',
+        description: `Your tips for the ${currentRace.value.raceName} have been saved. Good luck!`,
       }),
     )
   } catch (e) {
