@@ -3,9 +3,9 @@ definePageMeta({
   layout: false,
 })
 
-const { authClient } = useAuth()
+const { authClient, user } = useAuth()
 const isConfirmDeleteModalPresented = ref(false)
-const { data } = await authClient.useSession(useFetch)
+
 async function onConfirmDelete() {
   try {
     await authClient.deleteUser({
@@ -60,9 +60,9 @@ NuxtLayout(name='tipping')
           template(#description)
             p Are you sure? This will delete the account
               |
-              b {{ (data?.user?.name ?? 'Unknown') + ' ' }}
-              template(v-if='data?.user?.email')
-                b {{ `(${data?.user?.email}) ` }}
+              b {{ (user?.name ?? 'Unknown') + ' ' }}
+              template(v-if='user?.email')
+                b {{ `(${user?.email}) ` }}
               span and all connected data.
       .flex.items-center.justify-between
         UButton(

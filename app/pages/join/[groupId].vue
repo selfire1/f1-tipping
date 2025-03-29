@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { FetchError } from 'ofetch'
 const groupId = useRoute().params.groupId as string
 if (!groupId) {
   throw createError({ statusCode: 404, message: 'No valid id found.' })
 }
-const { authClient } = useAuth()
-const { data: loggedIn } = await authClient.useSession(useFetch)
+const { isSignedIn } = useAuth()
 const { data, status } = await useFetch(`/api/group/get/${groupId}`)
 if (!data.value?.item) {
   throw createError({
@@ -65,7 +63,7 @@ useSeoMeta({
                   span.is-display-4 {{ data?.item?.name ?? 'Unknown group' }}
       template(v-if='error')
         SystemError(:fetch-error='error')
-      template(v-if='!loggedIn')
+      template(v-if='!isSignedIn')
         UButton(:to='authPath', label='Log in or sign up to join')
       template(v-else)
         UButton(
