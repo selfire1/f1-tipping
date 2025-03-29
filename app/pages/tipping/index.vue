@@ -13,9 +13,10 @@ const {
   status: groupStatus,
 } = await useGroup()
 const { getRacesInTheFuture, deserialise, getIsRaceAfterCutoff } = useRace()
-const { data: allRaces, status: raceStatus } = useFetch('/api/races', {
+const { data: allRaces, status: raceStatus } = await useFetch('/api/races', {
   ...$getCachedFetchConfig('races'),
   transform: (data) => data.items.map(deserialise),
+  lazy: true,
 })
 const nextRace = computed(
   () =>
