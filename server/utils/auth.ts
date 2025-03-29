@@ -8,7 +8,7 @@ export function useAuth() {
     session: {
       cookieCache: {
         enabled: true,
-        maxAge: hoursToSeconds(24 * 14), // 14 days
+        maxAge: hoursToSeconds(24 * 90), // 90 days
       },
     },
     user: {
