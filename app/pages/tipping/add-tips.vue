@@ -181,10 +181,28 @@ useSeoMeta({
   title: 'Enter tips',
   ogTitle: 'Enter tips',
 })
+
+const hasUnsavedChanges = computed(() => {
+  if (!currentRace.value || !state) {
+    // if empty, save is required
+    return true
+  }
+  const serverValues = predictionsByRaceMap.value?.get(currentRace?.value?.id)
+  if (!serverValues) {
+    // if no values saved yet, treat as unsaved
+    return true
+  }
+  const isSame = Object.entries(state).every(([key, value]) => {
+    const serverValue = serverValues[key as keyof typeof serverValues]
+    return serverValue?.id === value?.id
+  })
+  return !isSame
+})
 </script>
 
 <template lang="pug">
 NuxtLayout(name='tipping')
+  .grid.grid-cols-2
   template(#page-title)
     | Enter tips
   template(
@@ -292,9 +310,16 @@ NuxtLayout(name='tipping')
             UButton(
               block,
               type='submit',
-              :disabled='isSubmitPending',
-              :loading='isSubmitPending'
-            ) Save
+              :disabled='isSubmitPending || !hasUnsavedChanges',
+              :loading='isSubmitPending',
+              :icon='hasUnsavedChanges ? "" : "carbon:checkmark"'
+            )
+              template(v-if='isSubmitPending')
+                | Saving…
+              template(v-else-if='hasUnsavedChanges')
+                | Save
+              template(v-else)
+                | Saved
           p.is-size-8.text-center.text-muted 1 point is awarded per correct answer.
           div(v-if='errorMessage')
             SystemError(
