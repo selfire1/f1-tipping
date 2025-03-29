@@ -1,27 +1,29 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { db } from './db'
 import { hoursToSeconds } from 'date-fns'
+import { useDb } from './db'
 
-export const auth = betterAuth({
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: hoursToSeconds(24 * 14), // 14 days
+export function useAuth() {
+  return betterAuth({
+    session: {
+      cookieCache: {
+        enabled: true,
+        maxAge: hoursToSeconds(24 * 14), // 14 days
+      },
     },
-  },
-  user: {
-    deleteUser: {
-      enabled: true,
+    user: {
+      deleteUser: {
+        enabled: true,
+      },
     },
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    socialProviders: {
+      google: {
+        clientId: process.env.GOOGLE_CLIENT_ID as string,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      },
     },
-  },
-  database: drizzleAdapter(db, {
-    provider: 'sqlite',
-  }),
-})
+    database: drizzleAdapter(useDb(), {
+      provider: 'sqlite',
+    }),
+  })
+}

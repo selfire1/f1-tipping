@@ -1,9 +1,11 @@
 import { and, eq } from 'drizzle-orm'
 import z from 'zod'
 import { groupMembersTable } from '~~/server/db/schema'
+import { useDb } from '~~/server/utils/db'
 
 export default defineAuthedEventHandler(async (event) => {
   assertMethod(event, 'POST')
+  const db = useDb()
   const { id: targetID } = await getValidatedRouterParams(
     event,
     z.object({

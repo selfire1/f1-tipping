@@ -1,11 +1,13 @@
 import { sql } from 'drizzle-orm'
 import { racesTable } from '~~/server/db/schema'
 import { fetchJolpica } from '~~/server/utils'
+import { useDb } from '~~/server/utils/db'
 import { defineBasicAuthedEventHandler } from '~~/server/utils/handlers'
 import { RaceResponse } from '~~/types/ergast'
 
 export default defineBasicAuthedEventHandler(async (event) => {
   assertMethod(event, 'GET')
+  const db = useDb()
   const response = await fetchJolpica<RaceResponse>('/ergast/f1/2025/races/')
   const races = response.MRData.RaceTable?.Races
   if (!races?.length) {

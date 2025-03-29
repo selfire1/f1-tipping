@@ -1,5 +1,6 @@
 import type { EventHandler, EventHandlerRequest } from 'h3'
 import bcrypt from 'bcryptjs'
+import { useAuth } from './auth'
 type AuthSession = typeof auth.$Infer.Session
 
 declare module 'h3' {
@@ -15,6 +16,7 @@ export const defineAuthedEventHandler = <T extends EventHandlerRequest, D>(
   handler: EventHandler<T, D>,
 ): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
+    const auth = useAuth()
     const session = await auth.api.getSession({
       headers: event.headers,
     })

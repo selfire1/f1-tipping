@@ -1,9 +1,11 @@
 import { groupMembersTable, groupsTable } from '~~/server/db/schema'
+import { useDb } from '~~/server/utils/db'
 import { defineAuthedEventHandler } from '~~/server/utils/handlers'
 import { createGroup as createGroupSchema } from '~~/shared/schemas'
 
 export default defineAuthedEventHandler(async (event) => {
   assertMethod(event, 'POST')
+  const db = useDb()
   const { data } = await readValidatedBody(event, createGroupSchema.safeParse)
   const {
     context: {

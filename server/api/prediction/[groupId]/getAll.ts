@@ -7,9 +7,11 @@ import {
 } from '~~/server/db/schema'
 import z from 'zod'
 import { DEFAULT_CUTOFF_MINS } from '~~/shared/utils'
+import { useDb } from '~~/server/utils/db'
 
 export default defineAuthedEventHandler(async (event) => {
   assertMethod(event, 'GET')
+  const db = useDb()
   const { groupId } = await getValidatedRouterParams(
     event,
     z.object({

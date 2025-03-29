@@ -5,10 +5,12 @@ import { DriverResponse } from '~~/types/ergast'
 import { setTimeout } from 'timers/promises'
 import { Database } from '~~/types/db'
 import { sql } from 'drizzle-orm'
+import { useDb } from '~~/server/utils/db'
 
 export default defineBasicAuthedEventHandler(async (event) => {
   assertMethod(event, 'GET')
 
+  const db = useDb()
   const constructors = await db.query.constructorsTable.findMany({
     columns: {
       id: true,
