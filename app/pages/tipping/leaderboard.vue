@@ -414,7 +414,7 @@ NuxtLayout(name='tipping')
             UButton(
               type='button',
               @click='goPrevious',
-              label='Previous',
+              label='Next',
               variant='soft',
               :disabled='selectedIndex === 0'
             )
@@ -423,7 +423,7 @@ NuxtLayout(name='tipping')
               @click='goNext',
               :disabled='racesWithResults?.length === selectedIndex + 1',
               variant='soft',
-              label='Next'
+              label='Previous'
             )
         template(
           v-if='[predictionStatus].some((status) => ["pending", "idle"].includes(status))'
