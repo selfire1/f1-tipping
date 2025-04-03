@@ -588,17 +588,17 @@ NuxtLayout(name='tipping')
         .is-bg-pattern.mt-8
           .is-container.flex.items-center.justify-between.py-2
             UButton(
+              @click='goNext',
+              :disabled='racesWithResults?.length === selectedIndex + 1 || [predictionStatus].some((status) => ["pending", "idle"].includes(status))',
+              variant='soft',
+              label='Next'
+            )
+            p.is-display-7 {{ selectedRace?.raceName }}
+            UButton(
               type='button',
               @click='goPrevious',
               label='Previous',
               variant='soft',
               :disabled='selectedIndex === 0 || [predictionStatus].some((status) => ["pending", "idle"].includes(status))'
-            )
-            p.is-display-7 {{ selectedRace?.raceName }}
-            UButton(
-              @click='goNext',
-              :disabled='racesWithResults?.length === selectedIndex + 1 || [predictionStatus].some((status) => ["pending", "idle"].includes(status))',
-              variant='soft',
-              label='Next'
             )
 </template>
