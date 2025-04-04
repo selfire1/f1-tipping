@@ -412,18 +412,18 @@ NuxtLayout(name='tipping')
         .is-bg-pattern.py-4
           .is-container.flex.items-center.justify-between
             UButton(
+              @click='goNext',
+              :disabled='racesWithResults?.length === selectedIndex + 1',
+              variant='soft',
+              label='Previous'
+            )
+            TextHero(:level='2', :heading='selectedRace?.raceName')
+            UButton(
               type='button',
               @click='goPrevious',
               label='Next',
               variant='soft',
               :disabled='selectedIndex === 0'
-            )
-            TextHero(:level='2', :heading='selectedRace?.raceName')
-            UButton(
-              @click='goNext',
-              :disabled='racesWithResults?.length === selectedIndex + 1',
-              variant='soft',
-              label='Previous'
             )
         template(
           v-if='[predictionStatus].some((status) => ["pending", "idle"].includes(status))'
@@ -589,16 +589,16 @@ NuxtLayout(name='tipping')
           .is-container.flex.items-center.justify-between.py-2
             UButton(
               @click='goNext',
-              :disabled='racesWithResults?.length === selectedIndex + 1 || [predictionStatus].some((status) => ["pending", "idle"].includes(status))',
+              :disabled='racesWithResults?.length === selectedIndex + 1',
               variant='soft',
-              label='Next'
+              label='Previous'
             )
             p.is-display-7 {{ selectedRace?.raceName }}
             UButton(
               type='button',
               @click='goPrevious',
-              label='Previous',
+              label='Next',
               variant='soft',
-              :disabled='selectedIndex === 0 || [predictionStatus].some((status) => ["pending", "idle"].includes(status))'
+              :disabled='selectedIndex === 0'
             )
 </template>
