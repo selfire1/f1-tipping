@@ -16,6 +16,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "bun run ./server/db/seed.ts",
+    "db:dump": "turso db shell f1-tipping .dump > dump.sql && rm local.db && cat dump.sql | sqlite3 local.db",
     "www:prod": "open 'https://dash.cloudflare.com/4d5f60f30043f65cd1964f903d344b72/pages/view/f1-tipping'",
     "save-images": "bun run scripts/save-avatars.ts"
   },
