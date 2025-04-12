@@ -75,15 +75,15 @@ UCard
           p {{ nextRaceCutOffDate.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
     UDivider
     .is-size-7.flex.flex-wrap.gap-6
-      .space-y-2
-        p Already tipped
-        template(v-if='tippedStatus?.tipped?.length')
+      template(v-if='tippedStatus?.tipped?.length')
+        .space-y-2
+          p Already tipped
           UAvatarGroup(:max='6')
             template(v-for='user in tippedStatus.tipped', :key='user.id')
               UserAvatar(:user='user')
-      .space-y-2
-        p Yet to tip
-        template(v-if='tippedStatus?.notTipped?.length')
+      template(v-if='tippedStatus?.notTipped?.length')
+        .space-y-2
+          p Yet to tip
           UAvatarGroup(:max='6')
             template(v-for='user in tippedStatus.notTipped', :key='user.id')
               UserAvatar(:user='user')
