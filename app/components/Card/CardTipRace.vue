@@ -18,7 +18,7 @@ const nextRaceCutOffDate = computed(() =>
 
 const { user } = useAuth()
 
-const { data: tippedStatus } = await useFetch(
+const { data: tippedStatus, status } = await useFetch(
   () => `/api/prediction/${currentUserGroup.value?.id}/getTipStatus`,
   {
     params: {
@@ -45,12 +45,15 @@ UCard
   template(#header)
     h2.is-display-7 Predict the next race
   template(#footer)
-    UButton(
-      :label='tippedStatus?.hasCurrentTipped ? "Review tips" : "Tip now"',
-      to='/tipping/add-tips',
-      trailing,
-      icon='carbon:arrow-right'
-    )
+    template(v-if='status === "idle" || status === "pending"')
+      USkeleton.h-8.w-40
+    template(v-else)
+      UButton(
+        :label='tippedStatus?.hasCurrentTipped ? "Review tips" : "Tip now"',
+        to='/tipping/add-tips',
+        trailing,
+        icon='carbon:arrow-right'
+      )
   .space-y-4
     .relative.-mx-4.-mt-5.overflow-hidden.py-4(class='sm:-mx-6 sm:-mt-6')
       AppImg.pointer-events-none.absolute.inset-0.h-full.w-full.object-cover.opacity-5(
@@ -73,17 +76,20 @@ UCard
           p {{ nextRaceCutOffDate.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
           p {{ nextRaceCutOffDate.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
     UDivider
-    .is-size-7.flex.flex-wrap.gap-6
-      template(v-if='tippedStatus?.tipped?.length')
-        .space-y-2
-          p Already tipped
-          UAvatarGroup(:max='6')
-            template(v-for='user in tippedStatus.tipped', :key='user.id')
-              UserAvatar(:user='user')
-      template(v-if='tippedStatus?.notTipped?.length')
-        .space-y-2
-          p Yet to tip
-          UAvatarGroup(:max='6')
-            template(v-for='user in tippedStatus.notTipped', :key='user.id')
-              UserAvatar(:user='user')
+    template(v-if='status === "idle" || status === "pending"')
+      USkeleton.h-16.w-full
+    template(v-else)
+      .is-size-7.flex.flex-wrap.gap-6
+        template(v-if='tippedStatus?.tipped?.length')
+          .space-y-2
+            p Already tipped
+            UAvatarGroup(:max='6')
+              template(v-for='user in tippedStatus.tipped', :key='user.id')
+                UserAvatar(:user='user')
+        template(v-if='tippedStatus?.notTipped?.length')
+          .space-y-2
+            p Yet to tip
+            UAvatarGroup(:max='6')
+              template(v-for='user in tippedStatus.notTipped', :key='user.id')
+                UserAvatar(:user='user')
 </template>
