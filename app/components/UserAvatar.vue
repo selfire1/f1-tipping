@@ -2,7 +2,7 @@
 import type { Database } from '~~/types/db'
 
 defineProps<{
-  user: Pick<Database.User, 'name' | 'image' | 'id'>
+  user: Pick<Database.User, 'name' | 'id'> & { image?: Database.User['image'] }
 }>()
 </script>
 
