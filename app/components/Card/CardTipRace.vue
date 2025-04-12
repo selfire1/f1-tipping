@@ -21,7 +21,7 @@ const nextRaceCutOffDate = computed(() =>
 const { user } = useAuth()
 
 const { data: tippedStatus } = await useFetch(
-  `/api/prediction/${currentUserGroup.value?.id}/getTipStatus`,
+  () => `/api/prediction/${currentUserGroup.value?.id}/getTipStatus`,
   {
     params: {
       raceId: props.race.id,
