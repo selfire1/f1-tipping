@@ -21,13 +21,143 @@ export const useResults = async () => {
   const { data: resultsByRaceAndPosition, status: resultsStatus } =
     await useLazyFetch('/api/results', {
       ...$getCachedFetchConfig('results'),
-      transform(results) {
-        return mapResultsToMap(results)
-      },
+      transform: (data) => getMapFromResults(data.items),
     })
 
   const leaderboard = computed(() => {
-    const membersMap = groupMembers.value?.reduce((map, user) => {
+    if (
+      !resultsByRaceAndPosition.value ||
+      !allPredictions.value?.length ||
+      !groupMembers.value?.length
+    ) {
+      console.warn(
+        'No results for leaderboard.',
+        resultsByRaceAndPosition.value,
+        allPredictions.value,
+        groupMembers.value,
+      )
+      return []
+    }
+    return getLeaderboard(
+      resultsByRaceAndPosition.value,
+      allPredictions.value,
+      groupMembers.value,
+    )
+  })
+
+  // get which races already have results
+  const { data: racesWithResults, status: racesStatus } = await useFetch(
+    '/api/races',
+    {
+      ...$getCachedFetchConfig('races'),
+      transform: (data) => {
+        const allRaces = data.items
+        return allRaces
+          ?.filter((race) => resultsByRaceAndPosition.value?.has(race.id))
+          ?.sort((a, b) => b.round - a.round)
+      },
+    },
+  )
+
+  return {
+    /**
+     * The statuses of the fetch request
+     */
+    statuses: [resultsStatus, racesStatus],
+    /**
+     * Races that already have results
+     */
+    racesWithResults,
+    /**
+     * A map of results by race
+     */
+    results: resultsByRaceAndPosition,
+    /**
+     * An ordered list of users with points
+     */
+    leaderboard,
+    getLeaderboard,
+  }
+
+  /**
+   * the finishing position of the driver
+   */
+  type Position = number
+  type ResultsMap = Map<
+    /**
+     * The id of the race
+     */
+    Database.Race['id'],
+    {
+      qualifying: Map<Position, Component.DriverOption>
+      gp: Map<Position, Component.DriverOption>
+      allConstructorsPoints: Map<Database.Result['constructorId'], number>
+      topConstructorsPoints: Map<Database.Result['constructorId'], number>
+    }
+  >
+
+  function getMapFromResults(
+    results?: Array<
+      Pick<Database.Result, 'raceId' | 'position' | 'constructorId' | 'points'>
+    >,
+  ): ResultsMap | undefined {
+    if (!results?.length) {
+      return
+    }
+
+    const resultsMap: ResultsMap = new Map()
+    results.forEach((result) => {
+      const isRaceInMap = resultsMap.has(result.raceId)
+      if (!isRaceInMap) {
+        resultsMap.set(result.raceId, {
+          // driverPositions: new Map<RacePredictionField, Database.Result>(),
+          allConstructorsPoints: new Map<Database.Constructor['id'], number>(),
+          topConstructorsPoints: new Map<Database.Constructor['id'], number>(),
+          qualifying: new Map<number, Component.DriverOption>(),
+          gp: new Map<number, Component.DriverOption>(),
+        })
+      }
+
+      const raceObj = resultsMap.get(result.raceId)
+      // @ts-expect-error
+      raceObj!.qualifying.set(result.grid ?? 0, result.driver ?? {})
+      if (result.position && result.position > 0) {
+        // @ts-expect-error
+        raceObj!.gp.set(result.position, result.driver ?? {})
+      }
+
+      const constructorsMap = raceObj!.allConstructorsPoints
+      if (!constructorsMap.has(result.constructorId)) {
+        constructorsMap.set(result.constructorId, 0)
+      }
+      const currentConstructorPoints =
+        constructorsMap.get(result.constructorId)! + result.points
+      constructorsMap.set(result.constructorId, currentConstructorPoints)
+
+      const topConstructors = raceObj!.topConstructorsPoints
+
+      const currentMaxPoints = Math.max(...constructorsMap.values())
+      if (currentConstructorPoints >= currentMaxPoints) {
+        topConstructors.set(result.constructorId, currentConstructorPoints)
+        topConstructors.forEach((value, key) => {
+          if (value < currentConstructorPoints) {
+            topConstructors.delete(key)
+          }
+        })
+      }
+    })
+    return resultsMap
+  }
+
+  function getLeaderboard(
+    resultsMap: ResultsMap,
+    allPredictions: InternalApi['/api/prediction/:groupId/getAll']['default'],
+    membersOfGroup: InternalApi['/api/group/get/:id/users']['default']['items'],
+  ) {
+    if (!membersOfGroup?.length || !resultsMap || !allPredictions?.length) {
+      return []
+    }
+    const membersMap = membersOfGroup.reduce((map, user) => {
       map.set(user.id, {
         ...user,
         createdAt: new Date(user.createdAt),
@@ -36,7 +166,6 @@ export const useResults = async () => {
       })
       return map
     }, new Map<Database.User['id'], Database.User & { points: number }>())
-    const resultsMap = resultsByRaceAndPosition.value
     if (!resultsMap) {
       console.warn('No results')
       return []
@@ -56,7 +185,7 @@ export const useResults = async () => {
       })
     }
 
-    allPredictions.value?.forEach(
+    allPredictions.forEach(
       ({
         position: predictedPosition,
         driverId: predictedDriverId,
@@ -122,91 +251,5 @@ export const useResults = async () => {
       .sort(
         (a, b) => b.points - a.points || a.user.name.localeCompare(b.user.name),
       )
-  })
-
-  // get which races already have results
-  const { data: racesWithResults, status: racesStatus } = await useFetch(
-    '/api/races',
-    {
-      ...$getCachedFetchConfig('races'),
-      transform: (data) => {
-        const allRaces = data.items
-        return allRaces
-          ?.filter((race) => resultsByRaceAndPosition.value?.has(race.id))
-          ?.sort((a, b) => b.round - a.round)
-      },
-    },
-  )
-
-  return {
-    statuses: [resultsStatus, racesStatus],
-    racesWithResults,
-    results: resultsByRaceAndPosition,
-    leaderboard,
   }
-}
-
-function mapResultsToMap(results: InternalApi['/api/results']['default']) {
-  if (!results?.items?.length) {
-    return
-  }
-
-  /**
-   * the finishing position of the driver
-   */
-  type Position = number
-
-  const resultsMap = new Map<
-    /**
-     * The id of the race
-     */
-    Database.Race['id'],
-    {
-      qualifying: Map<Position, Component.DriverOption>
-      gp: Map<Position, Component.DriverOption>
-      allConstructorsPoints: Map<Database.Result['constructorId'], number>
-      topConstructorsPoints: Map<Database.Result['constructorId'], number>
-    }
-  >()
-  results.items.forEach((result) => {
-    const isRaceInMap = resultsMap.has(result.raceId)
-    if (!isRaceInMap) {
-      resultsMap.set(result.raceId, {
-        // driverPositions: new Map<RacePredictionField, Database.Result>(),
-        allConstructorsPoints: new Map<Database.Constructor['id'], number>(),
-        topConstructorsPoints: new Map<Database.Constructor['id'], number>(),
-        qualifying: new Map<number, Component.DriverOption>(),
-        gp: new Map<number, Component.DriverOption>(),
-      })
-    }
-
-    const raceObj = resultsMap.get(result.raceId)
-    // @ts-expect-error
-    raceObj!.qualifying.set(result.grid ?? 0, result.driver ?? {})
-    if (result.position && result.position > 0) {
-      // @ts-expect-error
-      raceObj!.gp.set(result.position, result.driver ?? {})
-    }
-
-    const constructorsMap = raceObj!.allConstructorsPoints
-    if (!constructorsMap.has(result.constructorId)) {
-      constructorsMap.set(result.constructorId, 0)
-    }
-    const currentConstructorPoints =
-      constructorsMap.get(result.constructorId)! + result.points
-    constructorsMap.set(result.constructorId, currentConstructorPoints)
-
-    const topConstructors = raceObj!.topConstructorsPoints
-
-    const currentMaxPoints = Math.max(...constructorsMap.values())
-    if (currentConstructorPoints >= currentMaxPoints) {
-      topConstructors.set(result.constructorId, currentConstructorPoints)
-      topConstructors.forEach((value, key) => {
-        if (value < currentConstructorPoints) {
-          topConstructors.delete(key)
-        }
-      })
-    }
-  })
-  return resultsMap
 }
