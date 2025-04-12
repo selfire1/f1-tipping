@@ -326,4 +326,5 @@ NuxtLayout(name='tipping')
               :heading='fetchError ? undefined : errorMessage',
               :fetch-error
             )
+      .h-72
 </template>
