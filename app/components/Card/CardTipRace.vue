@@ -72,7 +72,7 @@ UCard
       .flex
         .pl-2
           p {{ nextRaceCutOffDate.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
-          p {{ nextRaceCutOffDate.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) }}
+          p {{ nextRaceCutOffDate.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
     UDivider
     .is-size-7.flex.flex-wrap.gap-6
       .space-y-2
