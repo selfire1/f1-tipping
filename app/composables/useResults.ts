@@ -18,11 +18,17 @@ export const useResults = async () => {
     },
   )
 
-  const { data: resultsByRaceAndPosition, status: resultsStatus } =
-    await useLazyFetch('/api/results', {
+  const { data: results, status: resultsStatus } = await useLazyFetch(
+    '/api/results',
+    {
       ...$getCachedFetchConfig('results'),
-      transform: (data) => getMapFromResults(data.items),
-    })
+      transform: (data) => data.items,
+    },
+  )
+
+  const resultsByRaceAndPosition = computed(() =>
+    getMapFromResults(results.value),
+  )
 
   const leaderboard = computed(() => {
     if (
@@ -38,10 +44,14 @@ export const useResults = async () => {
       )
       return []
     }
+    const lastRace = racesWithResults.value?.[0]
     return getLeaderboard(
       resultsByRaceAndPosition.value,
       allPredictions.value,
       groupMembers.value,
+      {
+        previousRaceId: lastRace?.id,
+      },
     )
   })
 
@@ -59,6 +69,7 @@ export const useResults = async () => {
     },
   )
 
+  // MARK: composable return
   return {
     /**
      * The statuses of the fetch request
@@ -76,7 +87,6 @@ export const useResults = async () => {
      * An ordered list of users with points
      */
     leaderboard,
-    getLeaderboard,
   }
 
   /**
@@ -149,13 +159,46 @@ export const useResults = async () => {
     return resultsMap
   }
 
+  type Leaderboard = {
+    user: Database.User
+    points: number
+    delta: number | null
+    pointsDelta: number | null
+  }[]
   function getLeaderboard(
     resultsMap: ResultsMap,
     allPredictions: InternalApi['/api/prediction/:groupId/getAll']['default'],
     membersOfGroup: InternalApi['/api/group/get/:id/users']['default']['items'],
-  ) {
+    options?: {
+      previousRaceId?: Database.Race['id']
+    },
+  ): Leaderboard {
     if (!membersOfGroup?.length || !resultsMap || !allPredictions?.length) {
       return []
+    }
+    let memberToPreviousPositionMap = new Map<
+      Database.User['id'],
+      { position: number; points: number }
+    >()
+    const previousRaceId = options?.previousRaceId
+    if (previousRaceId) {
+      const clonedResultsMap = new Map(resultsMap)
+      clonedResultsMap.delete(previousRaceId)
+      const previousLeaderboard = getLeaderboard(
+        clonedResultsMap,
+        allPredictions.filter(
+          (prediction) => prediction.raceId !== previousRaceId,
+        ),
+        membersOfGroup,
+      )
+
+      const previousPositions = getPositionArray(previousLeaderboard)
+      previousLeaderboard.forEach((entry) => {
+        memberToPreviousPositionMap.set(entry.user.id, {
+          position: previousPositions.indexOf(entry.points),
+          points: entry.points,
+        })
+      })
     }
     const membersMap = membersOfGroup.reduce((map, user) => {
       map.set(user.id, {
@@ -163,9 +206,11 @@ export const useResults = async () => {
         createdAt: new Date(user.createdAt),
         updatedAt: new Date(user.updatedAt),
         points: 0,
+        delta: null,
+        pointsDelta: null,
       })
       return map
-    }, new Map<Database.User['id'], Database.User & { points: number }>())
+    }, new Map<Database.User['id'], Database.User & { points: number; delta: Leaderboard[number]['delta']; pointsDelta: Leaderboard[number]['pointsDelta'] }>())
     if (!resultsMap) {
       console.warn('No results')
       return []
@@ -243,13 +288,43 @@ export const useResults = async () => {
     if (!membersMap) {
       return []
     }
-    return [...membersMap.entries()]
+
+    const leaderboardArray = [...membersMap.entries()]
       .map(([_userId, userInfo]) => {
-        const { points, ...info } = userInfo
-        return { points, user: info }
+        const { points, delta, pointsDelta, ...info } = userInfo
+        return { points, delta, pointsDelta, user: info }
       })
       .sort(
         (a, b) => b.points - a.points || a.user.name.localeCompare(b.user.name),
       )
+
+    if (memberToPreviousPositionMap.size) {
+      const positionArray = getPositionArray(leaderboardArray)
+      leaderboardArray.forEach((entry) => {
+        const currentPosition = positionArray.indexOf(entry.points)
+        const previousPosition = memberToPreviousPositionMap.get(entry.user.id)
+        if (!previousPosition) {
+          return
+        }
+        if (previousPosition.position !== -1) {
+          entry.delta =
+            previousPosition === undefined
+              ? null
+              : currentPosition - previousPosition.position
+        }
+        entry.pointsDelta = entry.points - previousPosition.points
+      })
+    }
+    return leaderboardArray
+  }
+
+  function getPositionArray(leaderboard: Leaderboard) {
+    return leaderboard.reduce((acc, entry) => {
+      if (acc.includes(entry.points)) {
+        return acc
+      }
+      acc.push(entry.points)
+      return acc
+    }, [] as number[])
   }
 }

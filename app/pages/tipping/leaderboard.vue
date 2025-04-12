@@ -13,6 +13,16 @@ useSeoMeta({
 })
 
 const { racesWithResults, statuses, results, leaderboard } = await useResults()
+const topPoints = computed(() => {
+  const acc: number[] = []
+  for (const entry of leaderboard.value) {
+    if (!acc.includes(entry.points)) {
+      acc.push(entry.points)
+      if (acc.length === 3) break
+    }
+  }
+  return acc
+})
 
 const gpResults = computed(() => {
   if (!selectedRace.value) {
@@ -184,6 +194,10 @@ const leaderboardColumns = [
     key: 'user',
     label: 'Name',
   },
+  {
+    key: 'change',
+    label: '',
+  },
 ]
 
 const constructorColumns = [
@@ -222,10 +236,41 @@ NuxtLayout(name='tipping')
           template(#header)
             h2.is-display-6 Leaderboard
           UTable(:columns='leaderboardColumns', :rows='leaderboard')
-            template(#user-data='{ row }')
+            template(#change-data='{ row: { delta } }')
+              template(v-if='delta !== null')
+                template(v-if='delta === 0')
+                  UIcon.bg-gray-500(name='carbon:subtract')
+                template(v-else-if='delta > 0')
+                  .flex.items-center.gap-1.text-green-500
+                    UIcon.is-display-7(name='carbon:arrow-up')
+                    p.is-display-8 {{ delta }}
+                template(v-else-if='delta < 0')
+                  .flex.items-center.gap-1.text-red-500
+                    UIcon.is-display-7(name='carbon:arrow-down')
+                    p.is-display-8 {{ delta }}
+            template(#user-data='{ row: { user } }')
               .flex.items-center.gap-2
-                UserAvatar(:user='row.user')
-                p {{ row.user.name }}
+                UserAvatar(:user)
+                p {{ user.name }}
+            template(#points-data='{ row: { points, pointsDelta } }')
+              .flex.items-center.gap-2
+                template(v-if='topPoints?.indexOf(points) === 0')
+                  UBadge {{ '🥇 ' + points }}
+                template(v-else-if='topPoints?.indexOf(points) === 1')
+                  UBadge(variant='outline') {{ '🥈 ' + points }}
+                template(v-else-if='topPoints?.indexOf(points) === 2')
+                  UBadge(variant='subtle') {{ '🥉 ' + points }}
+                template(v-else)
+                  UBadge(variant='soft') {{ points }}
+                template(v-if='pointsDelta !== null')
+                  template(v-if='pointsDelta > 0')
+                    UBadge(color='green', variant='soft') +{{ pointsDelta }}
+                  template(v-else)
+                    UBadge(
+                      color='orange',
+                      variant='soft',
+                      :ui='{ variant: { soft: "bg-transparent" } }'
+                    ) {{ pointsDelta }}
       section.space-y-12
         .is-bg-pattern.py-4
           .is-container.flex.items-center.justify-between
