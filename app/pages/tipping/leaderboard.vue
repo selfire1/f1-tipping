@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ConstructorOption from '~/components/ConstructorOption.vue'
+import UserAvatar from '~/components/UserAvatar.vue'
 import type { Component } from '~~/types'
 import { Database } from '~~/types/db'
 
@@ -402,11 +403,7 @@ NuxtLayout(name='tipping')
           UTable(:columns='leaderboardColumns', :rows='leaderboard')
             template(#user-data='{ row }')
               .flex.items-center.gap-2
-                UAvatar(
-                  :alt='row.user.name',
-                  size='sm',
-                  :src='$getUserImgSrc(row.user)'
-                )
+                UserAvatar(:user='row.user')
                 p {{ row.user.name }}
       section.space-y-12
         .is-bg-pattern.py-4
