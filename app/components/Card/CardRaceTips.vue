@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AccordionItem } from '#ui/types'
 import { RACE_KEYS_TO_LABEL } from '~/utils/consts'
-import type { Component, RacePredictionField } from '~~/types'
+import type { RacePredictionField } from '~~/types'
 import type { Database } from '~~/types/db'
 import DriverOption from '../DriverOption.vue'
 const props = defineProps<{
@@ -30,13 +30,13 @@ const { reduceIntoObject } = usePrediction()
 const items = computed(() => {
   return Object.entries(data.value ?? {}).map(
     ([position, predictions], index) => {
-      const item: AccordionItem = {
+      const item = {
         label: RACE_KEYS_TO_LABEL[position as RacePredictionField],
         defaultOpen: !index,
-        content: predictions.sort((a, b) =>
+        predictions: predictions.sort((a, b) =>
           a.userName.localeCompare(b.userName),
         ),
-      }
+      } satisfies AccordionItem & { predictions: any[] }
       return item
     },
   )
@@ -53,14 +53,14 @@ UCard
   template(v-else-if='!items?.length')
     p.text-muted None found.
   template(v-else)
-    UAccordion(:items='items', multiple)
-      template(#item='{ item }')
-        template(v-for='prediction in item.content', :key='prediction.id')
+    UAccordion(:items='items', type='multiple')
+      template(#body='{ item }')
+        template(v-for='prediction in item.predictions', :key='prediction.id')
           .grid.grid-cols-2.gap-2.border.p-1(
             :class='prediction.userName !== user?.name ? "border-transparent" : ""'
           )
             p.is-display-7.truncate {{ prediction.userName }}
-            .is-size-7
+            .is-size-7(v-if='prediction.value')
               template(v-if='"familyName" in prediction.value')
                 DriverOption(:option='prediction.value')
               template(v-else)

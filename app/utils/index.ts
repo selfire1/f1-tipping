@@ -15,7 +15,7 @@ export function $getSuccessToast(
   return {
     title: 'Success',
     color: 'green',
-    timeout: 3000,
+    duration: 3000,
     icon: 'carbon:checkmark-outline',
     ...info,
   }

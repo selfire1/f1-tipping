@@ -451,7 +451,7 @@ NuxtLayout(name='tipping')
                             UTooltip(:text='item.name')
                               UChip(
                                 inset,
-                                :color='row.isP1Correct ? "green" : "gray"',
+                                :color='row.isP1Correct ? "success" : "neutral"',
                                 position='bottom-right',
                                 size='md'
                               )
@@ -474,7 +474,7 @@ NuxtLayout(name='tipping')
                             UTooltip(:text='item.name')
                               UChip(
                                 inset,
-                                :color='row.isP10Correct ? "green" : "gray"',
+                                :color='row.isP10Correct ? "success" : "neutral"',
                                 position='bottom-right',
                                 size='md'
                               )
@@ -497,7 +497,7 @@ NuxtLayout(name='tipping')
                             UTooltip(:text='item.name')
                               UChip(
                                 inset,
-                                :color='row.isLastCorrect ? "green" : "gray"',
+                                :color='row.isLastCorrect ? "success" : "neutral"',
                                 position='bottom-right',
                                 size='md'
                               )
@@ -531,7 +531,7 @@ NuxtLayout(name='tipping')
                         UTooltip(:text='item.name')
                           UChip(
                             inset,
-                            :color='row.isP1Correct ? "green" : "gray"',
+                            :color='row.isP1Correct ? "success" : "neutral"',
                             position='bottom-right',
                             size='md'
                           )
@@ -559,7 +559,7 @@ NuxtLayout(name='tipping')
                         UTooltip(:text='item.name')
                           UChip(
                             inset,
-                            :color='row.isCorrect ? "green" : "gray"',
+                            :color='row.isCorrect ? "success" : "neutral"',
                             position='bottom-right',
                             size='md'
                           )

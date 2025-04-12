@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { differenceInDays, isFuture, isPast, isToday } from 'date-fns'
+import CardRaceTips from '~/components/Card/CardRaceTips.vue'
 import { $getCachedFetchConfig } from '~/utils'
 import { $getCutoffDate } from '~~/shared/utils'
 

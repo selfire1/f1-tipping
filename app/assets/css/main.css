@@ -3,6 +3,7 @@
 @import url('./colours.css') layer(base);
 
 @import 'tailwindcss';
+@import '@nuxt/ui';
 
 @theme {
   --color-black-50: #f3f3f4;

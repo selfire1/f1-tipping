@@ -7,7 +7,7 @@ const selectedConstructor = defineModel<Database.Constructor>()
 
 <template lang="pug">
 USelectMenu(
-  :options='constructors',
+  :items='constructors',
   searchable,
   option-attribute='name',
   v-model='selectedConstructor'

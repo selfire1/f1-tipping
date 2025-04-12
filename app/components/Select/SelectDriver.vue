@@ -11,7 +11,7 @@ const selectedDriver = defineModel<Database.Driver | Component.DriverOption>()
 
 <template lang="pug">
 USelectMenu(
-  :options='drivers?.sort((driverA, driverB) => driverA.familyName.localeCompare(driverB.familyName))',
+  :items='drivers?.sort((driverA, driverB) => driverA.familyName.localeCompare(driverB.familyName))',
   searchable,
   option-attribute='fullName',
   v-model='selectedDriver',

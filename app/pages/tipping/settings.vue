@@ -16,7 +16,7 @@ async function onConfirmDelete() {
     add(
       $getErrorToast({
         title: 'Error deleting',
-        click: () => {
+        onClick: () => {
           navigateTo('/tipping/contact')
         },
         description:
@@ -46,29 +46,30 @@ NuxtLayout(name='tipping')
       UButton(
         @click='isConfirmDeleteModalPresented = true',
         label='Delete account',
-        color='red'
+        color='error'
       )
-    section.mt-auto.space-y-1.text-faint
+    section.text-faint.mt-auto.space-y-1
       p.is-display-8 Version
       div
         pre.is-size-8.line-clamp-1 {{ commit }}
         p.is-size-8 {{ date }}
-  UModal(v-model='isConfirmDeleteModalPresented')
-    UCard
-      template(#header)
-        TextHero(:level='3', heading='Delete account')
-          template(#description)
-            p Are you sure? This will delete the account
-              |
-              b {{ (user?.name ?? 'Unknown') + ' ' }}
-              template(v-if='user?.email')
-                b {{ `(${user?.email}) ` }}
-              span and all connected data.
-      .flex.items-center.justify-between
-        UButton(
-          @click='isConfirmDeleteModalPresented = false',
-          label='Cancel',
-          variant='outline'
-        )
-        UButton(@click='onConfirmDelete', label='Confirm', color='red')
+  UModal(v-model:open='isConfirmDeleteModalPresented')
+    template(#content)
+      UCard
+        template(#header)
+          TextHero(:level='3', heading='Delete account')
+            template(#description)
+              p Are you sure? This will delete the account
+                |
+                b {{ (user?.name ?? 'Unknown') + ' ' }}
+                template(v-if='user?.email')
+                  b {{ `(${user?.email}) ` }}
+                span and all connected data.
+        .flex.items-center.justify-between
+          UButton(
+            @click='isConfirmDeleteModalPresented = false',
+            label='Cancel',
+            variant='outline'
+          )
+          UButton(@click='onConfirmDelete', label='Confirm', color='error')
 </template>
