@@ -39,6 +39,7 @@ const { data: tippedStatus } = await useFetch(
     ...$getCachedFetchConfig('tippedStatus'),
   },
 )
+// TODO: add skeleton when loading
 </script>
 
 <template lang="pug">
