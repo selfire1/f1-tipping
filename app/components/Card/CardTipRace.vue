@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { UAvatarGroup, UDivider } from '#components'
 import type { Database } from '~~/types/db'
-import UserAvatar from '../UserAvatar.vue'
 
 const props = defineProps<{
   race: Database.Race
