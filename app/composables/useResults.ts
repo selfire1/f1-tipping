@@ -87,6 +87,7 @@ export const useResults = async () => {
      * An ordered list of users with points
      */
     leaderboard,
+    getPositionArray,
   }
 
   /**
@@ -310,7 +311,7 @@ export const useResults = async () => {
           entry.delta =
             previousPosition === undefined
               ? null
-              : currentPosition - previousPosition.position
+              : previousPosition.position - currentPosition
         }
         entry.pointsDelta = entry.points - previousPosition.points
       })

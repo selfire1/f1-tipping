@@ -12,17 +12,15 @@ useSeoMeta({
   ogTitle: 'Results',
 })
 
-const { racesWithResults, statuses, results, leaderboard } = await useResults()
+const { racesWithResults, statuses, results, leaderboard, getPositionArray } =
+  await useResults()
 const topPoints = computed(() => {
-  const acc: number[] = []
-  for (const entry of leaderboard.value) {
-    if (!acc.includes(entry.points)) {
-      acc.push(entry.points)
-      if (acc.length === 3) break
-    }
-  }
-  return acc
+  return getPositionArray(leaderboard.value)
 })
+
+function getPlace(points: number) {
+  return topPoints.value.indexOf(points) + 1
+}
 
 const gpResults = computed(() => {
   if (!selectedRace.value) {
@@ -187,16 +185,20 @@ const { data: currentRacePredictions, status: predictionStatus } =
 
 const leaderboardColumns = [
   {
-    key: 'points',
-    label: 'Points',
+    key: 'place',
+    label: 'Place',
   },
   {
     key: 'user',
     label: 'Name',
   },
   {
+    key: 'points',
+    label: 'Points',
+  },
+  {
     key: 'change',
-    label: '',
+    label: 'Delta',
   },
 ]
 
@@ -236,6 +238,25 @@ NuxtLayout(name='tipping')
           template(#header)
             h2.is-display-6 Leaderboard
           UTable(:columns='leaderboardColumns', :rows='leaderboard')
+            template(#place-data='{ row }')
+              template(v-if='getPlace(row.points) === 1')
+                UBadge
+                  | {{ '🥇 ' + getPlace(row.points) }}
+                  | .
+              template(v-else-if='getPlace(row.points) === 2')
+                UBadge(variant='outline')
+                  | {{ '🥈 ' + getPlace(row.points) }}
+                  | .
+              template(v-else-if='getPlace(row.points) === 3')
+                UBadge(variant='subtle')
+                  | {{ '🥉 ' + getPlace(row.points) }}
+                  | .
+              template(v-else)
+                UBadge(
+                  variant='soft',
+                  :ui='{ variant: { soft: "bg-transparent" } }'
+                ) {{ getPlace(row.points) + '.' }}
+
             template(#change-data='{ row: { delta } }')
               template(v-if='delta !== null')
                 template(v-if='delta === 0')
@@ -254,14 +275,11 @@ NuxtLayout(name='tipping')
                 p {{ user.name }}
             template(#points-data='{ row: { points, pointsDelta } }')
               .flex.items-center.gap-2
-                template(v-if='topPoints?.indexOf(points) === 0')
-                  UBadge {{ '🥇 ' + points }}
-                template(v-else-if='topPoints?.indexOf(points) === 1')
-                  UBadge(variant='outline') {{ '🥈 ' + points }}
-                template(v-else-if='topPoints?.indexOf(points) === 2')
-                  UBadge(variant='subtle') {{ '🥉 ' + points }}
-                template(v-else)
-                  UBadge(variant='soft') {{ points }}
+                UBadge(
+                  variant='soft',
+                  :ui='{ variant: { soft: "bg-transparent" } }',
+                  :label='points'
+                )
                 template(v-if='pointsDelta !== null')
                   template(v-if='pointsDelta > 0')
                     UBadge(color='green', variant='soft') +{{ pointsDelta }}
