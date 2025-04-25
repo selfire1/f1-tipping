@@ -114,20 +114,24 @@ export default defineAuthedEventHandler(async (event) => {
   function getValues(
     predictionId: Database.Prediction['id'],
   ): InsertPredictionEntry[] {
-    const driverPredictionEntryKeys: Database.InsertPredictionEntry['position'][] =
-      ['pole', 'p1', 'p10', 'last']
-    const driverPredictionEntries = driverPredictionEntryKeys.map((entry) => ({
+    const driverPredictionEntries = [...DRIVER_RACE_PREDICTION_FIELDS].map(
+      (entry) => ({
+        predictionId,
+        position: entry,
+        driverId: body[entry].id,
+      }),
+    )
+
+    const constructorPredictionEntries = [
+      ...CONSTRUCTOR_RACE_PREDICTION_FIELDS,
+    ].map((entry) => ({
       predictionId,
       position: entry,
-      driverId: body[entry].id,
+      constructorId: body[entry].id,
     }))
     const values: InsertPredictionEntry[] = [
       ...driverPredictionEntries,
-      {
-        predictionId: predictionId,
-        position: 'constructorWithMostPoints',
-        constructorId: body.constructorWithMostPoints.id,
-      },
+      ...constructorPredictionEntries,
     ]
     return values
   }
