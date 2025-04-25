@@ -130,10 +130,7 @@ export default defineAuthedEventHandler(async (event) => {
       })
     }
 
-    const cutoffDate = $getCutoffDate(
-      firstRace.qualifyingDate,
-      currentGroup.cutoffInMinutes,
-    )
+    const cutoffDate = $getCutoffDate(firstRace, currentGroup.cutoffInMinutes)
     return timeOfSubmission > cutoffDate
   }
 

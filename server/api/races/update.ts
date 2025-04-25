@@ -13,6 +13,7 @@ export default defineBasicAuthedEventHandler(async (event) => {
   if (!races?.length) {
     throw createError({ statusCode: 404, statusMessage: 'No Races found' })
   }
+
   const returning = await db
     .insert(racesTable)
     .values(
@@ -23,16 +24,26 @@ export default defineBasicAuthedEventHandler(async (event) => {
             statusMessage: 'No Qualifying found',
           })
         }
+
+        const sprintDate = race?.Sprint?.date ? getDate(race.Sprint) : null
+        const sprintQualifyingDate = race?.SprintQualifying
+          ? getDate(race.SprintQualifying)
+          : null
+        const gpDate = getDate(race)
+        const qualifyingDate = getDate(race.Qualifying)
+
+        const cutoffDateRaw = sprintQualifyingDate || qualifyingDate
+
         return {
           id: race.Circuit.circuitId,
           country: race.Circuit.Location.country,
           round: +race.round,
           circuitName: race.Circuit.circuitName,
           raceName: race.raceName,
-          grandPrixDate: new Date(`${race.date}T${race.time}`),
-          qualifyingDate: new Date(
-            `${race.Qualifying.date}T${race.Qualifying.time}`,
-          ),
+          sprintDate,
+          grandPrixDate: gpDate,
+          qualifyingDate,
+          cutoffDateRaw,
           locality: race.Circuit.Location.locality,
           lastUpdated: new Date(),
         }
@@ -45,8 +56,10 @@ export default defineBasicAuthedEventHandler(async (event) => {
         round: sql`excluded.round`,
         circuitName: sql`excluded.circuit_name`,
         raceName: sql`excluded.race_name`,
+        sprintDate: sql`excluded.sprint_date`,
         grandPrixDate: sql`excluded.grand_prix_date`,
         qualifyingDate: sql`excluded.qualifying_date`,
+        cutoffDateRaw: sql`excluded.cutoff_date_raw`,
         locality: sql`excluded.locality`,
         lastUpdated: sql`excluded.last_updated`,
       },
@@ -62,5 +75,9 @@ export default defineBasicAuthedEventHandler(async (event) => {
       received: response.MRData.total,
       updated: returning.length,
     },
+  }
+
+  function getDate(data: { date: string; time?: string }) {
+    return new Date(`${data.date}T${data.time ?? '00:00:00'}`)
   }
 })

@@ -238,11 +238,9 @@ NuxtLayout(name='tipping')
             UIcon(name='carbon:edit')
             p.is-size-7.flex.flex-col
               span.is-display-8 Tips due
-              span {{ getCutoffDateForCurrentGroup(currentRace.qualifyingDate).toLocaleString(undefined, $localeDateTimeOptions) }}
+              span {{ getCutoffDateForCurrentGroup(currentRace).toLocaleString(undefined, $localeDateTimeOptions) }}
               span
-                BadgeTimeTo(
-                  :date='getCutoffDateForCurrentGroup(currentRace.qualifyingDate)'
-                )
+                BadgeTimeTo(:date='getCutoffDateForCurrentGroup(currentRace)')
 
           .hidden.gap-1(class='sm:flex')
             UIcon(:name='Icons.Qualifying')

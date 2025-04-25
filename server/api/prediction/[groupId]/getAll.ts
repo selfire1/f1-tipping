@@ -26,7 +26,10 @@ export default defineAuthedEventHandler(async (event) => {
     },
   })
   const cutoffInMinutes = group?.cutoffInMinutes || DEFAULT_CUTOFF_MINS
-  const cutoffDate = $getCutoffDate(new Date(), cutoffInMinutes)
+  const cutoffDate = $getCutoffDate(
+    { cutoffDateRaw: new Date() },
+    cutoffInMinutes,
+  )
 
   const raceIds = (
     await db.query.racesTable.findMany({

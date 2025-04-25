@@ -32,7 +32,7 @@ const championshipCutoffDate = computed(() => {
   if (!firstRace) {
     return
   }
-  return $getCutoffDate(firstRace?.qualifyingDate, groupCutoff)
+  return $getCutoffDate(firstRace, groupCutoff)
 })
 
 useSeoMeta({

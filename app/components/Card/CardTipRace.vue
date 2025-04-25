@@ -9,10 +9,7 @@ const { currentUserGroup } = await useGroup()
 
 const nextRaceCutOffDate = computed(() =>
   props?.race?.qualifyingDate
-    ? $getCutoffDate(
-        props.race.qualifyingDate,
-        currentUserGroup.value?.cutoffInMinutes,
-      )
+    ? $getCutoffDate(props.race, currentUserGroup.value?.cutoffInMinutes)
     : null,
 )
 

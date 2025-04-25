@@ -58,7 +58,7 @@ export default defineAuthedEventHandler(async (event) => {
         statusMessage: 'No qualifying date found for race',
       })
     }
-    const cutoffDate = $getCutoffDate(race?.qualifyingDate, cutoffInMinutes)
+    const cutoffDate = $getCutoffDate(race, cutoffInMinutes)
     if (isFuture(cutoffDate)) {
       throw createError({
         statusMessage: 'Cutoff is in the future.',

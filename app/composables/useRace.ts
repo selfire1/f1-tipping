@@ -27,10 +27,7 @@ export const useRace = () => {
     cutoffInMinutes?: MaybeRef<number>,
   ): boolean {
     const now = useNow()
-    const lastChanceToEnterTips = $getCutoffDate(
-      race.qualifyingDate,
-      unref(cutoffInMinutes),
-    )
+    const lastChanceToEnterTips = $getCutoffDate(race, unref(cutoffInMinutes))
     return isAfter(now.value, lastChanceToEnterTips)
   }
 

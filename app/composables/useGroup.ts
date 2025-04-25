@@ -32,11 +32,8 @@ export const useGroup = async () => {
   return {
     allUserGroups: userGroups,
     currentUserGroup,
-    getCutoffForCurrentGroup(qualifyingDate: Database.Race['qualifyingDate']) {
-      return $getCutoffDate(
-        qualifyingDate,
-        currentUserGroup.value?.cutoffInMinutes,
-      )
+    getCutoffForCurrentGroup(race: Pick<Database.Race, 'cutoffDateRaw'>) {
+      return $getCutoffDate(race, currentUserGroup.value?.cutoffInMinutes)
     },
     status,
     refresh,

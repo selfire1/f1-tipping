@@ -4,11 +4,10 @@ import type { Database } from '~~/types/db'
 export const DEFAULT_CUTOFF_MINS = 180
 
 export function $getCutoffDate(
-  qualifyingDate: Database.Race['qualifyingDate'],
-  cutoff: Database.Group['cutoffInMinutes'] = DEFAULT_CUTOFF_MINS,
+  race: Pick<Database.Race, 'cutoffDateRaw'>,
+  cutoffMinutes: Database.Group['cutoffInMinutes'] = DEFAULT_CUTOFF_MINS,
 ): Date {
-  const cutoffInMinutes = cutoff
-  const qualifyingStart = qualifyingDate
-  const lastChanceToEnterTips = subMinutes(qualifyingStart, cutoffInMinutes)
+  const rawCutoffDate = race.cutoffDateRaw
+  const lastChanceToEnterTips = subMinutes(rawCutoffDate, cutoffMinutes)
   return lastChanceToEnterTips
 }

@@ -170,7 +170,7 @@ export default defineAuthedEventHandler(async (event) => {
       where: eq(racesTable.id, body.race.id),
       columns: {
         id: true,
-        qualifyingDate: true,
+        cutoffDateRaw: true,
       },
     })
 
@@ -181,10 +181,7 @@ export default defineAuthedEventHandler(async (event) => {
       })
     }
 
-    const cutoffDate = $getCutoffDate(
-      targetRace.qualifyingDate,
-      currentGroup.cutoffInMinutes,
-    )
+    const cutoffDate = $getCutoffDate(targetRace, currentGroup.cutoffInMinutes)
     return timeOfSubmission > cutoffDate
   }
 
