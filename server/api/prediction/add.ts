@@ -6,19 +6,29 @@ import {
   predictionsTable,
   racesTable,
 } from '~~/server/db/schema'
-import { serverSaveTip } from '~~/shared/schemas'
+import { serverSaveTip, serverSaveTipWithSprint } from '~~/shared/schemas'
 import { $getCutoffDate } from '~~/shared/utils'
 import { Constructor, Driver } from '~~/types'
 import { Database } from '~~/types/db'
 import { useDb } from '~~/server/utils/db'
+import { DRIVER_RACE_PREDICTION_FIELDS } from '~~/shared/utils/consts'
 
 export default defineAuthedEventHandler(async (event) => {
   const db = useDb()
   const timeOfSubmission = new Date()
   assertMethod(event, 'POST')
-  const body = await readValidatedBody(event, serverSaveTip.parse)
+  const body = await readValidatedBody(event, serverSaveTipWithSprint.parse)
 
   const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
+
+  const targetRace = await db.query.racesTable.findFirst({
+    where: eq(racesTable.id, body.race.id),
+    columns: {
+      id: true,
+      cutoffDateRaw: true,
+      sprintDate: true,
+    },
+  })
 
   const isAfterCutoffDate = await getIfPredictionIsAfterCutoffDate()
   if (isAfterCutoffDate) {
@@ -141,11 +151,11 @@ export default defineAuthedEventHandler(async (event) => {
       },
     )
 
-    const driverKeys = ['p1', 'pole', 'last', 'p10'] as const
+    const driverKeys = DRIVER_RACE_PREDICTION_FIELDS
     const constructorKeys = ['constructorWithMostPoints'] as const
 
     driverKeys.forEach((key) => {
-      const givenId = body[key].id
+      const givenId = body[key]?.id
       if (givenId && !driverIds.includes(givenId)) {
         throw createError({
           statusCode: 400,
@@ -153,6 +163,17 @@ export default defineAuthedEventHandler(async (event) => {
         })
       }
     })
+
+    const isSprintRace = !!targetRace?.sprintDate
+    if (isSprintRace) {
+      const hasSprintValue = !!body.sprintP1?.id
+      if (!hasSprintValue) {
+        throw createError({
+          statusCode: 422,
+          statusMessage: 'Missing sprint value',
+        })
+      }
+    }
 
     constructorKeys.forEach((key) => {
       const givenId = body[key].id
@@ -166,14 +187,6 @@ export default defineAuthedEventHandler(async (event) => {
   }
 
   async function getIfPredictionIsAfterCutoffDate() {
-    const targetRace = await db.query.racesTable.findFirst({
-      where: eq(racesTable.id, body.race.id),
-      columns: {
-        id: true,
-        cutoffDateRaw: true,
-      },
-    })
-
     if (!targetRace) {
       throw createError({
         statusCode: 400,

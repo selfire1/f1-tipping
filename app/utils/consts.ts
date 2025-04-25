@@ -72,6 +72,7 @@ export const RACE_KEYS_TO_LABEL: Record<RacePredictionField, string> = {
   p10: 'P10',
   last: 'Last position',
   constructorWithMostPoints: 'Constructor with most points',
+  sprintP1: 'Sprint P1',
 }
 
 export enum Icons {

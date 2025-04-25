@@ -5,7 +5,7 @@ import type { FormSubmitEvent } from '#ui/types'
 import * as schemas from '~~/shared/schemas'
 import type { z } from 'zod'
 import type { Race } from '~~/server/db/schema'
-import type { Component } from '~~/types'
+import type { Component, RacePredictionField } from '~~/types'
 import { Icons } from '~/utils/consts'
 definePageMeta({
   layout: false,
@@ -63,9 +63,9 @@ const state = reactive({
   p1: undefined as Component.DriverOption | undefined,
   p10: undefined as Component.DriverOption | undefined,
   last: undefined as Component.DriverOption | undefined,
-  sprint: undefined as Component.DriverOption | undefined,
+  sprintP1: undefined as Component.DriverOption | undefined,
   constructorWithMostPoints: undefined as Database.Constructor | undefined,
-})
+}) satisfies Record<RacePredictionField, any>
 
 type State = typeof state
 
@@ -129,10 +129,18 @@ onMounted(() => {
   populateStateFromSavedEntry()
 })
 
-const schema = schemas.saveTip
+const schema = computed(() =>
+  isCurrentSprintRace.value ? schemas.saveTipWithSprint : schemas.saveTip,
+)
 
-type Schema = z.infer<typeof schema>
-type ServerSchema = z.infer<typeof schemas.serverSaveTip>
+const serverSchema = computed(() =>
+  isCurrentSprintRace.value
+    ? schemas.serverSaveTipWithSprint
+    : schemas.serverSaveTip,
+)
+
+type Schema = z.infer<typeof schema.value>
+type ServerSchema = z.infer<typeof serverSchema.value>
 
 const errorMessage = ref('')
 const fetchError = ref<FetchError>()
@@ -156,13 +164,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     group: currentUserGroup.value,
     race: currentRace.value,
   }
-  // @ts-expect-error Types are fine.
-  predictionsByRaceMap.value?.set(currentRace.value.id, event.data)
   try {
     const response = await $fetch('/api/prediction/add', {
       method: 'POST',
       body,
     })
+    // @ts-expect-error Types are fine.
+    predictionsByRaceMap.value?.set(currentRace.value.id, event.data)
     console.log(response)
     toast.add(
       $getSuccessToast({
@@ -171,6 +179,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       }),
     )
   } catch (e) {
+    toast.add(
+      $getErrorToast({
+        title: 'Couldn’t save',
+        description: 'Something went wrong.',
+      }),
+    )
     if (e instanceof FetchError) {
       fetchError.value = e
     }
@@ -283,9 +297,9 @@ NuxtLayout(name='tipping')
             UFormGroup(
               label='Sprint P1',
               description='Who will win the sprint race?',
-              name='sprint'
+              name='sprintP1'
             )
-              SelectDriver(v-model='state.sprint', :drivers)
+              SelectDriver(v-model='state.sprintP1', :drivers)
           UFormGroup(
             label='Pole Position',
             description='Which driver will start at the front?',
