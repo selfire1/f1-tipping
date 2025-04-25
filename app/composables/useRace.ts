@@ -23,7 +23,7 @@ export const useRace = () => {
   // });
 
   function getIsRaceAfterCutoff(
-    race: Pick<Database.Race, 'qualifyingDate'>,
+    race: Pick<Database.Race, 'cutoffDateRaw'>,
     cutoffInMinutes?: MaybeRef<number>,
   ): boolean {
     const now = useNow()
@@ -36,6 +36,8 @@ export const useRace = () => {
       return {
         ...race,
         grandPrixDate: new Date(race.grandPrixDate),
+        cutoffDateRaw: new Date(race.cutoffDateRaw),
+        sprintDate: !race.sprintDate ? null : new Date(race.sprintDate),
         qualifyingDate: new Date(race.qualifyingDate),
         created: new Date(race.created),
         lastUpdated: new Date(race.lastUpdated),
