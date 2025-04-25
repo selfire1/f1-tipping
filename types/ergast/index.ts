@@ -15,6 +15,17 @@ export type ResultsResponse = ErgastResponse<{
   }
 }>
 
+export type SprintResultsResponse = ErgastResponse<{
+  RaceTable?: {
+    season: string
+    Races: Array<
+      Race & {
+        SprintResults: ResultRace[]
+      }
+    >
+  }
+}>
+
 export type DriverResponse = ErgastResponse<{
   DriverTable: DriverTable
 }>

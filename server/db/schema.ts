@@ -214,6 +214,10 @@ export const resultsTable = sqliteTable('results', {
     })
     .notNull(),
   /**
+   * The driver's position in the sprint
+   */
+  sprint: integer(),
+  /**
    * The driver's grid (qualifying) position
    */
   grid: integer(),
