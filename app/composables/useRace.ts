@@ -44,6 +44,7 @@ export const useRace = () => {
       }
     },
     getIsRaceAfterCutoff,
+    getIsSprintRace: (race: Database.Race) => !!race.sprintDate,
     getRacesInTheFuture(
       maybeRefRaces?: MaybeRef<Database.Race[]>,
       cutoffInMinutes?: MaybeRef<number>,

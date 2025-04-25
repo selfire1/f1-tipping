@@ -16,7 +16,7 @@ const {
   getCutoffForCurrentGroup: getCutoffDateForCurrentGroup,
 } = await useGroup()
 
-const { getRacesInTheFuture, deserialise } = useRace()
+const { getRacesInTheFuture, deserialise, getIsSprintRace } = useRace()
 const { data: races, status: raceStatus } = await useFetch('/api/races', {
   ...$getCachedFetchConfig('races'),
 })
@@ -40,6 +40,9 @@ const racesInTheFuture = computed(() =>
 )
 const index = ref(0)
 const currentRace = computed(() => racesInTheFuture.value?.[index.value])
+const isCurrentSprintRace = computed(() =>
+  !currentRace.value ? false : getIsSprintRace(currentRace.value),
+)
 
 function setStateToSaved() {
   setStateToEmpty()
@@ -60,6 +63,7 @@ const state = reactive({
   p1: undefined as Component.DriverOption | undefined,
   p10: undefined as Component.DriverOption | undefined,
   last: undefined as Component.DriverOption | undefined,
+  sprint: undefined as Component.DriverOption | undefined,
   constructorWithMostPoints: undefined as Database.Constructor | undefined,
 })
 
@@ -275,6 +279,13 @@ NuxtLayout(name='tipping')
 
       section.is-container.py-8
         UForm.space-y-6(:schema, :state, @submit='onSubmit')
+          template(v-if='isCurrentSprintRace')
+            UFormGroup(
+              label='Sprint P1',
+              description='Who will win the sprint race?',
+              name='sprint'
+            )
+              SelectDriver(v-model='state.sprint', :drivers)
           UFormGroup(
             label='Pole Position',
             description='Which driver will start at the front?',

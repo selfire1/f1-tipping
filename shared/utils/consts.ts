@@ -4,6 +4,7 @@ export const RACE_PREDICTION_FIELDS = [
   'p10',
   'last',
   'constructorWithMostPoints',
+  'sprintP1',
 ] as const
 
 export const CHAMPIONSHIP_PREDICTION_FIELDS = [
