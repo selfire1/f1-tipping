@@ -6,7 +6,7 @@ import {
   racesTable,
 } from '~~/server/db/schema'
 import z from 'zod'
-import { DEFAULT_CUTOFF_MINS } from '~~/shared/utils'
+import { DEFAULT_CUTOFF_MINS } from '~~/shared/utils/consts'
 import { useDb } from '~~/server/utils/db'
 
 export default defineAuthedEventHandler(async (event) => {

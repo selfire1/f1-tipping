@@ -1,8 +1,6 @@
 import { subMinutes } from 'date-fns'
 import type { Database } from '~~/types/db'
 
-export const DEFAULT_CUTOFF_MINS = 180
-
 export function $getCutoffDate(
   race: Pick<Database.Race, 'cutoffDateRaw'>,
   cutoffMinutes: Database.Group['cutoffInMinutes'] = DEFAULT_CUTOFF_MINS,

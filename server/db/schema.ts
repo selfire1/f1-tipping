@@ -7,7 +7,10 @@ import {
 } from 'drizzle-orm/sqlite-core'
 import { createId } from '@paralleldrive/cuid2'
 import { user } from './auth-schema'
-import { PREDICTION_FIELDS } from '../../shared/utils/consts'
+import {
+  PREDICTION_FIELDS,
+  DEFAULT_CUTOFF_MINS,
+} from '../../shared/utils/consts'
 import { relations, sql } from 'drizzle-orm'
 
 export const groupsTable = sqliteTable('groups', {
@@ -20,7 +23,7 @@ export const groupsTable = sqliteTable('groups', {
     .default(sql`(unixepoch())`)
     .notNull(),
   cutoffInMinutes: integer('cutoff_in_minutes', { mode: 'number' })
-    .default(3 * 60)
+    .default(DEFAULT_CUTOFF_MINS)
     .notNull(),
 })
 

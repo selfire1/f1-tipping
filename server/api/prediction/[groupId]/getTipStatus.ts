@@ -7,7 +7,6 @@ import {
   racesTable,
 } from '~~/server/db/schema'
 import z from 'zod'
-import { DEFAULT_CUTOFF_MINS } from '~~/shared/utils'
 import { useDb } from '~~/server/utils/db'
 import { User } from 'better-auth'
 
