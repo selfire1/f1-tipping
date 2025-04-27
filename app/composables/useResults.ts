@@ -26,9 +26,12 @@ export const useResults = async () => {
     },
   )
 
-  const resultsByRaceAndPosition = computed(() =>
-    getMapFromResults(results.value),
-  )
+  const resultsByRaceAndPosition = computed(() => {
+    if (!results.value) {
+      return new Map()
+    }
+    return getMapFromResults(results.value)
+  })
 
   const leaderboard = computed(() => {
     if (
@@ -101,6 +104,7 @@ export const useResults = async () => {
     Database.Race['id'],
     {
       qualifying: Map<Position, Component.DriverOption>
+      sprint: Map<Position, Component.DriverOption> | null
       gp: Map<Position, Component.DriverOption>
       allConstructorsPoints: Map<Database.Result['constructorId'], number>
       topConstructorsPoints: Map<Database.Result['constructorId'], number>
@@ -108,9 +112,12 @@ export const useResults = async () => {
   >
 
   function getMapFromResults(
-    results?: Array<
-      Pick<Database.Result, 'raceId' | 'position' | 'constructorId' | 'points'>
-    >,
+    results: InternalApi['/api/results']['default']['items'],
+    // results?: Array<
+    //   Omit<Database.Result, 'createdAt' | 'updatedAt' | 'addedAt'> & {
+    //     driver: Database.Driver
+    //   }
+    // >,
   ): ResultsMap | undefined {
     if (!results?.length) {
       return
@@ -119,25 +126,48 @@ export const useResults = async () => {
     const resultsMap: ResultsMap = new Map()
     results.forEach((result) => {
       const isRaceInMap = resultsMap.has(result.raceId)
+      const hasSprintResult = result.sprint
+
       if (!isRaceInMap) {
         resultsMap.set(result.raceId, {
-          // driverPositions: new Map<RacePredictionField, Database.Result>(),
           allConstructorsPoints: new Map<Database.Constructor['id'], number>(),
           topConstructorsPoints: new Map<Database.Constructor['id'], number>(),
           qualifying: new Map<number, Component.DriverOption>(),
           gp: new Map<number, Component.DriverOption>(),
+          sprint: hasSprintResult
+            ? new Map<number, Component.DriverOption>()
+            : null,
         })
       }
 
-      const raceObj = resultsMap.get(result.raceId)
-      // @ts-expect-error
-      raceObj!.qualifying.set(result.grid ?? 0, result.driver ?? {})
-      if (result.position && result.position > 0) {
-        // @ts-expect-error
-        raceObj!.gp.set(result.position, result.driver ?? {})
+      const raceMap = resultsMap.get(result.raceId)!
+      if (result.driver) {
+        raceMap.qualifying.set(result.grid ?? 0, result.driver)
+      } else {
+        console.warn('No driver for `grid`', result)
       }
 
-      const constructorsMap = raceObj!.allConstructorsPoints
+      if (result.driver) {
+        if (result.position && result.position > 0) {
+          raceMap.gp.set(result.position, result.driver)
+        }
+      } else {
+        console.warn('No driver for `position`', result)
+      }
+
+      if (result.sprint && result.sprint > 0) {
+        if (!raceMap?.sprint) {
+          raceMap.sprint = new Map<number, Component.DriverOption>()
+        }
+
+        if (result.driver) {
+          raceMap.sprint.set(result.sprint, result.driver ?? {})
+        } else {
+          console.warn('No driver for `sprint`', result)
+        }
+      }
+
+      const constructorsMap = raceMap!.allConstructorsPoints
       if (!constructorsMap.has(result.constructorId)) {
         constructorsMap.set(result.constructorId, 0)
       }
@@ -145,7 +175,7 @@ export const useResults = async () => {
         constructorsMap.get(result.constructorId)! + result.points
       constructorsMap.set(result.constructorId, currentConstructorPoints)
 
-      const topConstructors = raceObj!.topConstructorsPoints
+      const topConstructors = raceMap!.topConstructorsPoints
 
       const currentMaxPoints = Math.max(...constructorsMap.values())
       if (currentConstructorPoints >= currentMaxPoints) {
@@ -258,6 +288,13 @@ export const useResults = async () => {
           }
           increaseUserPoints(userId)
           return
+        }
+        if (predictedPosition === 'sprintP1' && raceResults.sprint) {
+          const tip = predictedDriverId
+          const result = raceResults.sprint.get(1)
+          const isCorrect = tip === result?.id
+          if (!isCorrect) return
+          increaseUserPoints(userId)
         }
         const result = (() => {
           switch (predictedPosition) {

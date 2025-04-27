@@ -5,16 +5,16 @@ import {
   predictionsTable,
   racesTable,
 } from '~~/server/db/schema'
-import { serverSaveChampionships } from '~~/shared/schemas'
-import { $getCutoffDate } from '~~/shared/utils'
+import { saveChampionships as schema } from '~~/shared/schemas'
 import { Database } from '~~/types/db'
 import { useDb } from '~~/server/utils/db'
+import { useCutoff } from '~/composables/useCutoff'
 
 export default defineAuthedEventHandler(async (event) => {
   const db = useDb()
   const timeOfSubmission = new Date()
   assertMethod(event, 'POST')
-  const body = await readValidatedBody(event, serverSaveChampionships.parse)
+  const body = await readValidatedBody(event, schema.server.parse)
 
   const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
 
@@ -130,8 +130,12 @@ export default defineAuthedEventHandler(async (event) => {
       })
     }
 
-    const cutoffDate = $getCutoffDate(firstRace, currentGroup.cutoffInMinutes)
-    return timeOfSubmission > cutoffDate
+    const { getIsRaceAfterCutoff } = useCutoff({
+      race: firstRace,
+      group: currentGroup,
+    })
+
+    return getIsRaceAfterCutoff(timeOfSubmission)
   }
 
   async function getCurrentGroupOfUser() {

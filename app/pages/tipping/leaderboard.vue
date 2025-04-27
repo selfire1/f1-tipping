@@ -122,14 +122,42 @@ const qualifyingResults = computed(() => {
     .filter((el) => el.place === 1 || el.predictedP1By?.length)
 })
 
+const sprintResults = computed(() => {
+  if (!selectedRace.value) {
+    return []
+  }
+  const map = results.value?.get(selectedRace.value.id)?.sprint
+  if (!map) {
+    return []
+  }
+  return [...map.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([place, driver]) => {
+      const predictedP1By = predictionsByUser.value
+        ?.get(driver.id)
+        ?.get('sprintP1')
+      return {
+        place,
+        driver,
+        predictedP1By,
+        isP1Correct:
+          place === 1 &&
+          results.value?.get(selectedRace.value!.id)?.gp?.get(1)?.id ===
+            driver.id,
+      }
+    })
+    .filter((el) => el.place === 1 || el.predictedP1By?.length)
+})
+
 const predictionsByUser = computed(() => {
   return currentRacePredictions.value?.reduce((driverMap, el) => {
     const {
       driverId,
       position,
       // @ts-expect-error incorrect type
-      prediction: { user },
+      prediction: { user: rawUser },
     } = el
+    const user = rawUser as Pick<Database.User, 'id' | 'name' | 'image'>
     if (!driverId) {
       return driverMap
     }
@@ -137,11 +165,11 @@ const predictionsByUser = computed(() => {
       driverMap.set(driverId, new Map([[position, [user]]]))
       return driverMap
     }
-    const positionMap = driverMap.get(driverId)
+    const positionMap = driverMap.get(driverId)!
     const existing = positionMap.get(position)
     positionMap.set(position, [...(existing || []), user])
     return driverMap
-  }, new Map())
+  }, new Map<Database.Driver['id'], Map<(typeof PREDICTION_FIELDS)[number], Pick<Database.User, 'id' | 'name' | 'image'>[]>>())
 })
 
 const { data: constructorsMap, status: constructorsStatus } =
@@ -403,27 +431,22 @@ NuxtLayout(name='tipping')
                 | Qualifying
               UTable(:rows='qualifyingResults', :columns='gpColumns')
                 template(#predictions-data='{ row }')
-                  template(v-if='row.predictedP1By?.length')
-                    .flex.gap-1
-                      template(
-                        v-for='item in row.predictedP1By',
-                        :key='item.name'
-                      )
-                        UTooltip(:text='item.name')
-                          UChip(
-                            inset,
-                            :color='row.isP1Correct ? "green" : "gray"',
-                            position='bottom-right',
-                            size='md'
-                          )
-                            template(#content)
-                              UIcon(
-                                :name='row.isP1Correct ? "carbon:checkmark" : "carbon:close"'
-                              )
-                            UAvatar(
-                              :alt='item.name',
-                              :src='$getUserImgSrc(item)'
-                            )
+                  ResultsUserRow(
+                    :users='row.predictedP1By',
+                    :is-correct='row.isP1Correct'
+                  )
+                template(#driver-data='{ row }')
+                  DriverOption(:option='row.driver', short)
+            div(v-if='sprintResults?.length')
+              h3.is-display-6.inline-flex.items-center.gap-1
+                UIcon(:name='Icons.Sprint')
+                | Sprint Race
+              UTable(:rows='sprintResults', :columns='gpColumns')
+                template(#predictions-data='{ row }')
+                  ResultsUserRow(
+                    :users='row.predictedP1By',
+                    :is-correct='row.isP1Correct'
+                  )
                 template(#driver-data='{ row }')
                   DriverOption(:option='row.driver', short)
             .space-y-4
@@ -434,26 +457,10 @@ NuxtLayout(name='tipping')
               )
               UTable(:rows='constructorResults', :columns='constructorColumns')
                 template(#users-data='{ row }')
-                  template(v-if='row.users?.length')
-                    .flex.gap-1
-                      template(v-for='item in row.users', :key='item.name')
-                        UTooltip(:text='item.name')
-                          UChip(
-                            inset,
-                            :color='row.isCorrect ? "green" : "gray"',
-                            position='bottom-right',
-                            size='md'
-                          )
-                            template(#content)
-                              UIcon(
-                                :name='row.isCorrect ? "carbon:checkmark" : "carbon:close"'
-                              )
-                            UAvatar(
-                              :alt='item.name',
-                              :src='$getUserImgSrc(item)'
-                            )
-                  template(v-else)
-                    div
+                  ResultsUserRow(
+                    :users='row.users',
+                    :is-correct='row.isCorrect'
+                  )
                 template(#constructor-data='{ row }')
                   template(
                     v-if='["idle", "pending"].includes(constructorsStatus)'

@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 import { isFuture } from 'date-fns'
-import {
-  saveChampionships as saveChampionshipSchema,
-  serverSaveChampionships,
-} from '~~/shared/schemas'
+import { saveChampionships as schema } from '~~/shared/schemas'
 import type { Database } from '~~/types/db'
 import type { FormSubmitEvent } from '#ui/types'
 import type z from 'zod'
@@ -22,12 +19,15 @@ const { data: allRaces } = await useFetch('/api/races', {
 })
 
 const cutoffDate = computed(() => {
-  const groupCutoff = currentUserGroup.value?.cutoffInMinutes
   const firstRace = allRaces.value?.find((race) => race.round === 1)
-  if (!firstRace) {
+  if (!firstRace || !currentUserGroup.value) {
     return
   }
-  return $getCutoffDate(firstRace, groupCutoff)
+  const { getCutoffDateForPosition } = useCutoff({
+    race: firstRace,
+    group: currentUserGroup.value,
+  })
+  return getCutoffDateForPosition('p1')
 })
 
 const isCutoffInFuture = computed(() =>
@@ -38,9 +38,8 @@ const state = reactive({
   championshipConstructor: undefined as Database.Constructor | undefined,
   championshipDriver: undefined as Database.Driver | undefined,
 }) satisfies Record<ChampionshipPredictionField, any>
-const schema = saveChampionshipSchema
-type Schema = z.output<typeof schema>
-type ServerSchema = z.output<typeof serverSaveChampionships>
+type ClientSchema = z.output<typeof schema.client>
+type ServerSchema = z.output<typeof schema.server>
 
 const { add: addToast } = useToast()
 
@@ -48,7 +47,7 @@ const errorMessage = ref('')
 const fetchError = ref<FetchError>()
 const isSubmitPending = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+async function onSubmit(event: FormSubmitEvent<ClientSchema>) {
   errorMessage.value = ''
   fetchError.value = undefined
   isSubmitPending.value = true
@@ -186,7 +185,11 @@ NuxtLayout(name='tipping')
         p.is-display-7 Vote by
           BadgeTimeTo.ml-2(:date='cutoffDate')
         p {{ cutoffDate.toLocaleString(undefined, $localeDateTimeOptions) }}
-    UForm.max-w-prose.space-y-4(:schema, :state, @submit='onSubmit')
+    UForm.max-w-prose.space-y-4(
+      :schema='schema.client',
+      :state,
+      @submit='onSubmit'
+    )
       UFormGroup(
         label='Constructors’ Championship',
         name='championshipConstructor',

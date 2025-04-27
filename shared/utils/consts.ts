@@ -30,14 +30,11 @@ export const PREDICTION_FIELDS = [
 
 export const DEFAULT_CUTOFF_MINS = 180
 
-export const CUTOFF_REFERENCE_KEY: Record<
-  RacePredictionField,
-  keyof Database.Race
-> = {
+export const CUTOFF_REFERENCE_KEY = {
   pole: 'qualifyingDate',
   p1: 'qualifyingDate',
   p10: 'qualifyingDate',
   last: 'qualifyingDate',
   sprintP1: 'sprintQualifyingDate',
   constructorWithMostPoints: 'qualifyingDate',
-}
+} as const satisfies Record<RacePredictionField, keyof Database.Race>

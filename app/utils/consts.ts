@@ -76,6 +76,7 @@ export const RACE_KEYS_TO_LABEL: Record<RacePredictionField, string> = {
 }
 
 export enum Icons {
+  Sprint = 'carbon:side-panel-open-filled',
   Qualifying = 'carbon:border-left',
   GrandPrix = 'carbon:trophy',
 }

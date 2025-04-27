@@ -7,11 +7,16 @@ const props = defineProps<{
 
 const { currentUserGroup } = await useGroup()
 
-const nextRaceCutOffDate = computed(() =>
-  props?.race?.qualifyingDate
-    ? $getCutoffDate(props.race, currentUserGroup.value?.cutoffInMinutes)
-    : null,
-)
+const nextRaceCutOffDate = computed(() => {
+  if (!currentUserGroup.value) {
+    return
+  }
+  const { getCutoffDateForPosition } = useCutoff({
+    race: props.race,
+    group: currentUserGroup.value,
+  })
+  return getCutoffDateForPosition('p1')
+})
 
 const { user } = useAuth()
 
