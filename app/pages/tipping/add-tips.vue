@@ -402,7 +402,7 @@ NuxtLayout(name='tipping')
               type='submit',
               :disabled='isSubmitPending || !hasUnsavedChanges',
               :loading='isSubmitPending',
-              :icon='hasUnsavedChanges ? "" : "carbon:checkmark"'
+              :icon='hasUnsavedChanges ? "" : Icons.HasTipped'
             )
               template(v-if='isSubmitPending')
                 | Saving…

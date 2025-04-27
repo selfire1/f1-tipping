@@ -103,4 +103,5 @@ NuxtLayout(name='tipping')
             LazyCardTipChampionships(:cutoff-date='championshipCutoffDate')
           template(v-if='nextRace')
             LazyCardTipRace(:race='nextRace')
+            LazyCardTipStatus(:race='nextRace')
 </template>
