@@ -88,8 +88,8 @@ UCard
               template(v-if='isFuture(cutoffDates.sprint)')
                 .flex
                   .pl-2
-                    p {{ cutoffDates.sprint.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
                     p {{ cutoffDates.sprint.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
+                    p {{ cutoffDates.sprint.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
           UDivider
         template(v-if='cutoffDates')
           div
@@ -100,6 +100,6 @@ UCard
                 BadgeTimeTo(:date='cutoffDates.gp')
               .flex
                 .pl-2
-                  p {{ cutoffDates.gp.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
                   p {{ cutoffDates.gp.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
+                  p {{ cutoffDates.gp.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
 </template>
