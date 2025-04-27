@@ -73,31 +73,37 @@ UCard
             span {{ race.locality + ', ' }}
             span {{ race.country }}
         p.is-display-5 {{ race.raceName }}
-    .space-y-8
-      .space-y-4
-        template(v-if='cutoffDates?.sprint')
-          div
-            .is-size-7
+    div
+      template(v-if='cutoffDates?.sprint')
+        div
+          .is-size-7.space-y-2
+            p.is-display-7.flex.items-center.gap-2
               UIcon(:name='Icons.Sprint')
-              p.is-display-7.flex.items-center.gap-2
+              | Sprint
+            div
+              p.is-display-7.flex.items-center.gap-2.text-muted
                 template(v-if='isFuture(cutoffDates.sprint)')
-                  | Sprint Tipping closes
+                  | Tipping closes
                   BadgeTimeTo(:date='cutoffDates.sprint')
                 template(v-else)
-                  | Sprint Tipping closed
+                  | Closed
               template(v-if='isFuture(cutoffDates.sprint)')
                 .flex
                   .pl-2
                     p {{ cutoffDates.sprint.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
                     p {{ cutoffDates.sprint.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
-          UDivider
-        template(v-if='cutoffDates')
-          div
-            .is-size-7(v-if='cutoffDates.gp')
+        UDivider.py-4
+      template(v-if='cutoffDates && cutoffDates.gp')
+        div
+          .is-size-7.space-y-2
+            p.is-display-7.flex.items-center.gap-2
               UIcon(:name='Icons.GrandPrix')
-              p.is-display-7.flex.items-center.gap-2
-                | Tipping closes
-                BadgeTimeTo(:date='cutoffDates.gp')
+              | Grand Prix
+            div
+              p.is-display-7.flex.items-center.gap-2.text-muted
+                template(v-if='isFuture(cutoffDates.gp)')
+                  | Tipping closes
+                  BadgeTimeTo(:date='cutoffDates.gp')
               .flex
                 .pl-2
                   p {{ cutoffDates.gp.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
