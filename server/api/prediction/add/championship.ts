@@ -130,12 +130,12 @@ export default defineAuthedEventHandler(async (event) => {
       })
     }
 
-    const { getIsRaceAfterCutoff } = useCutoff({
+    const { getIsRaceFullyAfterCutoff } = useCutoff({
       race: firstRace,
       group: currentGroup,
     })
 
-    return getIsRaceAfterCutoff(timeOfSubmission)
+    return getIsRaceFullyAfterCutoff(timeOfSubmission)
   }
 
   async function getCurrentGroupOfUser() {

@@ -38,14 +38,10 @@ export const useCutoff = (context: {
     return isAfter(testDate, cutoffDate)
   }
 
-  function getIsRaceAfterCutoff(
-    testDate: Date = new Date(),
-    options: {
-      fieldsToCheck: RacePredictionField[]
-    } = { fieldsToCheck: [...RACE_PREDICTION_FIELDS] },
-  ): boolean {
-    const { fieldsToCheck } = options
-    const latestPosition = fieldsToCheck.reduce((previous, current) => {
+  function getPositionWhereCutoffDateIsLast(
+    fieldsToConsider: RacePredictionField[] = [...RACE_PREDICTION_FIELDS],
+  ): RacePredictionField {
+    const latestPosition = fieldsToConsider.reduce((previous, current) => {
       const positionDate = ctxRace[CUTOFF_REFERENCE_KEY[current]]
       if (!positionDate) return previous
 
@@ -54,13 +50,26 @@ export const useCutoff = (context: {
       const isBigger = isAfter(positionDate, previousPositionDate)
       if (!isBigger) return previous
       return current
-    }, fieldsToCheck[0] as RacePredictionField)
+    }, fieldsToConsider[0] as RacePredictionField)
+    return latestPosition
+  }
 
+  /**
+   * Returns if the race is fully after the specified cutoff date.
+   */
+  function getIsRaceFullyAfterCutoff(
+    testDate: Date = new Date(),
+    options: {
+      fieldsToCheck: RacePredictionField[]
+    } = { fieldsToCheck: [...RACE_PREDICTION_FIELDS] },
+  ): boolean {
+    const { fieldsToCheck } = options
+    const latestPosition = getPositionWhereCutoffDateIsLast(fieldsToCheck)
     return isPositionAfterCutoff(latestPosition, testDate)
   }
 
   return {
-    getIsRaceAfterCutoff,
+    getIsRaceFullyAfterCutoff,
     isPositionAfterCutoff,
     getCutoffDateForPosition,
   }

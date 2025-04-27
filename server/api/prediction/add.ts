@@ -28,7 +28,7 @@ export default defineAuthedEventHandler(async (event) => {
   const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
   const raceBeingPredicted = await getRaceFromId(body.race.id)
 
-  const { getIsRaceAfterCutoff } = useCutoff({
+  const { getIsRaceFullyAfterCutoff } = useCutoff({
     race: raceBeingPredicted,
     group: currentGroup,
   })
@@ -37,7 +37,7 @@ export default defineAuthedEventHandler(async (event) => {
     // @ts-expect-error key body error
     (key) => body?.[key] && DRIVER_RACE_PREDICTION_FIELDS.includes(key as any),
   ) as RacePredictionField[]
-  const isAfterCutoffDate = getIsRaceAfterCutoff(timeOfSubmission, {
+  const isAfterCutoffDate = getIsRaceFullyAfterCutoff(timeOfSubmission, {
     fieldsToCheck,
   })
   if (isAfterCutoffDate) {

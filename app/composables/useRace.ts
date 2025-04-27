@@ -47,11 +47,11 @@ export const useRace = () => {
       return (
         races
           ?.filter((race) => {
-            const { getIsRaceAfterCutoff } = useCutoff({
+            const { getIsRaceFullyAfterCutoff } = useCutoff({
               race,
               group,
             })
-            return !getIsRaceAfterCutoff()
+            return !getIsRaceFullyAfterCutoff()
           })
           ?.map((race) => ({
             ...race,

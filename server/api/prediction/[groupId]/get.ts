@@ -67,11 +67,11 @@ export default defineAuthedEventHandler(async (event) => {
       })
     }
 
-    const { getIsRaceAfterCutoff } = useCutoff({
+    const { getIsRaceFullyAfterCutoff } = useCutoff({
       race,
       group,
     })
-    if (!getIsRaceAfterCutoff()) {
+    if (!getIsRaceFullyAfterCutoff()) {
       throw createError({
         statusMessage: 'Cutoff is in the future.',
         statusCode: 400,

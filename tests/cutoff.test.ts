@@ -17,23 +17,27 @@ const given = {
 }
 
 describe('is race after cutoff', () => {
-  const { getIsRaceAfterCutoff } = useCutoff({
+  const { getIsRaceFullyAfterCutoff } = useCutoff({
     race: given.race,
     group: given.currentUserGroup,
   })
 
   it('is not after cutoff when nothing has started', () => {
-    const result = getIsRaceAfterCutoff(new Date('2025-04-27T12:43:42+1000'))
+    const result = getIsRaceFullyAfterCutoff(
+      new Date('2025-04-27T12:43:42+1000'),
+    )
     expect(result).toBe(false)
   })
   it('is not after cutoff after sprint qualy has started', () => {
-    const result = getIsRaceAfterCutoff(
+    const result = getIsRaceFullyAfterCutoff(
       justAfter(given.race.sprintQualifyingDate),
     )
     expect(result).toBe(false)
   })
   it('is after cutoff after the last position field has started', () => {
-    const result = getIsRaceAfterCutoff(justAfter(given.race.qualifyingDate))
+    const result = getIsRaceFullyAfterCutoff(
+      justAfter(given.race.qualifyingDate),
+    )
     expect(result).toBe(true)
   })
 })

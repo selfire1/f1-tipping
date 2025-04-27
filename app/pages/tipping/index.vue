@@ -46,11 +46,11 @@ const ongoingRace = computed(() => {
     if (!currentUserGroup.value) {
       return
     }
-    const { getIsRaceAfterCutoff } = useCutoff({
+    const { getIsRaceFullyAfterCutoff } = useCutoff({
       race: race,
       group: currentUserGroup.value,
     })
-    const isAfterCutoff = getIsRaceAfterCutoff()
+    const isAfterCutoff = getIsRaceFullyAfterCutoff()
     const isBeforeEndOfRace = isFuture(new Date(race.grandPrixDate))
     return isAfterCutoff && isBeforeEndOfRace
   })
