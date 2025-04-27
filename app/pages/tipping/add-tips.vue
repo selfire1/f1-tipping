@@ -288,7 +288,7 @@ NuxtLayout(name='tipping')
                 .space-y-2
                   div
                     span {{ cutoffDates.sprintP1.toLocaleString(undefined, $localeDateTimeOptions) }}
-                    span
+                    span.ml-2
                       BadgeTimeTo(:date='cutoffDates.sprintP1')
                   template(v-if='cutoffDates.p1')
                     UDivider
@@ -296,7 +296,7 @@ NuxtLayout(name='tipping')
                       span.is-display-8 GP tips due
                       div
                         span {{ cutoffDates.p1.toLocaleString(undefined, $localeDateTimeOptions) }}
-                        span
+                        span.ml-2
                           BadgeTimeTo(:date='cutoffDates.p1')
               template(v-else-if='cutoffDates.p1')
                 span.is-display-8 Tips due
