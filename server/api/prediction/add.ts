@@ -6,21 +6,40 @@ import {
   predictionsTable,
   racesTable,
 } from '~~/server/db/schema'
-import { serverSaveTip } from '~~/shared/schemas'
-import { $getCutoffDate } from '~~/shared/utils'
-import { Constructor, Driver } from '~~/types'
+import { saveTip as schema } from '~~/shared/schemas'
+import { Constructor, Driver, RacePredictionField } from '~~/types'
 import { Database } from '~~/types/db'
 import { useDb } from '~~/server/utils/db'
+import {
+  CUTOFF_REFERENCE_KEY,
+  DRIVER_RACE_PREDICTION_FIELDS,
+} from '~~/shared/utils/consts'
+import { useCutoff } from '~/composables/useCutoff'
 
 export default defineAuthedEventHandler(async (event) => {
   const db = useDb()
   const timeOfSubmission = new Date()
   assertMethod(event, 'POST')
-  const body = await readValidatedBody(event, serverSaveTip.parse)
+  const body = await readValidatedBody(event, schema.server.parse)
+  if (!body) {
+    return
+  }
 
   const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
+  const raceBeingPredicted = await getRaceFromId(body.race.id)
 
-  const isAfterCutoffDate = await getIfPredictionIsAfterCutoffDate()
+  const { getIsRaceFullyAfterCutoff } = useCutoff({
+    race: raceBeingPredicted,
+    group: currentGroup,
+  })
+
+  const fieldsToCheck = Object.keys(body).filter(
+    // @ts-expect-error key body error
+    (key) => body?.[key] && DRIVER_RACE_PREDICTION_FIELDS.includes(key as any),
+  ) as RacePredictionField[]
+  const isAfterCutoffDate = getIsRaceFullyAfterCutoff(timeOfSubmission, {
+    fieldsToCheck,
+  })
   if (isAfterCutoffDate) {
     throw createError({
       statusCode: 400,
@@ -104,20 +123,31 @@ export default defineAuthedEventHandler(async (event) => {
   function getValues(
     predictionId: Database.Prediction['id'],
   ): InsertPredictionEntry[] {
-    const driverPredictionEntryKeys: Database.InsertPredictionEntry['position'][] =
-      ['pole', 'p1', 'p10', 'last']
-    const driverPredictionEntries = driverPredictionEntryKeys.map((entry) => ({
-      predictionId,
-      position: entry,
-      driverId: body[entry].id,
-    }))
+    const driverPredictionEntries: InsertPredictionEntry[] = [
+      ...DRIVER_RACE_PREDICTION_FIELDS,
+    ].reduce((acc, entry) => {
+      const id = body[entry]?.id
+      if (!id) {
+        return acc
+      }
+      acc.push({ predictionId, position: entry, driverId: id })
+      return acc
+    }, [] as InsertPredictionEntry[])
+
+    const constructorPredictionEntries: InsertPredictionEntry[] = [
+      ...CONSTRUCTOR_RACE_PREDICTION_FIELDS,
+    ].reduce((acc, entry) => {
+      const id = body[entry]?.id
+      if (!id) {
+        return acc
+      }
+      acc.push({ predictionId, position: entry, constructorId: id })
+      return acc
+    }, [] as InsertPredictionEntry[])
+
     const values: InsertPredictionEntry[] = [
       ...driverPredictionEntries,
-      {
-        predictionId: predictionId,
-        position: 'constructorWithMostPoints',
-        constructorId: body.constructorWithMostPoints.id,
-      },
+      ...constructorPredictionEntries,
     ]
     return values
   }
@@ -141,11 +171,11 @@ export default defineAuthedEventHandler(async (event) => {
       },
     )
 
-    const driverKeys = ['p1', 'pole', 'last', 'p10'] as const
+    const driverKeys = DRIVER_RACE_PREDICTION_FIELDS
     const constructorKeys = ['constructorWithMostPoints'] as const
 
     driverKeys.forEach((key) => {
-      const givenId = body[key].id
+      const givenId = body[key]?.id
       if (givenId && !driverIds.includes(givenId)) {
         throw createError({
           statusCode: 400,
@@ -155,7 +185,7 @@ export default defineAuthedEventHandler(async (event) => {
     })
 
     constructorKeys.forEach((key) => {
-      const givenId = body[key].id
+      const givenId = body[key]?.id
       if (givenId && !constructorIds.includes(givenId)) {
         throw createError({
           statusCode: 400,
@@ -163,29 +193,6 @@ export default defineAuthedEventHandler(async (event) => {
         })
       }
     })
-  }
-
-  async function getIfPredictionIsAfterCutoffDate() {
-    const targetRace = await db.query.racesTable.findFirst({
-      where: eq(racesTable.id, body.race.id),
-      columns: {
-        id: true,
-        qualifyingDate: true,
-      },
-    })
-
-    if (!targetRace) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Invalid race',
-      })
-    }
-
-    const cutoffDate = $getCutoffDate(
-      targetRace.qualifyingDate,
-      currentGroup.cutoffInMinutes,
-    )
-    return timeOfSubmission > cutoffDate
   }
 
   async function getCurrentGroupOfUser() {
@@ -217,5 +224,33 @@ export default defineAuthedEventHandler(async (event) => {
       })
     }
     return { currentGroup, currentGroupMembership }
+  }
+
+  async function getRaceFromId(targetId: string) {
+    const keysToGetCutoffInfo = [
+      ...new Set(Object.values(CUTOFF_REFERENCE_KEY)),
+    ]
+    const keysToGetCutoffInfoAsObject = keysToGetCutoffInfo.reduce(
+      (acc, key) => {
+        acc[key] = true
+        return acc
+      },
+      {} as Record<(typeof keysToGetCutoffInfo)[number], true>,
+    )
+    const targetRace = await db.query.racesTable.findFirst({
+      where: eq(racesTable.id, targetId),
+      columns: {
+        id: true,
+        sprintDate: true,
+        ...keysToGetCutoffInfoAsObject,
+      },
+    })
+    if (!targetRace) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid race',
+      })
+    }
+    return targetRace
   }
 })

@@ -1,9 +1,6 @@
 import { z } from 'zod'
 
-export const createGroup = z.object({
-  name: z.string().min(1, 'Required'),
-})
-
+// utils
 const requiredString = z.string().min(1, 'Required')
 const idObject = z
   .object({
@@ -11,28 +8,44 @@ const idObject = z
   })
   .passthrough()
 
-export const saveTip = z.object({
-  pole: idObject,
-  p1: idObject,
-  p10: idObject,
-  last: idObject,
-  constructorWithMostPoints: idObject,
+// group
+export const createGroup = z.object({
+  name: z.string().min(1, 'Required'),
 })
 
-export const saveChampionships = z.object({
+// tip
+const clientTip = z
+  .object({
+    pole: idObject,
+    p1: idObject,
+    p10: idObject,
+    last: idObject,
+    constructorWithMostPoints: idObject,
+    sprintP1: idObject,
+  })
+  .partial()
+
+export const saveTip = {
+  client: clientTip,
+  server: clientTip.extend({
+    race: idObject,
+    group: idObject,
+  }),
+}
+
+// championships
+const clientChampionship = z.object({
   championshipConstructor: idObject,
   championshipDriver: idObject,
 })
+export const saveChampionships = {
+  client: clientChampionship,
+  server: clientChampionship.extend({
+    group: idObject,
+  }),
+}
 
-export const serverSaveChampionships = saveChampionships.extend({
-  group: idObject,
-})
-
-export const serverSaveTip = saveTip.extend({
-  race: idObject,
-  group: idObject,
-})
-
+// queries
 export const getResultOptions = z.object({
   raceId: z.string().optional(),
 })

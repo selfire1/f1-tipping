@@ -3,6 +3,7 @@ import { racesTable } from '~~/server/db/schema'
 import { fetchJolpica } from '~~/server/utils'
 import { useDb } from '~~/server/utils/db'
 import { defineBasicAuthedEventHandler } from '~~/server/utils/handlers'
+import { Database } from '~~/types/db'
 import { RaceResponse } from '~~/types/ergast'
 
 export default defineBasicAuthedEventHandler(async (event) => {
@@ -13,6 +14,7 @@ export default defineBasicAuthedEventHandler(async (event) => {
   if (!races?.length) {
     throw createError({ statusCode: 404, statusMessage: 'No Races found' })
   }
+
   const returning = await db
     .insert(racesTable)
     .values(
@@ -23,19 +25,28 @@ export default defineBasicAuthedEventHandler(async (event) => {
             statusMessage: 'No Qualifying found',
           })
         }
-        return {
+
+        const sprintDate = race?.Sprint?.date ? getDate(race.Sprint) : null
+        const sprintQualifyingDate = race?.SprintQualifying
+          ? getDate(race.SprintQualifying)
+          : null
+        const gpDate = getDate(race)
+        const qualifyingDate = getDate(race.Qualifying)
+
+        const item: Database.InsertRace = {
           id: race.Circuit.circuitId,
           country: race.Circuit.Location.country,
           round: +race.round,
           circuitName: race.Circuit.circuitName,
           raceName: race.raceName,
-          grandPrixDate: new Date(`${race.date}T${race.time}`),
-          qualifyingDate: new Date(
-            `${race.Qualifying.date}T${race.Qualifying.time}`,
-          ),
+          grandPrixDate: gpDate,
+          qualifyingDate,
+          sprintDate,
+          sprintQualifyingDate,
           locality: race.Circuit.Location.locality,
           lastUpdated: new Date(),
         }
+        return item
       }),
     )
     .onConflictDoUpdate({
@@ -47,6 +58,8 @@ export default defineBasicAuthedEventHandler(async (event) => {
         raceName: sql`excluded.race_name`,
         grandPrixDate: sql`excluded.grand_prix_date`,
         qualifyingDate: sql`excluded.qualifying_date`,
+        sprintDate: sql`excluded.sprint_date`,
+        sprintQualifyingDate: sql`excluded.sprint_qualifying_date`,
         locality: sql`excluded.locality`,
         lastUpdated: sql`excluded.last_updated`,
       },
@@ -62,5 +75,9 @@ export default defineBasicAuthedEventHandler(async (event) => {
       received: response.MRData.total,
       updated: returning.length,
     },
+  }
+
+  function getDate(data: { date: string; time?: string }) {
+    return new Date(`${data.date}T${data.time ?? '00:00:00'}`)
   }
 })

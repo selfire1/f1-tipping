@@ -1,22 +1,21 @@
 <script setup lang="ts">
+import { isFuture } from 'date-fns'
 import { FetchError } from 'ofetch'
 import type { Database } from '~~/types/db'
 import type { FormSubmitEvent } from '#ui/types'
-import * as schemas from '~~/shared/schemas'
+import { saveTip as schema } from '~~/shared/schemas'
 import type { z } from 'zod'
 import type { Race } from '~~/server/db/schema'
-import type { Component } from '~~/types'
+import type { Component, RacePredictionField } from '~~/types'
 import { Icons } from '~/utils/consts'
+
 definePageMeta({
   layout: false,
 })
 
-const {
-  currentUserGroup,
-  getCutoffForCurrentGroup: getCutoffDateForCurrentGroup,
-} = await useGroup()
+const { currentUserGroup } = await useGroup()
 
-const { getRacesInTheFuture, deserialise } = useRace()
+const { getRacesInTheFuture, deserialise, getIsSprintRace } = useRace()
 const { data: races, status: raceStatus } = await useFetch('/api/races', {
   ...$getCachedFetchConfig('races'),
 })
@@ -35,11 +34,14 @@ const drivers = dbDrivers as Ref<Database.Driver[]>
 const racesInTheFuture = computed(() =>
   getRacesInTheFuture(
     races.value?.items?.map(deserialise),
-    currentUserGroup.value?.cutoffInMinutes,
+    currentUserGroup.value,
   ),
 )
 const index = ref(0)
 const currentRace = computed(() => racesInTheFuture.value?.[index.value])
+const isCurrentSprintRace = computed(() =>
+  !currentRace.value ? false : getIsSprintRace(currentRace.value),
+)
 
 function setStateToSaved() {
   setStateToEmpty()
@@ -60,8 +62,9 @@ const state = reactive({
   p1: undefined as Component.DriverOption | undefined,
   p10: undefined as Component.DriverOption | undefined,
   last: undefined as Component.DriverOption | undefined,
+  sprintP1: undefined as Component.DriverOption | undefined,
   constructorWithMostPoints: undefined as Database.Constructor | undefined,
-})
+}) satisfies Record<RacePredictionField, any>
 
 type State = typeof state
 
@@ -125,17 +128,15 @@ onMounted(() => {
   populateStateFromSavedEntry()
 })
 
-const schema = schemas.saveTip
-
-type Schema = z.infer<typeof schema>
-type ServerSchema = z.infer<typeof schemas.serverSaveTip>
+type ClientSchema = z.infer<typeof schema.client>
+type ServerSchema = z.infer<typeof schema.server>
 
 const errorMessage = ref('')
 const fetchError = ref<FetchError>()
 const isSubmitPending = ref(false)
 
 const toast = useToast()
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+async function onSubmit(event: FormSubmitEvent<ClientSchema>) {
   errorMessage.value = ''
   fetchError.value = undefined
   isSubmitPending.value = true
@@ -152,13 +153,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     group: currentUserGroup.value,
     race: currentRace.value,
   }
-  // @ts-expect-error Types are fine.
-  predictionsByRaceMap.value?.set(currentRace.value.id, event.data)
   try {
     const response = await $fetch('/api/prediction/add', {
       method: 'POST',
       body,
     })
+    // @ts-expect-error Types are fine.
+    predictionsByRaceMap.value?.set(currentRace.value.id, event.data)
     console.log(response)
     toast.add(
       $getSuccessToast({
@@ -167,6 +168,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       }),
     )
   } catch (e) {
+    toast.add(
+      $getErrorToast({
+        title: 'Couldn’t save',
+        description: 'Something went wrong.',
+      }),
+    )
     if (e instanceof FetchError) {
       fetchError.value = e
     }
@@ -197,6 +204,43 @@ const hasUnsavedChanges = computed(() => {
     return serverValue?.id === value?.id
   })
   return !isSame
+})
+
+const disabledFieldMap = computed(() => {
+  if (!currentRace.value || !currentUserGroup?.value) {
+    return new Map()
+  }
+  const { isPositionAfterCutoff } = useCutoff({
+    race: currentRace?.value,
+    group: currentUserGroup?.value,
+  })
+
+  return RACE_PREDICTION_FIELDS.reduce(
+    (acc, position) => {
+      const isDisabled = isPositionAfterCutoff(position)
+      acc.set(position, isDisabled)
+      return acc
+    },
+    new Map() as Map<RacePredictionField, boolean>,
+  )
+})
+
+const cutoffDates = computed(() => {
+  if (!currentRace.value || !currentUserGroup?.value) {
+    return
+  }
+  const { getCutoffDateForPosition } = useCutoff({
+    race: currentRace?.value,
+    group: currentUserGroup?.value,
+  })
+  return RACE_PREDICTION_FIELDS.reduce(
+    (acc, position) => {
+      const cutoffDate = getCutoffDateForPosition(position)
+      acc[position] = cutoffDate
+      return acc
+    },
+    {} as Record<RacePredictionField, Date | null>,
+  )
 })
 </script>
 
@@ -233,16 +277,32 @@ NuxtLayout(name='tipping')
               p.hidden(class='sm:block') {{ currentRace.circuitName }}
             h1.is-display-4 {{ currentRace.raceName }}
 
-        .is-container.grid(class='sm:grid-cols-3')
+        .is-container.grid(class='sm:grid-cols-3', v-if='cutoffDates')
           .flex.gap-1
             UIcon(name='carbon:edit')
             p.is-size-7.flex.flex-col
-              span.is-display-8 Tips due
-              span {{ getCutoffDateForCurrentGroup(currentRace.qualifyingDate).toLocaleString(undefined, $localeDateTimeOptions) }}
-              span
-                BadgeTimeTo(
-                  :date='getCutoffDateForCurrentGroup(currentRace.qualifyingDate)'
-                )
+              template(
+                v-if='cutoffDates.sprintP1 && isFuture(cutoffDates.sprintP1)'
+              )
+                span.is-display-8 Sprint tips due
+                .space-y-2
+                  div
+                    span {{ cutoffDates.sprintP1.toLocaleString(undefined, $localeDateTimeOptions) }}
+                    span
+                      BadgeTimeTo(:date='cutoffDates.sprintP1')
+                  template(v-if='cutoffDates.p1')
+                    UDivider
+                    div
+                      span.is-display-8 GP tips due
+                      div
+                        span {{ cutoffDates.p1.toLocaleString(undefined, $localeDateTimeOptions) }}
+                        span
+                          BadgeTimeTo(:date='cutoffDates.p1')
+              template(v-else-if='cutoffDates.p1')
+                span.is-display-8 Tips due
+                span {{ cutoffDates.p1.toLocaleString(undefined, $localeDateTimeOptions) }}
+                span
+                  BadgeTimeTo(:date='cutoffDates.p1')
 
           .hidden.gap-1(class='sm:flex')
             UIcon(:name='Icons.Qualifying')
@@ -276,35 +336,65 @@ NuxtLayout(name='tipping')
           | Next
 
       section.is-container.py-8
-        UForm.space-y-6(:schema, :state, @submit='onSubmit')
+        UForm.space-y-6(:schema='schema.client', :state, @submit='onSubmit')
+          template(v-if='isCurrentSprintRace')
+            UFormGroup(
+              label='Sprint P1',
+              description='Who will win the sprint race?',
+              name='sprintP1'
+            )
+              SelectDriver(
+                v-model='state.sprintP1',
+                :drivers,
+                :disabled='disabledFieldMap.get("sprintP1")'
+              )
           UFormGroup(
             label='Pole Position',
             description='Which driver will start at the front?',
             name='pole'
           )
-            SelectDriver(v-model='state.pole', :drivers)
+            SelectDriver(
+              v-model='state.pole',
+              :drivers,
+              :disabled='disabledFieldMap.get("pole")'
+            )
           UFormGroup(
             label='P1',
             description='Who will finish first in the GP?',
             name='p1'
           )
-            SelectDriver(v-model='state.p1', :drivers)
+            SelectDriver(
+              v-model='state.p1',
+              :drivers,
+              :disabled='disabledFieldMap.get("p1")'
+            )
           UFormGroup(
             label='P10',
             description='Which driver will just snatch some points?',
             name='p10'
           )
-            SelectDriver(v-model='state.p10', :drivers)
+            SelectDriver(
+              v-model='state.p10',
+              :drivers,
+              :disabled='disabledFieldMap.get("p10")'
+            )
           UFormGroup(label='Last place', name='last', hint='Excluding DNFs')
             template(#description)
               p Which driver is last to finish?
-            SelectDriver(v-model='state.last', :drivers)
+            SelectDriver(
+              v-model='state.last',
+              :drivers,
+              :disabled='disabledFieldMap.get("last")'
+            )
           UFormGroup(
             label='Most constructor points',
             description='Which constructor will haul the most points in the Grand Prix?',
             name='constructorWithMostPoints'
           )
-            SelectConstructor(v-model='state.constructorWithMostPoints')
+            SelectConstructor(
+              v-model='state.constructorWithMostPoints',
+              :disabled='disabledFieldMap.get("constructorWithMostPoints")'
+            )
 
           div
             UButton(
@@ -312,7 +402,7 @@ NuxtLayout(name='tipping')
               type='submit',
               :disabled='isSubmitPending || !hasUnsavedChanges',
               :loading='isSubmitPending',
-              :icon='hasUnsavedChanges ? "" : "carbon:checkmark"'
+              :icon='hasUnsavedChanges ? "" : Icons.HasTipped'
             )
               template(v-if='isSubmitPending')
                 | Saving…

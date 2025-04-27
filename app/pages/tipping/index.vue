@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { differenceInDays, isFuture, isPast, isToday } from 'date-fns'
+import { differenceInDays, isFuture, isPast } from 'date-fns'
 import { $getCachedFetchConfig } from '~/utils'
-import { $getCutoffDate } from '~~/shared/utils'
 
 definePageMeta({
   layout: false,
@@ -12,27 +11,29 @@ const {
   currentUserGroup,
   status: groupStatus,
 } = await useGroup()
-const { getRacesInTheFuture, deserialise, getIsRaceAfterCutoff } = useRace()
+const { getRacesInTheFuture, deserialise } = useRace()
 const { data: allRaces, status: raceStatus } = await useFetch('/api/races', {
   ...$getCachedFetchConfig('races'),
   transform: (data) => data.items.map(deserialise),
   lazy: true,
 })
-const nextRace = computed(
-  () =>
-    getRacesInTheFuture(
-      allRaces.value,
-      currentUserGroup.value?.cutoffInMinutes,
-    )?.[0],
+const nextRace = computed(() =>
+  !currentUserGroup.value
+    ? undefined
+    : getRacesInTheFuture(allRaces.value, currentUserGroup.value)?.[0],
 )
 
 const championshipCutoffDate = computed(() => {
-  const groupCutoff = currentUserGroup.value?.cutoffInMinutes
   const firstRace = allRaces.value?.find((race) => race.round === 1)
-  if (!firstRace) {
+  if (!firstRace || !currentUserGroup.value) {
     return
   }
-  return $getCutoffDate(firstRace?.qualifyingDate, groupCutoff)
+  const { getCutoffDateForPosition } = useCutoff({
+    race: firstRace,
+    group: currentUserGroup.value,
+  })
+
+  return getCutoffDateForPosition('p1')
 })
 
 useSeoMeta({
@@ -42,10 +43,14 @@ useSeoMeta({
 
 const ongoingRace = computed(() => {
   return allRaces.value?.find((race) => {
-    const isAfterCutoff = getIsRaceAfterCutoff(
-      race,
-      currentUserGroup.value?.cutoffInMinutes,
-    )
+    if (!currentUserGroup.value) {
+      return
+    }
+    const { getIsRaceFullyAfterCutoff } = useCutoff({
+      race: race,
+      group: currentUserGroup.value,
+    })
+    const isAfterCutoff = getIsRaceFullyAfterCutoff()
     const isBeforeEndOfRace = isFuture(new Date(race.grandPrixDate))
     return isAfterCutoff && isBeforeEndOfRace
   })
@@ -98,4 +103,5 @@ NuxtLayout(name='tipping')
             LazyCardTipChampionships(:cutoff-date='championshipCutoffDate')
           template(v-if='nextRace')
             LazyCardTipRace(:race='nextRace')
+            LazyCardTipStatus(:race='nextRace')
 </template>

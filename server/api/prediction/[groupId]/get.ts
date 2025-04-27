@@ -6,9 +6,10 @@ import {
   racesTable,
 } from '~~/server/db/schema'
 import z from 'zod'
-import { DEFAULT_CUTOFF_MINS } from '~~/shared/utils'
+import { DEFAULT_CUTOFF_MINS } from '~~/shared/utils/consts'
 import { isFuture } from 'date-fns'
 import { useDb } from '~~/server/utils/db'
+import { useCutoff } from '~/composables/useCutoff'
 
 export default defineAuthedEventHandler(async (event) => {
   assertMethod(event, 'GET')
@@ -58,8 +59,19 @@ export default defineAuthedEventHandler(async (event) => {
         statusMessage: 'No qualifying date found for race',
       })
     }
-    const cutoffDate = $getCutoffDate(race?.qualifyingDate, cutoffInMinutes)
-    if (isFuture(cutoffDate)) {
+
+    if (!group) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Group not found',
+      })
+    }
+
+    const { getIsRaceFullyAfterCutoff } = useCutoff({
+      race,
+      group,
+    })
+    if (!getIsRaceFullyAfterCutoff()) {
       throw createError({
         statusMessage: 'Cutoff is in the future.',
         statusCode: 400,

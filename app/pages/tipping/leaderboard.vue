@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ResultsLeaderbord } from '#components'
 import ConstructorOption from '~/components/ConstructorOption.vue'
 import UserAvatar from '~/components/UserAvatar.vue'
 import { Database } from '~~/types/db'
@@ -12,15 +13,7 @@ useSeoMeta({
   ogTitle: 'Results',
 })
 
-const { racesWithResults, statuses, results, leaderboard, getPositionArray } =
-  await useResults()
-const topPoints = computed(() => {
-  return getPositionArray(leaderboard.value)
-})
-
-function getPlace(points: number) {
-  return topPoints.value.indexOf(points) + 1
-}
+const { racesWithResults, statuses, results, leaderboard } = await useResults()
 
 const gpResults = computed(() => {
   if (!selectedRace.value) {
@@ -122,14 +115,42 @@ const qualifyingResults = computed(() => {
     .filter((el) => el.place === 1 || el.predictedP1By?.length)
 })
 
+const sprintResults = computed(() => {
+  if (!selectedRace.value) {
+    return []
+  }
+  const map = results.value?.get(selectedRace.value.id)?.sprint
+  if (!map) {
+    return []
+  }
+  return [...map.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([place, driver]) => {
+      const predictedP1By = predictionsByUser.value
+        ?.get(driver.id)
+        ?.get('sprintP1')
+      return {
+        place,
+        driver,
+        predictedP1By,
+        isP1Correct:
+          place === 1 &&
+          results.value?.get(selectedRace.value!.id)?.gp?.get(1)?.id ===
+            driver.id,
+      }
+    })
+    .filter((el) => el.place === 1 || el.predictedP1By?.length)
+})
+
 const predictionsByUser = computed(() => {
   return currentRacePredictions.value?.reduce((driverMap, el) => {
     const {
       driverId,
       position,
       // @ts-expect-error incorrect type
-      prediction: { user },
+      prediction: { user: rawUser },
     } = el
+    const user = rawUser as Pick<Database.User, 'id' | 'name' | 'image'>
     if (!driverId) {
       return driverMap
     }
@@ -137,11 +158,11 @@ const predictionsByUser = computed(() => {
       driverMap.set(driverId, new Map([[position, [user]]]))
       return driverMap
     }
-    const positionMap = driverMap.get(driverId)
+    const positionMap = driverMap.get(driverId)!
     const existing = positionMap.get(position)
     positionMap.set(position, [...(existing || []), user])
     return driverMap
-  }, new Map())
+  }, new Map<Database.Driver['id'], Map<(typeof PREDICTION_FIELDS)[number], Pick<Database.User, 'id' | 'name' | 'image'>[]>>())
 })
 
 const { data: constructorsMap, status: constructorsStatus } =
@@ -183,25 +204,6 @@ const { data: currentRacePredictions, status: predictionStatus } =
     ...$getCachedFetchConfig('all predictions'),
   })
 
-const leaderboardColumns = [
-  {
-    key: 'place',
-    label: 'Place',
-  },
-  {
-    key: 'user',
-    label: 'Name',
-  },
-  {
-    key: 'points',
-    label: 'Points',
-  },
-  {
-    key: 'change',
-    label: 'Delta',
-  },
-]
-
 const constructorColumns = [
   { key: 'points', label: 'Points' },
   { key: 'constructor', label: 'Constructor' },
@@ -234,61 +236,7 @@ NuxtLayout(name='tipping')
         p.text-muted Please check back later.
     template(v-else)
       .is-container
-        UCard
-          template(#header)
-            h2.is-display-6 Leaderboard
-          UTable(:columns='leaderboardColumns', :rows='leaderboard')
-            template(#place-data='{ row }')
-              template(v-if='getPlace(row.points) === 1')
-                UBadge
-                  | {{ '🥇 ' + getPlace(row.points) }}
-                  | .
-              template(v-else-if='getPlace(row.points) === 2')
-                UBadge(variant='outline')
-                  | {{ '🥈 ' + getPlace(row.points) }}
-                  | .
-              template(v-else-if='getPlace(row.points) === 3')
-                UBadge(variant='subtle')
-                  | {{ '🥉 ' + getPlace(row.points) }}
-                  | .
-              template(v-else)
-                UBadge(
-                  variant='soft',
-                  :ui='{ variant: { soft: "bg-transparent" } }'
-                ) {{ getPlace(row.points) + '.' }}
-
-            template(#change-data='{ row: { delta } }')
-              template(v-if='delta !== null')
-                template(v-if='delta === 0')
-                  UIcon.bg-gray-500(name='carbon:subtract')
-                template(v-else-if='delta > 0')
-                  .flex.items-center.gap-1.text-green-500
-                    UIcon.is-display-7(name='carbon:arrow-up')
-                    p.is-display-8 {{ delta }}
-                template(v-else-if='delta < 0')
-                  .flex.items-center.gap-1.text-red-500
-                    UIcon.is-display-7(name='carbon:arrow-down')
-                    p.is-display-8 {{ delta }}
-            template(#user-data='{ row: { user } }')
-              .flex.items-center.gap-2
-                UserAvatar(:user)
-                p {{ user.name }}
-            template(#points-data='{ row: { points, pointsDelta } }')
-              .flex.items-center.gap-2
-                UBadge(
-                  variant='soft',
-                  :ui='{ variant: { soft: "bg-transparent" } }',
-                  :label='points'
-                )
-                template(v-if='pointsDelta !== null')
-                  template(v-if='pointsDelta > 0')
-                    UBadge(color='green', variant='soft') +{{ pointsDelta }}
-                  template(v-else)
-                    UBadge(
-                      color='orange',
-                      variant='soft',
-                      :ui='{ variant: { soft: "bg-transparent" } }'
-                    ) {{ pointsDelta }}
+        ResultsLeaderbord
       section.space-y-12
         .is-bg-pattern.py-4
           .is-container.flex.items-center.justify-between
@@ -403,27 +351,22 @@ NuxtLayout(name='tipping')
                 | Qualifying
               UTable(:rows='qualifyingResults', :columns='gpColumns')
                 template(#predictions-data='{ row }')
-                  template(v-if='row.predictedP1By?.length')
-                    .flex.gap-1
-                      template(
-                        v-for='item in row.predictedP1By',
-                        :key='item.name'
-                      )
-                        UTooltip(:text='item.name')
-                          UChip(
-                            inset,
-                            :color='row.isP1Correct ? "green" : "gray"',
-                            position='bottom-right',
-                            size='md'
-                          )
-                            template(#content)
-                              UIcon(
-                                :name='row.isP1Correct ? "carbon:checkmark" : "carbon:close"'
-                              )
-                            UAvatar(
-                              :alt='item.name',
-                              :src='$getUserImgSrc(item)'
-                            )
+                  ResultsUserRow(
+                    :users='row.predictedP1By',
+                    :is-correct='row.isP1Correct'
+                  )
+                template(#driver-data='{ row }')
+                  DriverOption(:option='row.driver', short)
+            div(v-if='sprintResults?.length')
+              h3.is-display-6.inline-flex.items-center.gap-1
+                UIcon(:name='Icons.Sprint')
+                | Sprint Race
+              UTable(:rows='sprintResults', :columns='gpColumns')
+                template(#predictions-data='{ row }')
+                  ResultsUserRow(
+                    :users='row.predictedP1By',
+                    :is-correct='row.isP1Correct'
+                  )
                 template(#driver-data='{ row }')
                   DriverOption(:option='row.driver', short)
             .space-y-4
@@ -434,26 +377,10 @@ NuxtLayout(name='tipping')
               )
               UTable(:rows='constructorResults', :columns='constructorColumns')
                 template(#users-data='{ row }')
-                  template(v-if='row.users?.length')
-                    .flex.gap-1
-                      template(v-for='item in row.users', :key='item.name')
-                        UTooltip(:text='item.name')
-                          UChip(
-                            inset,
-                            :color='row.isCorrect ? "green" : "gray"',
-                            position='bottom-right',
-                            size='md'
-                          )
-                            template(#content)
-                              UIcon(
-                                :name='row.isCorrect ? "carbon:checkmark" : "carbon:close"'
-                              )
-                            UAvatar(
-                              :alt='item.name',
-                              :src='$getUserImgSrc(item)'
-                            )
-                  template(v-else)
-                    div
+                  ResultsUserRow(
+                    :users='row.users',
+                    :is-correct='row.isCorrect'
+                  )
                 template(#constructor-data='{ row }')
                   template(
                     v-if='["idle", "pending"].includes(constructorsStatus)'

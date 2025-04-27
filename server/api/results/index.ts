@@ -18,8 +18,10 @@ export default defineAuthedEventHandler(async (event) => {
         },
       },
       constructor: {
-        id: true,
-        name: true,
+        columns: {
+          id: true,
+          name: true,
+        },
       },
     },
     ...(raceId

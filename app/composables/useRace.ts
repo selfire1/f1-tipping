@@ -1,6 +1,5 @@
 import { useNow } from '@vueuse/core'
 import type { SerializeObject } from 'nitropack'
-import { isAfter } from 'date-fns'
 import type { Database } from '~~/types/db'
 
 export const useRace = () => {
@@ -22,37 +21,38 @@ export const useRace = () => {
   //   lazy: true,
   // });
 
-  function getIsRaceAfterCutoff(
-    race: Pick<Database.Race, 'qualifyingDate'>,
-    cutoffInMinutes?: MaybeRef<number>,
-  ): boolean {
-    const now = useNow()
-    const lastChanceToEnterTips = $getCutoffDate(
-      race.qualifyingDate,
-      unref(cutoffInMinutes),
-    )
-    return isAfter(now.value, lastChanceToEnterTips)
-  }
-
   return {
     deserialise(race: SerializeObject<Database.Race>): Database.Race {
       return {
         ...race,
         grandPrixDate: new Date(race.grandPrixDate),
+        sprintQualifyingDate: !race.sprintQualifyingDate
+          ? null
+          : new Date(race.sprintQualifyingDate),
+        sprintDate: !race.sprintDate ? null : new Date(race.sprintDate),
         qualifyingDate: new Date(race.qualifyingDate),
         created: new Date(race.created),
         lastUpdated: new Date(race.lastUpdated),
       }
     },
-    getIsRaceAfterCutoff,
+    getIsSprintRace: (race: Database.Race) => !!race.sprintDate,
     getRacesInTheFuture(
       maybeRefRaces?: MaybeRef<Database.Race[]>,
-      cutoffInMinutes?: MaybeRef<number>,
+      group?: Pick<Database.Group, 'cutoffInMinutes'>,
     ): Database.Race[] {
       const races = unref(maybeRefRaces)
+      if (!group) {
+        return []
+      }
       return (
         races
-          ?.filter((race) => !getIsRaceAfterCutoff(race, cutoffInMinutes))
+          ?.filter((race) => {
+            const { getIsRaceFullyAfterCutoff } = useCutoff({
+              race,
+              group,
+            })
+            return !getIsRaceFullyAfterCutoff()
+          })
           ?.map((race) => ({
             ...race,
             created: new Date(race.created),

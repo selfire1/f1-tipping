@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isFuture } from 'date-fns'
 import type { Database } from '~~/types/db'
 
 const props = defineProps<{
@@ -7,14 +8,19 @@ const props = defineProps<{
 
 const { currentUserGroup } = await useGroup()
 
-const nextRaceCutOffDate = computed(() =>
-  props?.race?.qualifyingDate
-    ? $getCutoffDate(
-        props.race.qualifyingDate,
-        currentUserGroup.value?.cutoffInMinutes,
-      )
-    : null,
-)
+const cutoffDates = computed(() => {
+  if (!currentUserGroup.value) {
+    return
+  }
+  const { getCutoffDateForPosition } = useCutoff({
+    race: props.race,
+    group: currentUserGroup.value,
+  })
+  return {
+    sprint: getCutoffDateForPosition('sprintP1'),
+    gp: getCutoffDateForPosition('p1'),
+  }
+})
 
 const { user } = useAuth()
 
@@ -67,29 +73,33 @@ UCard
             span {{ race.locality + ', ' }}
             span {{ race.country }}
         p.is-display-5 {{ race.raceName }}
-    .is-size-7(v-if='nextRaceCutOffDate')
-      p.is-display-7.flex.items-center.gap-2
-        | Tipping closes
-        BadgeTimeTo(:date='nextRaceCutOffDate')
-      .flex
-        .pl-2
-          p {{ nextRaceCutOffDate.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
-          p {{ nextRaceCutOffDate.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
-    UDivider
-    template(v-if='status === "idle" || status === "pending"')
-      USkeleton.h-16.w-full
-    template(v-else)
-      .is-size-7.flex.flex-wrap.gap-6
-        template(v-if='tippedStatus?.tipped?.length')
-          .space-y-2
-            p Already tipped
-            UAvatarGroup(:max='6')
-              template(v-for='user in tippedStatus.tipped', :key='user.id')
-                UserAvatar(:user='user')
-        template(v-if='tippedStatus?.notTipped?.length')
-          .space-y-2
-            p Yet to tip
-            UAvatarGroup(:max='6')
-              template(v-for='user in tippedStatus.notTipped', :key='user.id')
-                UserAvatar(:user='user')
+    .space-y-8
+      .space-y-4
+        template(v-if='cutoffDates?.sprint')
+          div
+            .is-size-7
+              UIcon(:name='Icons.Sprint')
+              p.is-display-7.flex.items-center.gap-2
+                template(v-if='isFuture(cutoffDates.sprint)')
+                  | Sprint Tipping closes
+                  BadgeTimeTo(:date='cutoffDates.sprint')
+                template(v-else)
+                  | Sprint Tipping closed
+              template(v-if='isFuture(cutoffDates.sprint)')
+                .flex
+                  .pl-2
+                    p {{ cutoffDates.sprint.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
+                    p {{ cutoffDates.sprint.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
+          UDivider
+        template(v-if='cutoffDates')
+          div
+            .is-size-7(v-if='cutoffDates.gp')
+              UIcon(:name='Icons.GrandPrix')
+              p.is-display-7.flex.items-center.gap-2
+                | Tipping closes
+                BadgeTimeTo(:date='cutoffDates.gp')
+              .flex
+                .pl-2
+                  p {{ cutoffDates.gp.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' }) }}
+                  p {{ cutoffDates.gp.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }) }}
 </template>
