@@ -3,6 +3,7 @@ import { racesTable } from '~~/server/db/schema'
 import { fetchJolpica } from '~~/server/utils'
 import { useDb } from '~~/server/utils/db'
 import { defineBasicAuthedEventHandler } from '~~/server/utils/handlers'
+import { Database } from '~~/types/db'
 import { RaceResponse } from '~~/types/ergast'
 
 export default defineBasicAuthedEventHandler(async (event) => {
@@ -32,21 +33,20 @@ export default defineBasicAuthedEventHandler(async (event) => {
         const gpDate = getDate(race)
         const qualifyingDate = getDate(race.Qualifying)
 
-        const cutoffDateRaw = sprintQualifyingDate || qualifyingDate
-
-        return {
+        const item: Database.InsertRace = {
           id: race.Circuit.circuitId,
           country: race.Circuit.Location.country,
           round: +race.round,
           circuitName: race.Circuit.circuitName,
           raceName: race.raceName,
-          sprintDate,
           grandPrixDate: gpDate,
           qualifyingDate,
-          cutoffDateRaw,
+          sprintDate,
+          sprintQualifyingDate,
           locality: race.Circuit.Location.locality,
           lastUpdated: new Date(),
         }
+        return item
       }),
     )
     .onConflictDoUpdate({
@@ -56,10 +56,10 @@ export default defineBasicAuthedEventHandler(async (event) => {
         round: sql`excluded.round`,
         circuitName: sql`excluded.circuit_name`,
         raceName: sql`excluded.race_name`,
-        sprintDate: sql`excluded.sprint_date`,
         grandPrixDate: sql`excluded.grand_prix_date`,
         qualifyingDate: sql`excluded.qualifying_date`,
-        cutoffDateRaw: sql`excluded.cutoff_date_raw`,
+        sprintDate: sql`excluded.sprint_date`,
+        sprintQualifyingDate: sql`excluded.sprint_qualifying_date`,
         locality: sql`excluded.locality`,
         lastUpdated: sql`excluded.last_updated`,
       },

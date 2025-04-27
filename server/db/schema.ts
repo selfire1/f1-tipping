@@ -68,17 +68,10 @@ export const racesTable = sqliteTable('races', {
   round: integer('round').notNull(),
   circuitName: text('circuit_name').notNull(),
   raceName: text('race_name').notNull(),
-
   grandPrixDate: integer({ mode: 'timestamp' }).notNull(),
   qualifyingDate: integer({ mode: 'timestamp' }).notNull(),
   sprintDate: integer({ mode: 'timestamp' }),
-  /**
-   * The last moment when predicting is possible, not taking into account the group preference.
-   *
-   * On sprint weekends, this is before sprint qualifying. Otherwise this is before qualifying.
-   */
-  cutoffDateRaw: integer({ mode: 'timestamp' }).notNull(),
-
+  sprintQualifyingDate: integer({ mode: 'timestamp' }),
   locality: text('locality').notNull(),
   lastUpdated: integer({ mode: 'timestamp' }).notNull(),
   created: integer({ mode: 'timestamp' })
@@ -252,6 +245,7 @@ export const resultsRelations = relations(resultsTable, ({ many, one }) => ({
 
 export type Group = typeof groupsTable.$inferSelect
 export type Race = typeof racesTable.$inferSelect
+export type InsertRace = typeof racesTable.$inferInsert
 
 type DriverFull = typeof driversTable.$inferSelect
 export type Driver = Omit<DriverFull, 'created' | 'lastUpdated'>

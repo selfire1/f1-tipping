@@ -1,3 +1,6 @@
+import type { RacePredictionField } from '~~/types'
+import type { Database } from '~~/types/db'
+
 export const DRIVER_RACE_PREDICTION_FIELDS = [
   'pole',
   'p1',
@@ -26,3 +29,15 @@ export const PREDICTION_FIELDS = [
 ] as const
 
 export const DEFAULT_CUTOFF_MINS = 180
+
+export const CUTOFF_REFERENCE_KEY: Record<
+  RacePredictionField,
+  keyof Database.Race
+> = {
+  pole: 'qualifyingDate',
+  p1: 'qualifyingDate',
+  p10: 'qualifyingDate',
+  last: 'qualifyingDate',
+  sprintP1: 'sprintQualifyingDate',
+  constructorWithMostPoints: 'qualifyingDate',
+}
