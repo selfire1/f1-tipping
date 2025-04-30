@@ -1,9 +1,87 @@
-@import url('./typography.css');
-@import url('./colours.css');
+@import url('./typography.css') layer(base);
+@import './typography.utilities.css';
+@import url('./colours.css') layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-black-50: #f3f3f4;
+  --color-black-100: #c5c7cc;
+  --color-black-200: #989ba3;
+  --color-black-300: #6a6f7b;
+  --color-black-400: #3d4353;
+  --color-black-500: #0f172a;
+  --color-black-600: #0d1323;
+  --color-black-700: #0a101d;
+  --color-black-800: #080c16;
+  --color-black-900: #05080f;
+  --color-black-950: #030508;
+
+  --color-muted: #6a6f7b;
+  --color-faint: #c5c7cc;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility max-w-prose {
+  max-width: 65ch;
+}
+
+@utility is-container {
+  --padding: 1rem;
+  --max-width: 1024px;
+
+  width: min(var(--max-width), 100% - (var(--padding) * 2));
+  @apply mx-auto;
+  /* Sets the widths within `/tipping` */
+  .is-layout-tipping & {
+    @apply md:w-full md:px-8;
+  }
+}
+
+@utility is-grid-card-fit {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(var(--card-width, 320px), 100%), 1fr)
+  );
+}
+
+@utility is-page-height {
+  @apply min-h-screen py-4 pb-12;
+  /* sets the heights within `/tipping` */
+  .is-layout-tipping & {
+    @apply py-4 md:py-6 md:pb-10;
+    @apply h-full min-h-screen;
+  }
+}
+
+@utility is-layout-tipping {
+  /* Sets the widths within `/tipping` */
+  & .is-container {
+    @apply md:w-full md:px-8;
+  }
+  /* sets the heights within `/tipping` */
+  & .is-page-height {
+    @apply py-4 md:py-6 md:pb-10;
+    @apply h-full min-h-screen;
+  }
+}
 
 @layer base {
   html {
@@ -12,40 +90,6 @@
   b,
   strong {
     @apply font-semibold;
-  }
-}
-
-@layer utilities {
-  .max-w-prose {
-    max-width: 65ch;
-  }
-}
-
-@layer components {
-  .is-container {
-    --padding: 1rem;
-    --max-width: 1024px;
-
-    width: min(var(--max-width), 100% - (var(--padding) * 2));
-    @apply mx-auto;
-  }
-  .is-grid-card-fit {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(min(var(--card-width, 320px), 100%), 1fr)
-    );
-  }
-  .is-page-height {
-    @apply min-h-screen py-4 pb-12;
-  }
-  /* Sets the widths within `/tipping` */
-  .is-layout-tipping .is-container {
-    @apply md:w-full md:px-8;
-  }
-  /* sets the heights within `/tipping` */
-  .is-layout-tipping .is-page-height {
-    @apply py-4 md:py-6 md:pb-10;
-    @apply h-full min-h-screen;
   }
 }
 
