@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { HorizontalNavigationLink } from '#ui/types'
+import { UNavigationMenu } from '#components'
+import type { NavigationMenuProps } from '@nuxt/ui'
 
 const { signOut } = useAuth()
 
-const links: HorizontalNavigationLink[][] = [
+const links: NavigationMenuProps['items'] = [
   [
     {
       label: 'Dashboard',
@@ -46,7 +47,7 @@ const links: HorizontalNavigationLink[][] = [
     {
       label: 'Sign out',
       icon: 'carbon:exit',
-      async click() {
+      async onClick() {
         await signOut()
       },
     },
@@ -62,8 +63,8 @@ const { allUserGroups, currentUserGroup } = await useGroup()
 .is-layout-tipping
   div(class='md:flex md:flex-row')
     // desktop header
-    header.hidden.space-y-4.border-r(
-      class='w-[15%] min-w-[10rem] bg-gray-50/50 md:block dark:border-gray-700 dark:bg-gray-900'
+    header.bg-muted.border-muted.hidden.space-y-4.border-r(
+      class='w-[15%] min-w-[10rem] md:block'
     )
       .space-y-1.p-4
         NuxtLink.text-muted.flex.items-center.gap-1(to='/tipping')
@@ -78,12 +79,12 @@ const { allUserGroups, currentUserGroup } = await useGroup()
         template(v-else-if='allUserGroups.length === 1 && currentUserGroup')
           p.is-size-7.italic {{ currentUserGroup.name }}
         template(v-else)
-          USelectMenu(
-            :options='allUserGroups',
+          USelectMenu.w-full(
+            :items='allUserGroups',
             v-model='currentUserGroup',
-            option-attribute='name'
+            label-key='name'
           )
-      UVerticalNavigation.px-1(:links)
+      UNavigationMenu.px-1(:items='links', orientation='vertical')
     // mobile header
     header.sticky.top-0.z-10.bg-white(class='md:hidden dark:bg-gray-800')
       .is-container.is-header(class='md:hidden')
@@ -129,18 +130,19 @@ const { allUserGroups, currentUserGroup } = await useGroup()
             slot(name='page-title')
     USeparator
     .is-container.py-4
-      UVerticalNavigation(:links)
+      UNavigationMenu(:items='links', orientation='vertical')
 </template>
 
 <style>
 @reference "../assets/css/main.css";
 .is-header {
   @apply space-y-1 py-2;
-  &-wrapper {
-    @apply flex items-center justify-between;
-    &-link {
-      @apply flex items-center gap-2;
-    }
-  }
+}
+.is-header-wrapper {
+  @apply flex items-center justify-between;
+}
+
+.is-header-wrapper-link {
+  @apply flex items-center gap-2;
 }
 </style>
