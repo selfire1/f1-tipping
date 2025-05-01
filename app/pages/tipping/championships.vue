@@ -181,7 +181,7 @@ NuxtLayout(name='tipping')
       description='Guess the Constructors’ and Drivers’ Championships to secure extra points.'
     )
     template(v-if='isCutoffInFuture && cutoffDate')
-      .inline-block.rounded.border.border-faint.p-4
+      .border-faint.inline-block.rounded.border.p-4
         p.is-display-7 Vote by
           BadgeTimeTo.ml-2(:date='cutoffDate')
         p {{ cutoffDate.toLocaleString(undefined, $localeDateTimeOptions) }}
@@ -190,7 +190,7 @@ NuxtLayout(name='tipping')
       :state,
       @submit='onSubmit'
     )
-      UFormGroup(
+      UFormField(
         label='Constructors’ Championship',
         name='championshipConstructor',
         description='Which team will score the most points to take home the Championship this season?',
@@ -200,7 +200,7 @@ NuxtLayout(name='tipping')
           v-model='state.championshipConstructor',
           :disabled='!isCutoffInFuture'
         )
-      UFormGroup(
+      UFormField(
         label='Drivers’ Championship',
         name='championshipDriver',
         description='Which driver will claim champion of the world this year?',

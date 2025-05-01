@@ -338,7 +338,7 @@ NuxtLayout(name='tipping')
       section.is-container.py-8
         UForm.space-y-6(:schema='schema.client', :state, @submit='onSubmit')
           template(v-if='isCurrentSprintRace')
-            UFormGroup(
+            UFormField(
               label='Sprint P1',
               description='Who will win the sprint race?',
               name='sprintP1'
@@ -348,7 +348,7 @@ NuxtLayout(name='tipping')
                 :drivers,
                 :disabled='disabledFieldMap.get("sprintP1")'
               )
-          UFormGroup(
+          UFormField(
             label='Pole Position',
             description='Which driver will start at the front?',
             name='pole'
@@ -358,7 +358,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("pole")'
             )
-          UFormGroup(
+          UFormField(
             label='P1',
             description='Who will finish first in the GP?',
             name='p1'
@@ -368,7 +368,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("p1")'
             )
-          UFormGroup(
+          UFormField(
             label='P10',
             description='Which driver will just snatch some points?',
             name='p10'
@@ -378,7 +378,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("p10")'
             )
-          UFormGroup(label='Last place', name='last', hint='Excluding DNFs')
+          UFormField(label='Last place', name='last', hint='Excluding DNFs')
             template(#description)
               p Which driver is last to finish?
             SelectDriver(
@@ -386,7 +386,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("last")'
             )
-          UFormGroup(
+          UFormField(
             label='Most constructor points',
             description='Which constructor will haul the most points in the Grand Prix?',
             name='constructorWithMostPoints'

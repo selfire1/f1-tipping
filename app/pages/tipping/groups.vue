@@ -128,7 +128,7 @@ NuxtLayout(name='tipping')
             @submit='createGroup.create',
             :state='createGroup.state'
           )
-            UFormGroup(label='Group name', name='name')
+            UFormField(label='Group name', name='name')
               UInput(v-model='createGroup.state.name')
             UButton(
               type='submit',
