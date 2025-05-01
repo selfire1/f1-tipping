@@ -268,11 +268,11 @@ NuxtLayout(name='tipping')
           )
             .aspect-landscape.relative.size-24
               .absolute.inset-0.flex.items-center.justify-center
-                AppImg.rounded.border.bg-faint(
+                AppImg.bg-faint.rounded.border(
                   :src='COUNTRY_FLAGS[currentRace.country]'
                 )
           .w-full
-            .is-size-8.flex.items-center.justify-between.uppercase.text-muted
+            .is-size-8.text-muted.flex.items-center.justify-between.uppercase
               p {{ 'Round ' + currentRace.round }}
               p.hidden(class='sm:block') {{ currentRace.circuitName }}
             h1.is-display-4 {{ currentRace.raceName }}
@@ -291,7 +291,7 @@ NuxtLayout(name='tipping')
                     span.ml-2
                       BadgeTimeTo(:date='cutoffDates.sprintP1')
                   template(v-if='cutoffDates.p1')
-                    UDivider
+                    USeparator
                     div
                       span.is-display-8 GP tips due
                       div
@@ -325,7 +325,7 @@ NuxtLayout(name='tipping')
                   :date='currentRace.grandPrixDate'
                 )
 
-      section.is-container.flex.items-center.justify-between.pb-2.pt-4
+      section.is-container.flex.items-center.justify-between.pt-4.pb-2
         UButton(@click='goPrevious', :disabled='index === 0', variant='soft')
           | Previous
         UButton(
@@ -410,7 +410,7 @@ NuxtLayout(name='tipping')
                 | Save
               template(v-else)
                 | Saved
-          p.is-size-8.text-center.text-muted 1 point is awarded per correct answer.
+          p.is-size-8.text-muted.text-center 1 point is awarded per correct answer.
           div(v-if='errorMessage')
             SystemError(
               :heading='fetchError ? undefined : errorMessage',

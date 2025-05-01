@@ -5,7 +5,7 @@ div
   main
     slot
   footer
-    UDivider
+    USeparator
     .is-container.py-4
       .is-size-8.text-muted.flex
         p

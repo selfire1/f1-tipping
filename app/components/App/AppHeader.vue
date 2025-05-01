@@ -15,5 +15,5 @@ const { isSignedIn, signOut } = useAuth()
     span.is-size-8.text-muted.italic Couchstructors championship
   template(v-if='isSignedIn')
     UButton(@click='signOut', label='Sign out', variant='ghost', size='sm')
-UDivider
+USeparator
 </template>

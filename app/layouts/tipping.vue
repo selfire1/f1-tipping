@@ -104,14 +104,14 @@ const { allUserGroups, currentUserGroup } = await useGroup()
             title='Dashboard',
             variant='ghost'
           )
-      UDivider
+      USeparator
 
     main.w-full
       div(class='md:flex md:min-h-screen md:w-full md:flex-col md:overflow-hidden md:p-0')
         .is-container(class='md:px-8 md:py-4')
           h1.is-display-6.hidden(class='md:block')
             slot(name='page-title')
-        UDivider.hidden(class='md:block')
+        USeparator.hidden(class='md:block')
         div(class='md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-y-auto')
           slot
 
@@ -127,7 +127,7 @@ const { allUserGroups, currentUserGroup } = await useGroup()
           )
           p.font-bold
             slot(name='page-title')
-    UDivider
+    USeparator
     .is-container.py-4
       UVerticalNavigation(:links)
 </template>
