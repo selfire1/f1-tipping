@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import TextHero from '~/components/TextHero.vue'
-
 const { signIn } = useAuth()
 const toast = useToast()
 const { query } = useRoute()

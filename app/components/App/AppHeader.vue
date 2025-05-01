@@ -12,7 +12,7 @@ const { isSignedIn, signOut } = useAuth()
         class='group-hover:bg-primary'
       )
       span.is-size-7.text-primary.font-medium GridTip
-    span.is-size-8.italic.text-muted Couchstructors championship
+    span.is-size-8.text-muted.italic Couchstructors championship
   template(v-if='isSignedIn')
     UButton(@click='signOut', label='Sign out', variant='ghost', size='sm')
 UDivider

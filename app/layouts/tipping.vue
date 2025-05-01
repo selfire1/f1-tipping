@@ -66,7 +66,7 @@ const { allUserGroups, currentUserGroup } = await useGroup()
       class='w-[15%] min-w-[10rem] bg-gray-50/50 md:block dark:border-gray-700 dark:bg-gray-900'
     )
       .space-y-1.p-4
-        NuxtLink.flex.items-center.gap-1.text-muted(to='/tipping')
+        NuxtLink.text-muted.flex.items-center.gap-1(to='/tipping')
           UIcon.transition-colors(
             name='carbon:trophy-filled',
             size='xs',
@@ -133,6 +133,7 @@ const { allUserGroups, currentUserGroup } = await useGroup()
 </template>
 
 <style>
+@reference "../assets/css/main.css";
 .is-header {
   @apply space-y-1 py-2;
   &-wrapper {
