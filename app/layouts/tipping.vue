@@ -116,21 +116,22 @@ const { allUserGroups, currentUserGroup } = await useGroup()
         div(class='md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-y-auto')
           slot
 
-  USlideover(v-model='isMobileNavPresented', side='left')
-    .is-header
-      .is-header-wrapper.is-container
-        .is-header-wrapper-link
-          UButton(
-            icon='carbon:close',
-            aria-label='Open mobile navigation',
-            variant='ghost',
-            @click='isMobileNavPresented = false'
-          )
-          p.font-bold
-            slot(name='page-title')
-    USeparator
-    .is-container.py-4
-      UNavigationMenu(:items='links', orientation='vertical')
+  USlideover(v-model:open='isMobileNavPresented', side='left')
+    template(#body)
+      .is-header
+        .is-header-wrapper.is-container
+          .is-header-wrapper-link
+            UButton(
+              icon='carbon:close',
+              aria-label='Open mobile navigation',
+              variant='ghost',
+              @click='isMobileNavPresented = false'
+            )
+            p.font-bold
+              slot(name='page-title')
+      USeparator
+      .is-container.py-4
+        UNavigationMenu(:items='links', orientation='vertical')
 </template>
 
 <style>
