@@ -65,11 +65,14 @@ UCard
     )
       template(#body='{ item }')
         template(v-for='prediction in item.predictions', :key='prediction.id')
-          .grid.grid-cols-2.items-center.gap-2.p-1(
-            :class='prediction.userName !== user?.name ? "" : "border border-accented"'
+          .relative.isolate.grid.grid-cols-2.items-center.gap-2.p-1(
+            :class='prediction.userName !== user?.name ? "" : "border-y border-primary/40"'
           )
-            p.is-display-7.truncate {{ prediction.userName }}
-            .is-size-7
+            .absolute.inset-0.opacity-10(
+              :style='{ "background-color": $getConstructorCssVariable(prediction.value.constructorId || prediction.value.id) }'
+            )
+            p.is-display-7.relative.z-1.truncate {{ prediction.userName }}
+            .is-size-7.relative.z-1
               template(v-if='"familyName" in prediction.value')
                 DriverOption(:option='prediction.value', short)
               template(v-else)
