@@ -14,7 +14,7 @@ template(v-if='users?.length')
       UTooltip(:text='item.name')
         UChip(
           inset,
-          :color='isCorrect ? "green" : "gray"',
+          :color='isCorrect ? "success" : "neutral"',
           position='bottom-right',
           size='md'
         )

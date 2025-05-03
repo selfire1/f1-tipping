@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ResultsLeaderbord } from '#components'
-import ConstructorOption from '~/components/ConstructorOption.vue'
-import UserAvatar from '~/components/UserAvatar.vue'
 import { Database } from '~~/types/db'
+import type { TableColumn } from '@nuxt/ui'
 
 definePageMeta({
   layout: false,
@@ -13,7 +11,7 @@ useSeoMeta({
   ogTitle: 'Results',
 })
 
-const { racesWithResults, statuses, results, leaderboard } = await useResults()
+const { racesWithResults, results } = await useResults()
 
 const gpResults = computed(() => {
   if (!selectedRace.value) {
@@ -205,16 +203,27 @@ const { data: currentRacePredictions, status: predictionStatus } =
   })
 
 const constructorColumns = [
-  { key: 'points', label: 'Points' },
-  { key: 'constructor', label: 'Constructor' },
-  { key: 'users', label: 'Predictions' },
-]
+  {
+    id: 'points',
+    header: 'Points',
+    accessorKey: 'points',
+  },
+  { id: 'constructor', header: 'Constructor' },
+  { id: 'users', header: 'Predictions' },
+] satisfies TableColumn<
+  NonNullable<(typeof constructorResults)['value']>[number]
+>[]
 
 const gpColumns = [
-  { key: 'place', label: 'Place' },
-  { key: 'driver', label: 'Driver' },
-  { key: 'predictions', label: 'Predictions' },
-]
+  {
+    id: 'place',
+    header: 'Place',
+    accessorKey: 'place',
+    cell: ({ row }) => `${row.original.place}.`,
+  },
+  { id: 'driver', header: 'Driver' },
+  { id: 'predictions', header: 'Predictions' },
+] satisfies TableColumn<NonNullable<(typeof gpResults)['value']>[number]>[]
 </script>
 
 <template lang="pug">
@@ -222,15 +231,7 @@ NuxtLayout(name='tipping')
   template(#page-title)
     | Results
   .is-page-height.space-y-12
-    template(
-      v-if='statuses.some((status) => ["pending", "idle"].includes(status.value))'
-    )
-      .is-container.space-y-12
-        USkeleton.h-60.w-full
-        .space-y-4
-          template(v-for='i in 6', :key='i')
-            USkeleton.h-12.w-full
-    template(v-else-if='!results')
+    template(v-if='!results')
       .is-container.py-4.text-center
         h2.is-display-6 No results available
         p.text-muted Please check back later.
@@ -266,132 +267,134 @@ NuxtLayout(name='tipping')
               h3.is-display-6.inline-flex.items-center.gap-1
                 UIcon(:name='Icons.GrandPrix')
                 | Grand Prix
-              UTable(:rows='gpResults', :columns='gpColumns')
-                template(#predictions-data='{ row }')
+              UTable(:data='gpResults', :columns='gpColumns')
+                template(#predictions-cell='{ row }')
                   .grid.grid-cols-3
                     div
-                      template(v-if='row.predictedP1By?.length')
+                      template(v-if='row.original.predictedP1By?.length')
                         p.is-display-7 P1
                         .flex.gap-1
                           template(
-                            v-for='item in row.predictedP1By',
+                            v-for='item in row.original.predictedP1By',
                             :key='item.name'
                           )
                             UTooltip(:text='item.name')
                               UChip(
                                 inset,
-                                :color='row.isP1Correct ? "green" : "gray"',
+                                :color='row.original.isP1Correct ? "success" : "neutral"',
                                 position='bottom-right',
                                 size='md'
                               )
                                 template(#content)
                                   UIcon(
-                                    :name='row.isP1Correct ? "carbon:checkmark" : "carbon:close"'
+                                    :name='row.original.isP1Correct ? "carbon:checkmark" : "carbon:close"'
                                   )
                                 UAvatar(
                                   :alt='item.name',
                                   :src='$getUserImgSrc(item)'
                                 )
                     div
-                      template(v-if='row.predictedP10By?.length')
+                      template(v-if='row.original.predictedP10By?.length')
                         p.is-display-7 P10
                         .flex.gap-1
                           template(
-                            v-for='item in row.predictedP10By',
+                            v-for='item in row.original.predictedP10By',
                             :key='item.name'
                           )
                             UTooltip(:text='item.name')
                               UChip(
                                 inset,
-                                :color='row.isP10Correct ? "green" : "gray"',
+                                :color='row.original.isP10Correct ? "success" : "neutral"',
                                 position='bottom-right',
                                 size='md'
                               )
                                 template(#content)
                                   UIcon(
-                                    :name='row.isP10Correct ? "carbon:checkmark" : "carbon:close"'
+                                    :name='row.original.isP10Correct ? "carbon:checkmark" : "carbon:close"'
                                   )
                                 UAvatar(
                                   :alt='item.name',
                                   :src='$getUserImgSrc(item)'
                                 )
                     div
-                      template(v-if='row.predictedLast?.length')
+                      template(v-if='row.original.predictedLast?.length')
                         p.is-display-7 Last
                         .flex.gap-1
                           template(
-                            v-for='item in row.predictedLast',
+                            v-for='item in row.original.predictedLast',
                             :key='item.name'
                           )
                             UTooltip(:text='item.name')
                               UChip(
                                 inset,
-                                :color='row.isLastCorrect ? "green" : "gray"',
+                                :color='row.original.isLastCorrect ? "success" : "neutral"',
                                 position='bottom-right',
                                 size='md'
                               )
                                 template(#content)
                                   UIcon(
-                                    :name='row.isLastCorrect ? "carbon:checkmark" : "carbon:close"'
+                                    :name='row.original.isLastCorrect ? "carbon:checkmark" : "carbon:close"'
                                   )
                                 UAvatar(
                                   :alt='item.name',
                                   :src='$getUserImgSrc(item)'
                                 )
-                template(#driver-data='{ row }')
+                template(#driver-cell='{ row }')
                   DriverOption(
-                    :option='row.driver',
+                    :option='row.original.driver',
                     short,
-                    :class='{ "opacity-50": !row.didAnyonePredict }'
+                    :class='{ "opacity-50": !row.original.didAnyonePredict }'
                   )
 
             div
               h3.is-display-6.inline-flex.items-center.gap-1
                 UIcon(:name='Icons.Qualifying')
                 | Qualifying
-              UTable(:rows='qualifyingResults', :columns='gpColumns')
-                template(#predictions-data='{ row }')
+              UTable(:data='qualifyingResults', :columns='gpColumns')
+                template(#predictions-cell='{ row }')
                   ResultsUserRow(
-                    :users='row.predictedP1By',
-                    :is-correct='row.isP1Correct'
+                    :users='row.original.predictedP1By',
+                    :is-correct='row.original.isP1Correct'
                   )
-                template(#driver-data='{ row }')
-                  DriverOption(:option='row.driver', short)
+                template(#driver-cell='{ row }')
+                  DriverOption(:option='row.original.driver', short)
             div(v-if='sprintResults?.length')
               h3.is-display-6.inline-flex.items-center.gap-1
                 UIcon(:name='Icons.Sprint')
                 | Sprint Race
-              UTable(:rows='sprintResults', :columns='gpColumns')
-                template(#predictions-data='{ row }')
+              UTable(:data='sprintResults', :columns='gpColumns')
+                template(#predictions-cell='{ row }')
                   ResultsUserRow(
-                    :users='row.predictedP1By',
-                    :is-correct='row.isP1Correct'
+                    :users='row.original.predictedP1By',
+                    :is-correct='row.original.isP1Correct'
                   )
-                template(#driver-data='{ row }')
-                  DriverOption(:option='row.driver', short)
+                template(#driver-cell='{ row }')
+                  DriverOption(:option='row.original.driver', short)
             .space-y-4
               TextHero(
                 :level='3',
                 heading='Constructors',
                 description='With most points'
               )
-              UTable(:rows='constructorResults', :columns='constructorColumns')
-                template(#users-data='{ row }')
+              UTable(:data='constructorResults', :columns='constructorColumns')
+                template(#users-cell='{ row }')
                   ResultsUserRow(
-                    :users='row.users',
-                    :is-correct='row.isCorrect'
+                    :users='row.original.users',
+                    :is-correct='row.original.isCorrect'
                   )
-                template(#constructor-data='{ row }')
+                template(#constructor-cell='{ row }')
                   template(
                     v-if='["idle", "pending"].includes(constructorsStatus)'
                   )
                     USkeleton.h-8.w-full
-                  template(v-else-if='constructorsMap?.has(row.constructorId)')
+                  template(
+                    v-else-if='constructorsMap?.has(row.original.constructorId)'
+                  )
                     ConstructorOption(
-                      :option='constructorsMap?.get(row.constructorId)'
+                      :option='constructorsMap?.get(row.original.constructorId)'
                     )
                   template(v-else)
-                    p {{ row.constructorId }}
+                    p {{ row.original.constructorId }}
 
         .is-bg-pattern.mt-8
           .is-container.flex.items-center.justify-between.py-2
