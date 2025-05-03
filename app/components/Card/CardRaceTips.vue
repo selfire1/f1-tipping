@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { AccordionItem } from '#ui/types'
+import type { AccordionItem } from '@nuxt/ui'
+
 import { RACE_KEYS_TO_LABEL } from '~/utils/consts'
-import type { Component, RacePredictionField } from '~~/types'
+import type { RacePredictionField } from '~~/types'
 import type { Database } from '~~/types/db'
-import DriverOption from '../DriverOption.vue'
+import UserAvatar from '../UserAvatar.vue'
 const props = defineProps<{
   race: Omit<Database.Race, 'lastUpdated' | 'created'>
 }>()
@@ -32,8 +33,9 @@ const items = computed(() => {
     ([position, predictions], index) => {
       const item: AccordionItem = {
         label: RACE_KEYS_TO_LABEL[position as RacePredictionField],
+        value: position,
         defaultOpen: !index,
-        content: predictions.sort((a, b) =>
+        predictions: predictions.sort((a, b) =>
           a.userName.localeCompare(b.userName),
         ),
       }
@@ -53,16 +55,20 @@ UCard
   template(v-else-if='!items?.length')
     p.text-muted None found.
   template(v-else)
-    UAccordion(:items='items', multiple)
-      template(#item='{ item }')
-        template(v-for='prediction in item.content', :key='prediction.id')
-          .grid.grid-cols-2.gap-2.border.p-1(
-            :class='prediction.userName !== user?.name ? "border-transparent" : ""'
+    UAccordion(
+      :items='items',
+      :default-value='items[0]?.value ? [items[0]?.value] : []',
+      type='multiple'
+    )
+      template(#body='{ item }')
+        template(v-for='prediction in item.predictions', :key='prediction.id')
+          .grid.grid-cols-2.items-center.gap-2.p-1(
+            :class='prediction.userName !== user?.name ? "" : "border border-accented"'
           )
             p.is-display-7.truncate {{ prediction.userName }}
             .is-size-7
               template(v-if='"familyName" in prediction.value')
-                DriverOption(:option='prediction.value')
+                DriverOption(:option='prediction.value', short)
               template(v-else)
                 ConstructorOption(:option='prediction.value')
 </template>

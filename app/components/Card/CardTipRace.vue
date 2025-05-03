@@ -67,7 +67,7 @@ UCard
         lazy
       )
       .px-6
-        .is-size-8.text-muted.flex.items-center.justify-between.uppercase
+        .is-size-8.flex.items-center.justify-between.uppercase
           p {{ 'Round ' + race.round }}
           p
             span {{ race.locality + ', ' }}
@@ -81,7 +81,7 @@ UCard
               UIcon(:name='Icons.Sprint')
               | Sprint
             div
-              p.is-display-7.text-muted.flex.items-center.gap-2
+              p.is-size-7.flex.items-center.gap-2.font-medium
                 template(v-if='isFuture(cutoffDates.sprint)')
                   | Tipping closes
                   BadgeTimeTo(:date='cutoffDates.sprint')
@@ -100,7 +100,7 @@ UCard
               UIcon(:name='Icons.GrandPrix')
               | Grand Prix
             div
-              p.is-display-7.text-muted.flex.items-center.gap-2
+              p.is-size-7.flex.items-center.gap-2.font-medium
                 template(v-if='isFuture(cutoffDates.gp)')
                   | Tipping closes
                   BadgeTimeTo(:date='cutoffDates.gp')

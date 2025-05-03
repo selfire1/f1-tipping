@@ -2,7 +2,7 @@
 import { isFuture } from 'date-fns'
 import { FetchError } from 'ofetch'
 import type { Database } from '~~/types/db'
-import type { FormSubmitEvent } from '#ui/types'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { saveTip as schema } from '~~/shared/schemas'
 import type { z } from 'zod'
 import type { Race } from '~~/server/db/schema'
@@ -311,7 +311,7 @@ NuxtLayout(name='tipping')
               span {{ currentRace.qualifyingDate.toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(
-                  :badge='{ variant: "soft", color: "gray" }',
+                  :badge='{ variant: "soft" }',
                   :date='currentRace.qualifyingDate'
                 )
           .hidden.gap-1(class='sm:flex')
@@ -321,7 +321,7 @@ NuxtLayout(name='tipping')
               span {{ currentRace.grandPrixDate.toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(
-                  :badge='{ variant: "soft", color: "gray" }',
+                  :badge='{ variant: "soft" }',
                   :date='currentRace.grandPrixDate'
                 )
 

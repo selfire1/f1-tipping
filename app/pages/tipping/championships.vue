@@ -3,7 +3,7 @@ import { FetchError } from 'ofetch'
 import { isFuture } from 'date-fns'
 import { saveChampionships as schema } from '~~/shared/schemas'
 import type { Database } from '~~/types/db'
-import type { FormSubmitEvent } from '#ui/types'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import type z from 'zod'
 import type { ChampionshipPredictionField } from '~~/types'
 

@@ -251,7 +251,7 @@ type DriverFull = typeof driversTable.$inferSelect
 export type Driver = Omit<DriverFull, 'created' | 'lastUpdated'>
 export type InsertDriver = typeof driversTable.$inferInsert
 
-type ConstructorFull = typeof constructorsTable.$inferSelect
+export type ConstructorFull = typeof constructorsTable.$inferSelect
 export type Constructor = Omit<ConstructorFull, 'created' | 'lastUpdated'>
 
 export type Prediction = typeof predictionsTable.$inferSelect

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import { createGroup as createGroupSchema } from '~~/shared/schemas'
-import type { FormSubmitEvent, Form } from '#ui/types'
+import type { FormSubmitEvent, Form } from '@nuxt/ui'
 import type { Database } from '~~/types/db'
 const { user } = await useAuthUser()
 if (!user?.id) {
