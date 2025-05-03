@@ -25,6 +25,7 @@ onMounted(() => {
     toast.add({
       title: 'Please sign in',
       description: 'You must be signed in to access this page',
+      color: 'warning',
     })
     router.replace({
       query: {

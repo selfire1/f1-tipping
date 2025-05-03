@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { UNavigationMenu } from '#components'
 import type { NavigationMenuProps } from '@nuxt/ui'
 
 const { signOut } = useAuth()
@@ -82,7 +81,8 @@ const { allUserGroups, currentUserGroup } = await useGroup()
           USelectMenu.w-full(
             :items='allUserGroups',
             v-model='currentUserGroup',
-            label-key='name'
+            label-key='name',
+            :search-input='false'
           )
       UNavigationMenu.px-1(:items='links', orientation='vertical')
     // mobile header
