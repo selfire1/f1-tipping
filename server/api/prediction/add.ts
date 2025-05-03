@@ -30,7 +30,7 @@ export default defineAuthedEventHandler(async (event) => {
   }
   const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
 
-  await checkIfSuppliedIdsAreValid()
+  await throwIfSuppliedIdsAreInvalid()
 
   const existingPrediction = await db.query.predictionsTable.findFirst({
     where: and(
@@ -43,7 +43,7 @@ export default defineAuthedEventHandler(async (event) => {
     },
   })
 
-  const positionPredictions = existingPrediction?.id
+  const existingPositionPredictions = existingPrediction?.id
     ? await db.query.predictionEntriesTable.findMany({
         where: and(
           eq(predictionEntriesTable.predictionId, existingPrediction.id),
@@ -62,9 +62,10 @@ export default defineAuthedEventHandler(async (event) => {
     timeOfSubmission,
     body,
     currentGroup,
-    positionPredictions,
+    existingPositionPredictions,
   )
 
+  // updating a prediction
   if (existingPrediction) {
     await updatePredictionEntries(existingPrediction.id)
     setResponseStatus(event, 200)
@@ -74,6 +75,7 @@ export default defineAuthedEventHandler(async (event) => {
     }
   }
 
+  // creating a new prediction
   const entries = await createPrediction()
   setResponseStatus(event, 201)
 
@@ -85,7 +87,7 @@ export default defineAuthedEventHandler(async (event) => {
   async function updatePredictionEntries(
     predictionId: Database.Prediction['id'],
   ) {
-    const values = getValues(predictionId)
+    const values = formatBodyToPredictionEntries(predictionId)
     await db
       .insert(predictionEntriesTable)
       .values(values)
@@ -115,7 +117,7 @@ export default defineAuthedEventHandler(async (event) => {
       ])
       .returning({ id: predictionsTable.id })
 
-    const values = getValues(predictionId)
+    const values = formatBodyToPredictionEntries(predictionId)
 
     const entries = await db
       .insert(predictionEntriesTable)
@@ -124,7 +126,7 @@ export default defineAuthedEventHandler(async (event) => {
     return entries
   }
 
-  function getValues(
+  function formatBodyToPredictionEntries(
     predictionId: Database.Prediction['id'],
   ): InsertPredictionEntry[] {
     const driverPredictionEntries: InsertPredictionEntry[] = [
@@ -156,7 +158,7 @@ export default defineAuthedEventHandler(async (event) => {
     return values
   }
 
-  async function checkIfSuppliedIdsAreValid() {
+  async function throwIfSuppliedIdsAreInvalid() {
     const drivers = await db.query.driversTable.findMany({
       columns: {
         id: true,
