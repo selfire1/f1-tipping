@@ -29,19 +29,22 @@ const { user } = await useAuthUser()
 const { reduceIntoObject } = usePrediction()
 
 const items = computed(() => {
-  return Object.entries(data.value ?? {}).map(
-    ([position, predictions], index) => {
+  return Object.entries(data.value ?? {})
+    .map(([position, predictions], index) => {
       const item: AccordionItem = {
         label: RACE_KEYS_TO_LABEL[position as RacePredictionField],
         value: position,
-        defaultOpen: !index,
         predictions: predictions.sort((a, b) =>
           a.userName.localeCompare(b.userName),
         ),
       }
       return item
-    },
-  )
+    })
+    .sort(
+      (a, b) =>
+        RACE_PREDICTION_FIELDS.indexOf(a.value as RacePredictionField) -
+        RACE_PREDICTION_FIELDS.indexOf(b.value as RacePredictionField),
+    )
 })
 </script>
 

@@ -2,11 +2,11 @@ import type { RacePredictionField } from '~~/types'
 import type { Database } from '~~/types/db'
 
 export const DRIVER_RACE_PREDICTION_FIELDS = [
+  'sprintP1',
   'pole',
   'p1',
   'p10',
   'last',
-  'sprintP1',
 ] as const
 
 export const CONSTRUCTOR_RACE_PREDICTION_FIELDS = [
