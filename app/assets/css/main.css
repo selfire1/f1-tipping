@@ -1,10 +1,11 @@
-@import './colours.css' layer(base);
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@import './colours.css';
 @import './typography.css' layer(base);
 @import './typography.utilities.css';
 
-@import 'tailwindcss';
 @plugin "@tailwindcss/typography";
-@import '@nuxt/ui';
 
 @utility max-w-prose {
   max-width: 65ch;

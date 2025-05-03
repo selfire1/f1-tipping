@@ -63,8 +63,8 @@ const { allUserGroups, currentUserGroup } = await useGroup()
 .is-layout-tipping
   div(class='md:flex md:flex-row')
     // desktop header
-    header.bg-muted.border-muted.hidden.space-y-4.border-r(
-      class='w-[15%] min-w-[10rem] md:block'
+    header.border-muted.hidden.space-y-4.border-r(
+      class='bg-muted/25 w-[15%] min-w-[10rem] md:block'
     )
       .space-y-1.p-4
         NuxtLink.text-muted.flex.items-center.gap-1(to='/tipping')
