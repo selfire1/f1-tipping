@@ -2,7 +2,7 @@
 import { isFuture } from 'date-fns'
 import { FetchError } from 'ofetch'
 import type { Database } from '~~/types/db'
-import type { FormSubmitEvent } from '#ui/types'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { saveTip as schema } from '~~/shared/schemas'
 import type { z } from 'zod'
 import type { Race } from '~~/server/db/schema'
@@ -268,11 +268,11 @@ NuxtLayout(name='tipping')
           )
             .aspect-landscape.relative.size-24
               .absolute.inset-0.flex.items-center.justify-center
-                AppImg.rounded.border.bg-faint(
+                AppImg.bg-faint.rounded.border(
                   :src='COUNTRY_FLAGS[currentRace.country]'
                 )
           .w-full
-            .is-size-8.flex.items-center.justify-between.uppercase.text-muted
+            .is-size-8.text-muted.flex.items-center.justify-between.uppercase
               p {{ 'Round ' + currentRace.round }}
               p.hidden(class='sm:block') {{ currentRace.circuitName }}
             h1.is-display-4 {{ currentRace.raceName }}
@@ -291,7 +291,7 @@ NuxtLayout(name='tipping')
                     span.ml-2
                       BadgeTimeTo(:date='cutoffDates.sprintP1')
                   template(v-if='cutoffDates.p1')
-                    UDivider
+                    USeparator
                     div
                       span.is-display-8 GP tips due
                       div
@@ -311,7 +311,7 @@ NuxtLayout(name='tipping')
               span {{ currentRace.qualifyingDate.toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(
-                  :badge='{ variant: "soft", color: "gray" }',
+                  :badge='{ variant: "soft" }',
                   :date='currentRace.qualifyingDate'
                 )
           .hidden.gap-1(class='sm:flex')
@@ -321,11 +321,11 @@ NuxtLayout(name='tipping')
               span {{ currentRace.grandPrixDate.toLocaleString(undefined, $localeDateTimeOptions) }}
               span
                 BadgeTimeTo(
-                  :badge='{ variant: "soft", color: "gray" }',
+                  :badge='{ variant: "soft" }',
                   :date='currentRace.grandPrixDate'
                 )
 
-      section.is-container.flex.items-center.justify-between.pb-2.pt-4
+      section.is-container.flex.items-center.justify-between.pt-4.pb-2
         UButton(@click='goPrevious', :disabled='index === 0', variant='soft')
           | Previous
         UButton(
@@ -338,7 +338,7 @@ NuxtLayout(name='tipping')
       section.is-container.py-8
         UForm.space-y-6(:schema='schema.client', :state, @submit='onSubmit')
           template(v-if='isCurrentSprintRace')
-            UFormGroup(
+            UFormField(
               label='Sprint P1',
               description='Who will win the sprint race?',
               name='sprintP1'
@@ -348,7 +348,7 @@ NuxtLayout(name='tipping')
                 :drivers,
                 :disabled='disabledFieldMap.get("sprintP1")'
               )
-          UFormGroup(
+          UFormField(
             label='Pole Position',
             description='Which driver will start at the front?',
             name='pole'
@@ -358,7 +358,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("pole")'
             )
-          UFormGroup(
+          UFormField(
             label='P1',
             description='Who will finish first in the GP?',
             name='p1'
@@ -368,7 +368,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("p1")'
             )
-          UFormGroup(
+          UFormField(
             label='P10',
             description='Which driver will just snatch some points?',
             name='p10'
@@ -378,7 +378,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("p10")'
             )
-          UFormGroup(label='Last place', name='last', hint='Excluding DNFs')
+          UFormField(label='Last place', name='last', hint='Excluding DNFs')
             template(#description)
               p Which driver is last to finish?
             SelectDriver(
@@ -386,7 +386,7 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("last")'
             )
-          UFormGroup(
+          UFormField(
             label='Most constructor points',
             description='Which constructor will haul the most points in the Grand Prix?',
             name='constructorWithMostPoints'
@@ -410,7 +410,7 @@ NuxtLayout(name='tipping')
                 | Save
               template(v-else)
                 | Saved
-          p.is-size-8.text-center.text-muted 1 point is awarded per correct answer.
+          p.is-size-8.text-muted.text-center 1 point is awarded per correct answer.
           div(v-if='errorMessage')
             SystemError(
               :heading='fetchError ? undefined : errorMessage',

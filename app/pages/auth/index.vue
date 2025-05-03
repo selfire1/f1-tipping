@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import TextHero from '~/components/TextHero.vue'
-
 const { signIn } = useAuth()
 const toast = useToast()
 const { query } = useRoute()
@@ -27,6 +25,7 @@ onMounted(() => {
     toast.add({
       title: 'Please sign in',
       description: 'You must be signed in to access this page',
+      color: 'warning',
     })
     router.replace({
       query: {

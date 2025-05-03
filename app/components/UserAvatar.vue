@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Database } from '~~/types/db'
-import type { Avatar } from '#ui/types'
+import type { AvatarProps } from '@nuxt/ui'
 
 defineProps<{
   user: Pick<Database.User, 'name' | 'id'> & { image?: Database.User['image'] }
-  avatar?: Partial<Avatar>
+  avatar?: Partial<AvatarProps>
 }>()
 </script>
 

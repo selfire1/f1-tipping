@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import { createGroup as createGroupSchema } from '~~/shared/schemas'
-import type { FormSubmitEvent, Form } from '#ui/types'
+import type { FormSubmitEvent } from '@nuxt/ui'
+import type { TableColumn } from '@nuxt/ui'
 import type { Database } from '~~/types/db'
+
 const { user } = await useAuthUser()
 if (!user?.id) {
   await navigateTo('/auth')
@@ -65,14 +67,15 @@ const createGroup = useCreateGroup({
 definePageMeta({
   layout: false,
 })
-const columns = [
+const columns: TableColumn<Database.Group>[] = [
   {
-    key: 'name',
-    label: 'Name',
+    id: 'name',
+    header: 'Name',
+    accessorKey: 'name',
   },
   {
-    key: 'id',
-    label: 'Link',
+    id: 'id',
+    header: 'Link',
   },
 ]
 
@@ -109,13 +112,13 @@ NuxtLayout(name='tipping')
       template(v-if='error')
         p.rounded.bg-red-200.p-4 Something went wrong: {{ error }}
       template(v-if='groups?.length')
-        UTable(:columns, :rows='groups')
-          template(#id-data='{ row }')
+        UTable(:columns, :data='groups')
+          template(#id-cell='{ row }')
             UButton(
               type='button',
               label='Copy invite link',
-              @click='copyGroupInviteLink(row)',
-              variant='soft',
+              @click='copyGroupInviteLink(row.original)',
+              variant='ghost',
               icon='carbon:link'
             )
     div
@@ -128,8 +131,8 @@ NuxtLayout(name='tipping')
             @submit='createGroup.create',
             :state='createGroup.state'
           )
-            UFormGroup(label='Group name', name='name')
-              UInput(v-model='createGroup.state.name')
+            UFormField(label='Group name', name='name')
+              UInput.w-full(v-model='createGroup.state.name')
             UButton(
               type='submit',
               label='Create',

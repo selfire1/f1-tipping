@@ -1,5 +1,5 @@
 import type { LocationQuery } from 'vue-router'
-import type { Notification } from '#ui/types'
+import type { ToastProps } from '@nuxt/ui'
 import type { Database } from '~~/types/db'
 export function $getConstructorCssVariable(teamId: string) {
   return `var(--clr-team-${teamId})`
@@ -10,24 +10,22 @@ export function $getQueryOrigin(origin: QueryOrigin | null): LocationQuery {
 }
 
 export function $getSuccessToast(
-  info: Partial<Notification>,
-): Partial<Notification> {
+  info: Partial<ToastProps>,
+): Partial<ToastProps> {
   return {
     title: 'Success',
-    color: 'green',
-    timeout: 3000,
+    color: 'success',
+    duration: 3000,
     icon: 'carbon:checkmark-outline',
     ...info,
   }
 }
 
-export function $getErrorToast(
-  info: Partial<Notification>,
-): Partial<Notification> {
+export function $getErrorToast(info: Partial<ToastProps>): Partial<ToastProps> {
   return {
     title: 'Something went wrong',
-    color: 'red',
-    timeout: 3000,
+    color: 'error',
+    duration: 3000,
     icon: 'carbon:error',
     ...info,
   }

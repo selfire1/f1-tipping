@@ -24,7 +24,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     await fetchSession()
   }
 
-  if (!isSignedIn.value) {
+  if (!isSignedIn.value && isNavigatingToUserOnlyRoute) {
     return navigateTo({
       path: '/auth',
       query: {

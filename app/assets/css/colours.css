@@ -1,19 +1,6 @@
-body {
-  @apply text-primary-400 dark:text-primary-100;
-  @apply dark:bg-gray-950;
-}
-
-.text-muted {
-  @apply dark:text-gray-400;
-}
-.text-faint {
-  @apply dark:text-gray-600;
-}
-.text-primary {
-  @apply dark:text-gray-100;
-}
-
 :root {
+  --ui-primary: var(--ui-color-neutral-900);
+
   --clr-team-alpine: rgb(0, 147, 204);
   --clr-team-aston_martin: rgb(34, 153, 113);
   --clr-team-ferrari: rgb(232, 0, 32);
@@ -24,4 +11,8 @@ body {
   --clr-team-red_bull: rgb(54, 113, 198);
   --clr-team-sauber: rgb(0, 0, 0);
   --clr-team-williams: rgb(100, 196, 255);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-neutral-100);
 }

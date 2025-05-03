@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { formatDistanceToNowStrict } from 'date-fns'
-import type { Badge } from '#ui/types'
+import type { BadgeProps } from '@nuxt/ui'
 
 const props = withDefaults(
   defineProps<{
-    badge?: Badge
+    badge?: BadgeProps
     date: Date
   }>(),
   {
-    badge: () => ({ color: 'gray' }),
+    badge: () => ({
+      color: 'primary',
+      variant: 'subtle',
+    }),
   },
 )
 </script>

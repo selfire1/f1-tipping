@@ -1,9 +1,55 @@
-@import url('./typography.css');
-@import url('./colours.css');
+@import 'tailwindcss';
+@import '@nuxt/ui';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './colours.css';
+@import './typography.css' layer(base);
+@import './typography.utilities.css';
+
+@plugin "@tailwindcss/typography";
+
+@utility max-w-prose {
+  max-width: 65ch;
+}
+
+@utility is-container {
+  --padding: 1rem;
+  --max-width: 1024px;
+
+  width: min(var(--max-width), 100% - (var(--padding) * 2));
+  @apply mx-auto;
+  /* Sets the widths within `/tipping` */
+  .is-layout-tipping & {
+    @apply md:w-full md:px-8;
+  }
+}
+
+@utility is-grid-card-fit {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(var(--card-width, 320px), 100%), 1fr)
+  );
+}
+
+@utility is-page-height {
+  @apply min-h-screen py-4 pb-12;
+  /* sets the heights within `/tipping` */
+  .is-layout-tipping & {
+    @apply py-4 md:py-6 md:pb-10;
+    @apply h-full min-h-screen;
+  }
+}
+
+@utility is-layout-tipping {
+  /* Sets the widths within `/tipping` */
+  & .is-container {
+    @apply md:w-full md:px-8;
+  }
+  /* sets the heights within `/tipping` */
+  & .is-page-height {
+    @apply py-4 md:py-6 md:pb-10;
+    @apply h-full min-h-screen;
+  }
+}
 
 @layer base {
   html {
@@ -15,42 +61,11 @@
   }
 }
 
-@layer utilities {
-  .max-w-prose {
-    max-width: 65ch;
-  }
-}
-
-@layer components {
-  .is-container {
-    --padding: 1rem;
-    --max-width: 1024px;
-
-    width: min(var(--max-width), 100% - (var(--padding) * 2));
-    @apply mx-auto;
-  }
-  .is-grid-card-fit {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(min(var(--card-width, 320px), 100%), 1fr)
-    );
-  }
-  .is-page-height {
-    @apply min-h-screen py-4 pb-12;
-  }
-  /* Sets the widths within `/tipping` */
-  .is-layout-tipping .is-container {
-    @apply md:w-full md:px-8;
-  }
-  /* sets the heights within `/tipping` */
-  .is-layout-tipping .is-page-height {
-    @apply py-4 md:py-6 md:pb-10;
-    @apply h-full min-h-screen;
-  }
-}
-
 /* @link https://heropatterns.com/ */
+/* colour equivalent to border-accented */
 .is-bg-pattern {
-  background-color: #ffffff;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23c5c7cc' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23e2e8f0' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+}
+.dark .is-bg-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23314158' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
 }

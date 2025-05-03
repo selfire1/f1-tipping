@@ -6,11 +6,7 @@ definePageMeta({
   layout: false,
 })
 
-const {
-  allUserGroups,
-  currentUserGroup,
-  status: groupStatus,
-} = await useGroup()
+const { allUserGroups, currentUserGroup } = await useGroup()
 const { getRacesInTheFuture, deserialise } = useRace()
 const { data: allRaces, status: raceStatus } = await useFetch('/api/races', {
   ...$getCachedFetchConfig('races'),
@@ -83,7 +79,7 @@ NuxtLayout(name='tipping')
     | Dashboard
   .is-page-height.is-container
     template(
-      v-if='[groupStatus, raceStatus].some((el) => el === "idle" || el === "pending")'
+      v-if='[raceStatus].some((el) => el === "idle" || el === "pending")'
     )
       .flex.justify-center
         SystemLoader
