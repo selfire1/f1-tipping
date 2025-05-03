@@ -23,9 +23,11 @@ export default defineAuthedEventHandler(async (event) => {
   assertMethod(event, 'POST')
   const body = await readValidatedBody(event, schema.server.parse)
   if (!body) {
-    return
+    throw createError({
+      statusCode: 422,
+      statusMessage: 'Invalid body',
+    })
   }
-
   const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
 
   await checkIfSuppliedIdsAreValid()
