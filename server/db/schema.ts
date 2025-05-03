@@ -4,6 +4,7 @@ import {
   integer,
   index,
   uniqueIndex,
+  unique,
 } from 'drizzle-orm/sqlite-core'
 import { createId } from '@paralleldrive/cuid2'
 import { user } from './auth-schema'
@@ -151,22 +152,31 @@ export const predictionRelations = relations(
   }),
 )
 
-export const predictionEntriesTable = sqliteTable('prediction_entries', {
-  id: text('id').primaryKey().$defaultFn(createId),
-  predictionId: text('prediction_id')
-    .notNull()
-    .references(() => predictionsTable.id, { onDelete: 'cascade' }),
-  position: text({ enum: PREDICTION_FIELDS }).notNull(),
-  driverId: text('driver_id').references(() => driversTable.id, {
-    onDelete: 'cascade',
+export const predictionEntriesTable = sqliteTable(
+  'prediction_entries',
+  {
+    id: text('id').primaryKey().$defaultFn(createId),
+    predictionId: text('prediction_id')
+      .notNull()
+      .references(() => predictionsTable.id, { onDelete: 'cascade' }),
+    position: text({ enum: PREDICTION_FIELDS }).notNull(),
+    driverId: text('driver_id').references(() => driversTable.id, {
+      onDelete: 'cascade',
+    }),
+    constructorId: text('constructor_id').references(
+      () => constructorsTable.id,
+      {
+        onDelete: 'cascade',
+      },
+    ),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+  },
+  (table) => ({
+    uniquePredictionPosition: unique().on(table.predictionId, table.position),
   }),
-  constructorId: text('constructor_id').references(() => constructorsTable.id, {
-    onDelete: 'cascade',
-  }),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .default(sql`(unixepoch())`)
-    .notNull(),
-})
+)
 
 export const predictionEntriesRelations = relations(
   predictionEntriesTable,
