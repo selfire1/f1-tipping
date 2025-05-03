@@ -14,5 +14,5 @@
 }
 
 .dark {
-  --ui-primary: var(--ui-color-neutral-50);
+  --ui-primary: var(--ui-color-neutral-100);
 }
