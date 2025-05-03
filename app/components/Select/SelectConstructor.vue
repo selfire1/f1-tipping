@@ -6,7 +6,11 @@ const selectedConstructor = defineModel<Database.ConstructorFull>()
 </script>
 
 <template lang="pug">
-USelectMenu.w-full(:items='constructors', v-model='selectedConstructor')
+USelectMenu.w-full(
+  :items='constructors',
+  v-model='selectedConstructor',
+  :filter-fields='["name"]'
+)
   template(#default='{ modelValue: selectedConstructor }')
     template(v-if='selectedConstructor')
       ConstructorOption(:option='selectedConstructor')

@@ -13,6 +13,7 @@ const selectedDriver = defineModel<Database.Driver | Component.DriverOption>()
 USelectMenu.w-full(
   :items='drivers?.sort((driverA, driverB) => driverA.familyName.localeCompare(driverB.familyName))',
   v-model='selectedDriver',
+  :filter-fields='["fullName"]',
   by='id',
   placeholder='Pick a driver'
 )
