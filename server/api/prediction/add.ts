@@ -9,12 +9,13 @@ import {
 import { saveTip as schema } from '~~/shared/schemas'
 import { Constructor, Driver, RacePredictionField } from '~~/types'
 import { Database } from '~~/types/db'
-import { useDb } from '~~/server/utils/db'
+import { conflictUpdateAllExcept, useDb } from '~~/server/utils/db'
 import {
   CUTOFF_REFERENCE_KEY,
   DRIVER_RACE_PREDICTION_FIELDS,
 } from '~~/shared/utils/consts'
 import { useCutoff } from '~/composables/useCutoff'
+import { z } from 'zod'
 
 export default defineAuthedEventHandler(async (event) => {
   const db = useDb()
@@ -22,32 +23,14 @@ export default defineAuthedEventHandler(async (event) => {
   assertMethod(event, 'POST')
   const body = await readValidatedBody(event, schema.server.parse)
   if (!body) {
-    return
-  }
-
-  const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
-  const raceBeingPredicted = await getRaceFromId(body.race.id)
-
-  const { getIsRaceFullyAfterCutoff } = useCutoff({
-    race: raceBeingPredicted,
-    group: currentGroup,
-  })
-
-  const fieldsToCheck = Object.keys(body).filter(
-    // @ts-expect-error key body error
-    (key) => body?.[key] && DRIVER_RACE_PREDICTION_FIELDS.includes(key as any),
-  ) as RacePredictionField[]
-  const isAfterCutoffDate = getIsRaceFullyAfterCutoff(timeOfSubmission, {
-    fieldsToCheck,
-  })
-  if (isAfterCutoffDate) {
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Too late to tip',
+      statusCode: 422,
+      statusMessage: 'Invalid body',
     })
   }
+  const { currentGroup, currentGroupMembership } = await getCurrentGroupOfUser()
 
-  await checkIfSuppliedIdsAreValid()
+  await throwIfSuppliedIdsAreInvalid()
 
   const existingPrediction = await db.query.predictionsTable.findFirst({
     where: and(
@@ -59,6 +42,30 @@ export default defineAuthedEventHandler(async (event) => {
       id: true,
     },
   })
+
+  const existingPositionPredictions = existingPrediction?.id
+    ? await db.query.predictionEntriesTable.findMany({
+        where: and(
+          eq(predictionEntriesTable.predictionId, existingPrediction.id),
+        ),
+        columns: {
+          position: true,
+          driverId: true,
+          constructorId: true,
+        },
+      })
+    : []
+
+  const raceBeingPredicted = await getRaceFromId(body.race.id)
+  throwIfAnyNewFieldIsAfterCutoff(
+    raceBeingPredicted,
+    timeOfSubmission,
+    body,
+    currentGroup,
+    existingPositionPredictions,
+  )
+
+  // updating a prediction
   if (existingPrediction) {
     await updatePredictionEntries(existingPrediction.id)
     setResponseStatus(event, 200)
@@ -68,6 +75,7 @@ export default defineAuthedEventHandler(async (event) => {
     }
   }
 
+  // creating a new prediction
   const entries = await createPrediction()
   setResponseStatus(event, 201)
 
@@ -79,24 +87,22 @@ export default defineAuthedEventHandler(async (event) => {
   async function updatePredictionEntries(
     predictionId: Database.Prediction['id'],
   ) {
-    const values = getValues(predictionId)
-    for await (const value of values) {
-      if (!value.predictionId) {
-        continue
-      }
-      await db
-        .update(predictionEntriesTable)
-        .set({
-          constructorId: value.constructorId,
-          driverId: value.driverId,
-        })
-        .where(
-          and(
-            eq(predictionEntriesTable.predictionId, value.predictionId),
-            eq(predictionEntriesTable.position, value.position),
-          ),
-        )
-    }
+    const values = formatBodyToPredictionEntries(predictionId)
+    await db
+      .insert(predictionEntriesTable)
+      .values(values)
+      .onConflictDoUpdate({
+        target: [
+          predictionEntriesTable.predictionId,
+          predictionEntriesTable.position,
+        ],
+        set: conflictUpdateAllExcept(predictionEntriesTable, [
+          'id',
+          'predictionId',
+          'position',
+          'createdAt',
+        ]),
+      })
   }
 
   async function createPrediction() {
@@ -111,7 +117,7 @@ export default defineAuthedEventHandler(async (event) => {
       ])
       .returning({ id: predictionsTable.id })
 
-    const values = getValues(predictionId)
+    const values = formatBodyToPredictionEntries(predictionId)
 
     const entries = await db
       .insert(predictionEntriesTable)
@@ -120,7 +126,7 @@ export default defineAuthedEventHandler(async (event) => {
     return entries
   }
 
-  function getValues(
+  function formatBodyToPredictionEntries(
     predictionId: Database.Prediction['id'],
   ): InsertPredictionEntry[] {
     const driverPredictionEntries: InsertPredictionEntry[] = [
@@ -152,7 +158,7 @@ export default defineAuthedEventHandler(async (event) => {
     return values
   }
 
-  async function checkIfSuppliedIdsAreValid() {
+  async function throwIfSuppliedIdsAreInvalid() {
     const drivers = await db.query.driversTable.findMany({
       columns: {
         id: true,
@@ -224,6 +230,70 @@ export default defineAuthedEventHandler(async (event) => {
       })
     }
     return { currentGroup, currentGroupMembership }
+  }
+
+  function throwIfAnyNewFieldIsAfterCutoff(
+    targetRace: Awaited<ReturnType<typeof getRaceFromId>>,
+    timeOfSubmission: Date,
+    body: z.infer<typeof schema.server>,
+    group: Pick<Database.Group, 'cutoffInMinutes'>,
+    existingEntries?: Pick<
+      Database.PredictionEntry,
+      'position' | 'driverId' | 'constructorId'
+    >[],
+  ) {
+    const { isPositionAfterCutoff: getIsPositionAfterCutoff } = useCutoff({
+      race: targetRace,
+      group,
+    })
+
+    const positionsPredicted = Object.keys(body) as RacePredictionField[]
+    const isNewPrediction = !existingEntries?.length
+    const existingPredictionValuesMap = existingEntries?.reduce(
+      (acc, entry) => {
+        // @ts-ignore
+        if (!RACE_PREDICTION_FIELDS.includes(entry.position)) {
+          return acc
+        }
+        acc[entry.position as RacePredictionField] =
+          entry.driverId || entry.constructorId
+        return acc
+      },
+      {} as Record<
+        RacePredictionField,
+        | Database.PredictionEntry['constructorId']
+        | Database.PredictionEntry['driverId']
+      >,
+    )
+
+    for (const position of positionsPredicted) {
+      const isPositionAfterCutoff = getIsPositionAfterCutoff(
+        position,
+        timeOfSubmission,
+      )
+      if (isNewPrediction && isPositionAfterCutoff) {
+        console.warn('Is a new prediction and is after cutoff')
+        throwError(position)
+      }
+
+      const wasPreviouslySaved = existingPredictionValuesMap?.[position]
+      const isChanged =
+        wasPreviouslySaved &&
+        existingPredictionValuesMap[position] !== body[position]?.id
+      if (isChanged && isPositionAfterCutoff) {
+        console.warn('Has changed and is after cutoff', {
+          existing: existingPredictionValuesMap,
+          body,
+        })
+        throwError(position)
+      }
+    }
+    function throwError(position: RacePredictionField) {
+      throw createError({
+        statusCode: 422,
+        statusMessage: `Cannot predict ${position} after cutoff`,
+      })
+    }
   }
 
   async function getRaceFromId(targetId: string) {
