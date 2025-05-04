@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { AccordionItem } from '@nuxt/ui'
-
 import { RACE_KEYS_TO_LABEL } from '~/utils/consts'
 import type { RacePredictionField } from '~~/types'
 import type { Database } from '~~/types/db'
-import UserAvatar from '../UserAvatar.vue'
+
 const props = defineProps<{
   race: Omit<Database.Race, 'lastUpdated' | 'created'>
 }>()
@@ -29,14 +28,49 @@ const { user } = await useAuthUser()
 const { reduceIntoObject } = usePrediction()
 
 const items = computed(() => {
+  const positionToConstructorId = {} as Record<RacePredictionField, string[]>
   return Object.entries(data.value ?? {})
-    .map(([position, predictions], index) => {
+    .map(([position, predictions]) => {
       const item: AccordionItem = {
         label: RACE_KEYS_TO_LABEL[position as RacePredictionField],
         value: position,
-        predictions: predictions.sort((a, b) =>
-          a.userName.localeCompare(b.userName),
-        ),
+        predictions: predictions
+          ?.reduce(
+            (acc, prediction) => {
+              // @ts-expect-error `constructorId` doesn't always exist on prediction
+              const constructorId = prediction?.value?.constructorId
+              const value = constructorId || prediction?.value?.id
+
+              const constructorHasBeenInCategory = acc.find(
+                (el) =>
+                  // @ts-expect-error `constructorId` doesn't always exist on prediction
+                  el?.value?.constructorId ===
+                    // @ts-expect-error `constructorId` doesn't always exist on prediction
+                    prediction?.value?.constructorId &&
+                  el.value?.id !== prediction?.value?.id,
+              )
+              const isCurrentUser = prediction.userName === user?.name
+              const colourStart = $getConstructorCssVariable(
+                value,
+                isCurrentUser ? 0.3 : 0.05,
+              )
+              const colourEnd = $getConstructorCssVariable(
+                value,
+                isCurrentUser ? 0.3 : 0.2,
+              )
+              const style = {
+                'background-image': `linear-gradient(to ${!constructorHasBeenInCategory ? 'right' : 'left'}, ${colourStart} , ${colourEnd})`,
+              }
+
+              console.log(positionToConstructorId)
+              acc.push({ ...prediction, style })
+              return acc
+            },
+            [] as Array<
+              (typeof predictions)[number] & { style: Record<string, string> }
+            >,
+          )
+          .sort((a, b) => a.userName.localeCompare(b.userName)),
       }
       return item
     })
@@ -64,17 +98,16 @@ UCard
       type='multiple'
     )
       template(#body='{ item }')
-        template(v-for='prediction in item.predictions', :key='prediction.id')
-          .relative.isolate.grid.grid-cols-2.items-center.gap-2.p-1(
-            :class='prediction.userName !== user?.name ? "" : "border-y border-primary/40"'
+        .divide-y(class='divide-primary/10')
+          template(
+            v-for='prediction in item.predictions',
+            :key='prediction.id'
           )
-            .absolute.inset-0.opacity-10(
-              :style='{ "background-color": $getConstructorCssVariable(prediction.value.constructorId || prediction.value.id) }'
-            )
-            p.is-display-7.relative.z-1.truncate {{ prediction.userName }}
-            .is-size-7.relative.z-1
-              template(v-if='"familyName" in prediction.value')
-                DriverOption(:option='prediction.value', short)
-              template(v-else)
-                ConstructorOption(:option='prediction.value')
+            .grid.grid-cols-2.items-center.gap-2.p-2(:style='prediction.style')
+              p.is-display-7.truncate {{ prediction.userName }}
+              .is-size-7
+                template(v-if='"familyName" in prediction.value')
+                  DriverOption(:option='prediction.value', short)
+                template(v-else)
+                  ConstructorOption(:option='prediction.value')
 </template>

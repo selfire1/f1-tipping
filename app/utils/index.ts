@@ -1,8 +1,9 @@
 import type { LocationQuery } from 'vue-router'
 import type { ToastProps } from '@nuxt/ui'
 import type { Database } from '~~/types/db'
-export function $getConstructorCssVariable(teamId: string) {
-  return `var(--clr-team-${teamId})`
+export function $getConstructorCssVariable(teamId: string, opacity = 1) {
+  const variableName = `--clr-team-${teamId}`
+  return `rgba(var(${variableName}), ${opacity})`
 }
 
 export function $getQueryOrigin(origin: QueryOrigin | null): LocationQuery {
