@@ -62,7 +62,6 @@ const items = computed(() => {
                 'background-image': `linear-gradient(to ${!constructorHasBeenInCategory ? 'right' : 'left'}, ${colourStart} , ${colourEnd})`,
               }
 
-              console.log(positionToConstructorId)
               acc.push({ ...prediction, style })
               return acc
             },
