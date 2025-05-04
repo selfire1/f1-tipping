@@ -117,21 +117,10 @@ const { allUserGroups, currentUserGroup } = await useGroup()
           slot
 
   USlideover(v-model:open='isMobileNavPresented', side='left')
+    template(#title)
+      slot(name='page-title')
     template(#body)
-      .is-header
-        .is-header-wrapper.is-container
-          .is-header-wrapper-link
-            UButton(
-              icon='carbon:close',
-              aria-label='Open mobile navigation',
-              variant='ghost',
-              @click='isMobileNavPresented = false'
-            )
-            p.font-bold
-              slot(name='page-title')
-      USeparator
-      .is-container.py-4
-        UNavigationMenu(:items='links', orientation='vertical')
+      UNavigationMenu(:items='links', orientation='vertical')
 </template>
 
 <style>
