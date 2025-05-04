@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { differenceInDays, isFuture, isPast } from 'date-fns'
+import { addDays, differenceInDays, isFuture, isPast } from 'date-fns'
 import { $getCachedFetchConfig } from '~/utils'
 
 definePageMeta({
@@ -47,7 +47,8 @@ const ongoingRace = computed(() => {
       group: currentUserGroup.value,
     })
     const isAfterCutoff = getIsRaceFullyAfterCutoff()
-    const isBeforeEndOfRace = isFuture(new Date(race.grandPrixDate))
+    const dayAfterGrandPrix = addDays(new Date(race.grandPrixDate), 1)
+    const isBeforeEndOfRace = isFuture(dayAfterGrandPrix)
     return isAfterCutoff && isBeforeEndOfRace
   })
 })
