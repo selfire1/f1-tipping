@@ -50,7 +50,7 @@ div
         template(v-if='!results?.items?.length')
           p Results will be available soon.
           p.is-size-7.text-muted Usually results are available the Monday after the race weekend. If it has been some time, feel free to {{ ' ' }}
-            UButton(variant='link', to='/tipping/contact', :padded='false') contact us
+            UButton.p-0(variant='link', to='/tipping/contact') contact us
             span .
         template(v-else)
           p Results are available. See how you did!
