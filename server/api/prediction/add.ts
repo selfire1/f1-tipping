@@ -247,7 +247,10 @@ export default defineAuthedEventHandler(async (event) => {
       group,
     })
 
-    const positionsPredicted = Object.keys(body) as RacePredictionField[]
+    const positionsPredicted = Object.keys(body).filter(
+      // @ts-ignore `key` is of type `string`
+      (key) => RACE_PREDICTION_FIELDS.includes(key),
+    ) as RacePredictionField[]
     const isNewPrediction = !existingEntries?.length
     const existingPredictionValuesMap = existingEntries?.reduce(
       (acc, entry) => {
