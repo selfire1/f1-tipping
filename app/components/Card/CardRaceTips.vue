@@ -28,56 +28,81 @@ const { user } = await useAuthUser()
 const { reduceIntoObject } = usePrediction()
 
 const items = computed(() => {
-  const positionToConstructorId = {} as Record<RacePredictionField, string[]>
-  return Object.entries(data.value ?? {})
-    .map(([position, predictions]) => {
-      const item: AccordionItem = {
-        label: RACE_KEYS_TO_LABEL[position as RacePredictionField],
-        value: position,
-        predictions: predictions
-          ?.reduce(
-            (acc, prediction) => {
-              // @ts-expect-error `constructorId` doesn't always exist on prediction
-              const constructorId = prediction?.value?.constructorId
-              const value = constructorId || prediction?.value?.id
+  const seenDriverMap = new Map<string, 'first' | 'second'>()
+  const seenConstructors = new Set<string>()
 
-              const constructorHasBeenInCategory = acc.find(
-                (el) =>
-                  // @ts-expect-error `constructorId` doesn't always exist on prediction
-                  el?.value?.constructorId ===
-                    // @ts-expect-error `constructorId` doesn't always exist on prediction
-                    prediction?.value?.constructorId &&
-                  el.value?.id !== prediction?.value?.id,
-              )
-              const isCurrentUser = prediction.userName === user?.name
-              const colourStart = $getConstructorCssVariable(
-                value,
-                isCurrentUser ? 0.3 : 0.05,
-              )
-              const colourEnd = $getConstructorCssVariable(
-                value,
-                isCurrentUser ? 0.3 : 0.2,
-              )
-              const style = {
-                'background-image': `linear-gradient(to ${!constructorHasBeenInCategory ? 'right' : 'left'}, ${colourStart} , ${colourEnd})`,
-              }
+  function getStyleForDriver(
+    driverId: string,
+    constructorId: string,
+    isCurrentUser: boolean,
+  ) {
+    if (!seenDriverMap.has(driverId)) {
+      const isConstructorSeen = seenConstructors.has(constructorId)
+      seenDriverMap.set(driverId, !isConstructorSeen ? 'first' : 'second')
+      seenConstructors.add(constructorId)
+    }
+    const GRADIENT_CONFIG = {
+      default: {
+        start: 0.05,
+        end: 0.2,
+      },
+      current: {
+        start: 0.2,
+        end: 0.4,
+      },
+    } as const
 
-              acc.push({ ...prediction, style })
-              return acc
-            },
-            [] as Array<
-              (typeof predictions)[number] & { style: Record<string, string> }
-            >,
-          )
-          .sort((a, b) => a.userName.localeCompare(b.userName)),
-      }
-      return item
-    })
-    .sort(
-      (a, b) =>
-        RACE_PREDICTION_FIELDS.indexOf(a.value as RacePredictionField) -
-        RACE_PREDICTION_FIELDS.indexOf(b.value as RacePredictionField),
+    const gradient = GRADIENT_CONFIG[isCurrentUser ? 'current' : 'default']
+    const colourStart = $getConstructorCssVariable(
+      constructorId,
+      gradient.start,
     )
+    const colourEnd = $getConstructorCssVariable(constructorId, gradient.end)
+    const style = {
+      'background-image': `linear-gradient(to ${seenDriverMap.get(driverId) === 'first' ? 'left' : 'right'}, ${colourStart} , ${colourEnd})`,
+    }
+    return style
+  }
+
+  return RACE_PREDICTION_FIELDS.reduce((acc, key) => {
+    const position = key as RacePredictionField
+    const predictions = data.value?.[position]
+    if (!predictions?.length) {
+      return acc
+    }
+    const item: AccordionItem = {
+      label: RACE_KEYS_TO_LABEL[position as RacePredictionField],
+      value: position,
+      predictions: predictions
+        ?.reduce(
+          (acc, prediction) => {
+            // @ts-expect-error `constructorId` doesn't always exist on prediction
+            const constructorId = prediction?.value?.constructorId
+            const driverId = prediction?.value?.id ?? ''
+
+            const isCurrentUser = prediction.userName === user?.name
+            const style = getStyleForDriver(
+              driverId,
+              constructorId,
+              isCurrentUser,
+            )
+            acc.push({ ...prediction, style })
+            return acc
+          },
+          [] as Array<
+            (typeof predictions)[number] & { style: Record<string, string> }
+          >,
+        )
+        .sort((a, b) => a.userName.localeCompare(b.userName)),
+    }
+    acc.push(item)
+    return acc
+  }, [] as AccordionItem[])
+  // .sort(
+  //   (a, b) =>
+  //     RACE_PREDICTION_FIELDS.indexOf(a.value as RacePredictionField) -
+  //     RACE_PREDICTION_FIELDS.indexOf(b.value as RacePredictionField),
+  // )
 })
 </script>
 
