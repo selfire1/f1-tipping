@@ -269,6 +269,9 @@ NuxtLayout(name='tipping')
                 | Grand Prix
               UTable(:data='gpResults', :columns='gpColumns')
                 template(#predictions-cell='{ row }')
+                  .hidden(
+                    :data-is-correct='[row.original.isP1Correct, row.original.isP10Correct, row.original.isLastCorrect].some((isCorrect) => isCorrect)'
+                  )
                   .grid.grid-cols-3
                     div
                       template(v-if='row.original.predictedP1By?.length')
@@ -357,6 +360,7 @@ NuxtLayout(name='tipping')
                     :is-correct='row.original.isCorrect'
                   )
                 template(#driver-cell='{ row }')
+                  .hidden(:data-is-correct='row.original.isCorrect')
                   DriverOption(:option='row.original.driver', short)
             div(v-if='sprintResults?.length')
               h3.is-display-6.inline-flex.items-center.gap-1
@@ -383,6 +387,7 @@ NuxtLayout(name='tipping')
                     :is-correct='row.original.isCorrect'
                   )
                 template(#constructor-cell='{ row }')
+                  .hidden(:data-is-correct='row.original.isCorrect')
                   template(
                     v-if='["idle", "pending"].includes(constructorsStatus)'
                   )
@@ -413,3 +418,11 @@ NuxtLayout(name='tipping')
               :disabled='selectedIndex === 0'
             )
 </template>
+
+<style>
+@reference "../../assets/css/main.css";
+
+tr:has(td [data-is-correct='true']) {
+  @apply bg-gradient-to-r from-(--ui-color-success-50) to-(--ui-color-success-50)/50;
+}
+</style>
