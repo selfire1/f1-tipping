@@ -61,11 +61,7 @@ UCard
         icon='carbon:arrow-right'
       )
   .space-y-4
-    .relative.-mx-4.-mt-5.overflow-hidden.py-4(class='sm:-mx-6 sm:-mt-6')
-      AppImg.pointer-events-none.absolute.inset-0.h-full.w-full.object-cover.opacity-5(
-        :src='COUNTRY_FLAGS[race.country]',
-        lazy
-      )
+    CardHeroBackground(:src='COUNTRY_FLAGS[race.country]')
       .px-6
         .is-size-8.flex.items-center.justify-between.uppercase
           p {{ 'Round ' + race.round }}

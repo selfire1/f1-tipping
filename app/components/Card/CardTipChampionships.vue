@@ -16,10 +16,9 @@ UCard
       icon='carbon:arrow-right'
     )
   .space-y-4
-    .relative.-mx-4.-mt-5.overflow-hidden.py-4(class='sm:-mx-6 sm:-mt-6')
-      AppImg.pointer-events-none.absolute.inset-0.h-full.w-full.object-cover.opacity-5(
-        src='https://images.unsplash.com/photo-1514820720301-4c4790309f46?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-      )
+    CardHeroBackground(
+      src='https://images.unsplash.com/photo-1514820720301-4c4790309f46?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    )
       .px-6
         p.is-size-7.text-muted Drivers’ and Constructors’
         p.is-display-5 Championships
