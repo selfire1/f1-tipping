@@ -99,18 +99,18 @@ const qualifyingResults = computed(() => {
   return [...map.entries()]
     .sort((a, b) => a[0] - b[0])
     .map(([place, driver]) => {
-      const predictedP1By = predictionsByUser.value?.get(driver.id)?.get('pole')
+      const predictedBy = predictionsByUser.value?.get(driver.id)?.get('pole')
       return {
         place,
         driver,
-        predictedP1By,
-        isP1Correct:
+        predictedBy,
+        isCorrect:
           place === 1 &&
           results.value?.get(selectedRace.value!.id)?.qualifying?.get(1)?.id ===
             driver.id,
       }
     })
-    .filter((el) => el.place === 1 || el.predictedP1By?.length)
+    .filter((el) => el.place === 1 || el.predictedBy?.length)
 })
 
 const sprintResults = computed(() => {
@@ -353,8 +353,8 @@ NuxtLayout(name='tipping')
               UTable(:data='qualifyingResults', :columns='gpColumns')
                 template(#predictions-cell='{ row }')
                   ResultsUserRow(
-                    :users='row.original.predictedP1By',
-                    :is-correct='row.original.isP1Correct'
+                    :users='row.original.predictedBy',
+                    :is-correct='row.original.isCorrect'
                   )
                 template(#driver-cell='{ row }')
                   DriverOption(:option='row.original.driver', short)
