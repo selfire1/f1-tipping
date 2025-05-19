@@ -106,7 +106,7 @@ const qualifyingResults = computed(() => {
         predictedP1By,
         isP1Correct:
           place === 1 &&
-          results.value?.get(selectedRace.value!.id)?.gp?.get(1)?.id ===
+          results.value?.get(selectedRace.value!.id)?.qualifying?.get(1)?.id ===
             driver.id,
       }
     })
