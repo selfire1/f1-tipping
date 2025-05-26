@@ -72,5 +72,5 @@ UCard
           template(v-if='pointsDelta > 0')
             UBadge.bg-transparent(color='success', variant='soft') +{{ pointsDelta }}
           template(v-else)
-            UBadge.bg-transparent(color='warning', variant='soft') {{ pointsDelta }}
+            UBadge.bg-transparent(color='neutral', variant='soft') {{ pointsDelta }}
 </template>
