@@ -424,5 +424,6 @@ NuxtLayout(name='tipping')
 
 tr:has(td [data-is-correct='true']) {
   @apply bg-gradient-to-r from-(--ui-color-success-50) to-(--ui-color-success-50)/50;
+  @apply dark:from-(--ui-color-success-950)/50 dark:to-(--ui-color-success-950)/10;
 }
 </style>
