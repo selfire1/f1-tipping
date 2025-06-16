@@ -89,7 +89,8 @@ export default defineBasicAuthedEventHandler(async (event) => {
       await waitToAvoidRateLimit()
     }
 
-    return results
+    const withOverwrites = getResultsWithOverwrite(results)
+    return withOverwrites
   }
 
   type SprintResultsMap = Map<
@@ -128,6 +129,48 @@ export default defineBasicAuthedEventHandler(async (event) => {
       await waitToAvoidRateLimit()
     }
     return sprintResultsMap
+  }
+
+  function getResultsWithOverwrite(
+    results: Database.InsertResult[],
+  ): Database.InsertResult[] {
+    const overwrites = getOverwrites()
+    const overwritten = results.map((result) => {
+      const raceId = result.raceId
+      const driverId = result.driverId
+      if (!driverId) {
+        return result
+      }
+      const overwrite = overwrites.get(raceId)?.get(driverId)
+      if (!overwrite) {
+        return result
+      }
+      return overwrite
+    })
+
+    return overwritten
+
+    function getOverwrites() {
+      return new Map([
+        [
+          'villeneuve',
+          new Map<string, Database.InsertResult>([
+            [
+              'norris',
+              {
+                raceId: 'villeneuve',
+                driverId: 'norris',
+                constructorId: 'mclaren',
+                grid: 7,
+                position: null,
+                points: 0,
+                status: 'Retired',
+              },
+            ],
+          ]),
+        ],
+      ])
+    }
   }
 
   async function waitToAvoidRateLimit(ms = 1000) {
