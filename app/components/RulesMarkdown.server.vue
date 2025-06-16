@@ -16,7 +16,7 @@ function getContents() {
 
 Each Grand Prix weekend, there are total of **five points** up for grabs.
 
-It’s one point each for a correct tipp of:
+It’s one point each for a correct tip of:
 
 1. The driver who qualified for the **pole position**,
 2. The driver who finished **first in the Grand Prix**,
