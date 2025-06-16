@@ -20,6 +20,9 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+  experimental: {
+    componentIslands: true,
+  },
   image: {
     provider: 'ipx',
   },

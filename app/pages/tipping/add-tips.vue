@@ -378,7 +378,11 @@ NuxtLayout(name='tipping')
               :drivers,
               :disabled='disabledFieldMap.get("p10")'
             )
-          UFormField(label='Last place', name='last', hint='Excluding DNFs')
+          UFormField(
+            label='Last place',
+            name='last',
+            hint='Excluding early DNFs'
+          )
             template(#description)
               p Which driver is last to finish?
             SelectDriver(
