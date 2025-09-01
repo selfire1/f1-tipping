@@ -237,6 +237,10 @@ const cutoffDates = computed(() => {
     {} as Record<RacePredictionField, Date | null>,
   )
 })
+
+const hasNoData = computed(() => {
+  return Object.values(state).every((value) => !value)
+})
 </script>
 
 <template lang="pug">
@@ -399,7 +403,7 @@ NuxtLayout(name='tipping')
             UButton(
               block,
               type='submit',
-              :disabled='isSubmitPending || !hasUnsavedChanges',
+              :disabled='isSubmitPending || !hasUnsavedChanges || hasNoData',
               :loading='isSubmitPending',
               :icon='hasUnsavedChanges ? "" : Icons.HasTipped'
             )
