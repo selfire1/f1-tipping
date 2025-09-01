@@ -1,6 +1,6 @@
-// .eslintrc.cjs
+import { createConfigForNuxt } from '@nuxt/eslint-config'
 
-module.exports = {
+export default createConfigForNuxt({
   root: true,
   env: {
     browser: true,
@@ -13,4 +13,4 @@ module.exports = {
   extends: ['@nuxt/eslint-config'],
   plugins: [],
   rules: {},
-}
+})
