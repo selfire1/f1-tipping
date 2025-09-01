@@ -7,6 +7,7 @@ import { saveTip as schema } from '~~/shared/schemas'
 import type { z } from 'zod'
 import type { Race } from '~~/server/db/schema'
 import type { Component, RacePredictionField } from '~~/types'
+import { useTimeoutFn } from '@vueuse/core'
 import { Icons } from '~/utils/consts'
 
 definePageMeta({
@@ -161,6 +162,15 @@ async function onSubmit(event: FormSubmitEvent<ClientSchema>) {
     // @ts-expect-error Types are fine.
     predictionsByRaceMap.value?.set(currentRace.value.id, event.data)
     console.log(response)
+    hasUnsavedChanges.value = false
+    useTimeoutFn(
+      () => {
+        hasUnsavedChanges.value = true
+      },
+      5_000,
+      { immediate: true },
+    )
+
     toast.add(
       $getSuccessToast({
         title: 'Tips saved',
@@ -189,22 +199,7 @@ useSeoMeta({
   ogTitle: 'Enter tips',
 })
 
-const hasUnsavedChanges = computed(() => {
-  if (!currentRace.value || !state) {
-    // if empty, save is required
-    return true
-  }
-  const serverValues = predictionsByRaceMap.value?.get(currentRace?.value?.id)
-  if (!serverValues) {
-    // if no values saved yet, treat as unsaved
-    return true
-  }
-  const isSame = Object.entries(state).every(([key, value]) => {
-    const serverValue = serverValues[key as keyof typeof serverValues]
-    return serverValue?.id === value?.id
-  })
-  return !isSame
-})
+const hasUnsavedChanges = ref(true)
 
 const disabledFieldMap = computed(() => {
   if (!currentRace.value || !currentUserGroup?.value) {
