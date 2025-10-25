@@ -2,6 +2,9 @@
 
 Tip the Formula 1 season with your friends.
 
+> [!important]
+> This repository holds an outdated iteration. The lastest code can be found at [selfire1/gridtip](https://github.com/selfire1/gridtip)
+
 ## Stack
 
 - [Nuxt](https://nuxt.com/)
